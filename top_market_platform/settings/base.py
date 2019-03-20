@@ -44,6 +44,8 @@ INSTALLED_APPS = [
 
     # apps
     'users',
+    'news',
+    'marketplace',
 ]
 
 MIDDLEWARE = [
