@@ -4,8 +4,9 @@ from rest_framework.viewsets import GenericViewSet
 
 from users.tokens import account_activation_token
 from .serializers import UserSerializer, PasswordResetSerializer, PasswordResetConfirm, \
-    UserProfileSerializer, PasswordChangeSerializer
-from rest_framework.generics import CreateAPIView, get_object_or_404, UpdateAPIView
+    UserProfileSerializer, PasswordChangeSerializer, UserNotificationSerializer
+from .models import UserNotification
+from rest_framework.generics import CreateAPIView, get_object_or_404, UpdateAPIView, RetrieveUpdateAPIView
 from rest_framework import permissions, status, mixins
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -95,3 +96,13 @@ class PasswordChangeView(UpdateAPIView):
             return Response('Password for {} has been succesfully changed'.format(obj),
                             status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserNotificationRetrieveUpdateView(RetrieveUpdateAPIView):
+    serializer_class = UserNotificationSerializer
+    permission_classes = (permissions.AllowAny, )
+
+    def get_object(self):
+        obj, created = UserNotification.objects.get_or_create(user=self.request.user)
+        return obj
+

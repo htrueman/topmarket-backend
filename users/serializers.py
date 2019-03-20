@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 import django.contrib.auth.password_validation as validators
 from django.core import exceptions
@@ -11,6 +10,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 
 from .mixins import UserSerializerMixin, RequireTogetherFields
 from .tokens import account_activation_token, password_reset_token
+from .models import UserNotification
 
 User = get_user_model()
 
@@ -125,7 +125,17 @@ class UserProfileSerializer(RequireTogetherFields, UserSerializerMixin, serializ
 
     class Meta:
         model = User
-        fields = ('id', 'email', 'password', 'confirm_password', 'avatar_image', 'username', )
+        fields = (
+            'id',
+            'email',
+            'password',
+            'confirm_password',
+            'first_name',
+            'last_name',
+            'patronymic',
+            'avatar_image',
+            'username',
+        )
 
     REQUIRED_TOGETHER = ('password', 'confirm_password',)
 
@@ -135,3 +145,16 @@ class UserProfileSerializer(RequireTogetherFields, UserSerializerMixin, serializ
             instance.set_password(password)
         return super().update(instance, validated_data)
 
+
+class UserNotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserNotification
+        fields = (
+            'new_order_email',
+            'new_order_tel',
+            'ttn_change',
+            'order_paid',
+            'sales_report',
+            'new_message',
+            'cancel_order',
+        )
