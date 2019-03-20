@@ -27,6 +27,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/docs/', schema_view.with_ui(), name='docs'),
     path('api/<version>/', include('users.urls')),
+    path('api/<version>/', include('news.urls')),
+    path('api/<version>/', include('marketplace.urls'))
 ] \
     + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) \
     + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
