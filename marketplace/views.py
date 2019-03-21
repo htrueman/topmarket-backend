@@ -20,3 +20,4 @@ class KnowledgeBaseRUDView(generics.RetrieveUpdateDestroyAPIView):
     queryset = KnowledgeBase.objects.all()
     serializer_class = KnowledgeBaseSerializer
     permission_classes = [AllowAny, ]
+

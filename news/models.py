@@ -7,8 +7,8 @@ User = get_user_model()
 
 
 class TimeStampedModel(models.Model):
-    created = models.DateTimeField(auto_now_add=True, verbose_name='Created date')
-    updated = models.DateTimeField(auto_now=True, verbose_name='Updated date')
+    created = models.DateTimeField(auto_now_add=True, verbose_name='Дата создание')
+    updated = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
 
     class Meta:
         abstract = True

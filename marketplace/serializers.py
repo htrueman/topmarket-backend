@@ -7,5 +7,5 @@ class KnowledgeBaseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = KnowledgeBase
-        fields = ('question', 'answer')
+        fields = ('id', 'question', 'answer')
 

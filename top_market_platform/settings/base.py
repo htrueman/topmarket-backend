@@ -41,11 +41,13 @@ INSTALLED_APPS = [
     # libs
     'rest_framework',
     'drf_yasg',
+    'mptt',
 
     # apps
     'users',
     'news',
     'marketplace',
+    'catalog',
 ]
 
 MIDDLEWARE = [
@@ -164,6 +166,17 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=365),
     'ROTATE_REFRESH_TOKENS': True,
+}
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'basic': {
+            'type': 'basic'
+        }
+    },
+    'USE_SESSION_AUTH': True,
+    'JSON_EDITOR': True,
+    'DEFAULT_AUTO_SCHEMA_CLASS': 'top_market_platform.urls.CategorizedAutoSchema',
 }
 
 LOGIN_URL = 'admin:login'
