@@ -78,8 +78,6 @@ class Product(TimeStampedModel):
     )
     vendor_code = models.CharField(
         max_length=63,
-        null=True,
-        blank=True,
         verbose_name='Артикул',
     )
     brand = models.CharField(

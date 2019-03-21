@@ -1,6 +1,6 @@
-from rest_framework import generics
-from catalog.serializers import CategorySerializer
-from catalog.models import Category
+from rest_framework import generics, viewsets
+from catalog.serializers import CategorySerializer, ProductSerializer
+from catalog.models import Category, Product
 
 
 class CategoryListView(generics.ListAPIView):
@@ -12,3 +12,10 @@ class CategoryRetrieveView(generics.RetrieveAPIView):
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
     lookup_field = 'slug'
+
+
+class ProductView(viewsets.ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete', ]
+
