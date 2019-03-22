@@ -43,4 +43,7 @@ urlpatterns += [
     path('login/', decorated_login_view, name='token_obtain_pair'),
     path('token_refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
     path('profile/notifications/', views.UserNotificationRetrieveUpdateView.as_view(), name='user_notification'),
+    path('company/', views.CompanyUpdateView.as_view(), name='company'),
+    path('company/documents/', views.DocumentSerializerRUView.as_view(), name='documents'),
+    path('company/pitch/', views.CompanyPitchRUView.as_view(), name='pitch')
 ]

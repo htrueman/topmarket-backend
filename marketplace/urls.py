@@ -2,7 +2,13 @@ from rest_framework.routers import DefaultRouter
 from django.urls import path
 from .views import *
 
-urlpatterns = [
+router = DefaultRouter()
+router.register(r'video-lesson', VideoLessonViewSet, base_name='video-lessons')
+router.register(r'training-module', TrainingModuleViewSet, base_name='training-module')
+
+urlpatterns = router.urls
+
+urlpatterns += [
     path('base/', KnowledgeBaseListCreateView.as_view(), name='base-list-create'),
     path('base/<int:pk>/', KnowledgeBaseRUDView.as_view(), name='base-rud'),
 ]

@@ -4,10 +4,11 @@ from rest_framework.viewsets import GenericViewSet
 
 from users.tokens import account_activation_token
 from .serializers import UserSerializer, PasswordResetSerializer, PasswordResetConfirm, \
-    UserProfileSerializer, PasswordChangeSerializer, UserNotificationSerializer
-from .models import UserNotification
+    UserProfileSerializer, PasswordChangeSerializer, UserNotificationSerializer, CompanySerializer, DocumentSerializer, \
+    CompanyPitchSerializer
+from .models import UserNotification, Company, CompanyPitch
 from rest_framework.generics import CreateAPIView, get_object_or_404, UpdateAPIView, RetrieveUpdateAPIView
-from rest_framework import permissions, status, mixins
+from rest_framework import permissions, status, mixins, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.utils.encoding import force_text
@@ -104,5 +105,32 @@ class UserNotificationRetrieveUpdateView(RetrieveUpdateAPIView):
 
     def get_object(self):
         obj, created = UserNotification.objects.get_or_create(user=self.request.user)
+        return obj
+
+
+class CompanyUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = Company.objects.all()
+    serializer_class = CompanySerializer
+
+    def get_object(self):
+        obj, created = Company.objects.get_or_create(user=self.request.user)
+        return obj
+
+
+class DocumentSerializerRUView(generics.RetrieveUpdateAPIView):
+    queryset = Company.objects.all()
+    serializer_class = DocumentSerializer
+
+    def get_object(self):
+        obj, created = Company.objects.get_or_create(user=self.request.user)
+        return obj
+
+
+class CompanyPitchRUView(generics.RetrieveUpdateAPIView):
+    queryset = CompanyPitch.objects.all()
+    serializer_class = CompanyPitchSerializer
+
+    def get_object(self):
+        obj, created = Company.objects.get_or_create(user=self.request.user)
         return obj
 

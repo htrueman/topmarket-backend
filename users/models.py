@@ -91,19 +91,59 @@ class Company(models.Model):
     name = models.CharField(
         max_length=255,
         null=True, blank=True,
-        verbose_name='Company name'
+        verbose_name='Название компании'
     )
 
-    areas_of_activity = models.TextField(
-        max_length=255,
+    town = models.TextField(
+        max_length=30,
         null=True, blank=True,
-        verbose_name='Сфера услуг'
+        verbose_name='Город'
+    )
+
+    address = models.TextField(
+        max_length=40,
+        null=True, blank=True,
+        verbose_name='Адресс'
+    )
+
+    url = models.URLField(
+        max_length=200,
+        null=True, blank=True
+    )
+
+    working_conditions = models.TextField(
+        max_length=100,
+        null=True, blank=True,
+        verbose_name='Условия работы'
     )
 
     logo = models.ImageField(
         upload_to='users/company/logos',
         null=True, blank=True,
         verbose_name='Лого компании',
+    )
+
+    web_site = models.URLField(
+        max_length=200,
+        null=True, blank=True
+    )
+
+    phone = models.CharField(
+        max_length=50,
+        null=True, blank=True,
+        verbose_name='Телефон'
+    )
+
+    email = models.EmailField(
+        max_length=200,
+        null=True, blank=True,
+        verbose_name='Телефон'
+    )
+
+    who_see_contact = models.CharField(
+        max_length=200,
+        null=True, blank=True,
+        verbose_name='Кому видны контактные данные?'
     )
 
     # Тип деятельности для розничной торговли
@@ -118,8 +158,64 @@ class Company(models.Model):
         default=False
     )
 
+    retail_network = models.BooleanField(
+        verbose_name='Розничная сеть',
+        default=False
+    )
+
+    # Тип деятельности для оптовой торговли
+
+    distributor = models.BooleanField(
+        verbose_name='Дистрибьютор',
+        default=False
+    )
+
+    manufacturer = models.BooleanField(
+        verbose_name='ПРоизводитель',
+        default=False
+    )
+
+    importer = models.BooleanField(
+        verbose_name='Импортер',
+        default=False
+    )
+
+    dealer = models.BooleanField(
+        verbose_name='Дилер',
+        default=False
+    )
+
+    sub_dealer = models.BooleanField(
+        verbose_name='Субдилер',
+        default=False
+    )
+
+    exporter = models.BooleanField(
+        verbose_name='Експортер',
+        default=False
+    )
+
+    official_representative = models.BooleanField(
+        verbose_name='Официальный представитель',
+        default=False
+    )
+
+    # Страница компании
+
+    about_company = models.TextField(
+        max_length=500,
+        null=True, blank=True,
+        verbose_name='Информация'
+    )
+
 
 class ActivityAreas(models.Model):
+    company = models.ForeignKey(
+        'Company',
+        on_delete=models.CASCADE,
+        null=True, blank=True,
+        related_name='activity_areas'
+    )
     name = models.TextField(
         max_length=1095,
         verbose_name='Имя сферы деятельности'
@@ -130,9 +226,10 @@ class ActivityAreas(models.Model):
 
 
 class ServiceIndustry(models.Model):
+    company = models.ForeignKey('Company', on_delete=models.CASCADE, null=True, blank=True)
     name = models.TextField(
         max_length=1095,
-        verbose_name='Name service industry'
+        verbose_name='Имя сферы услуг'
     )
 
     def __str__(self):
@@ -140,8 +237,140 @@ class ServiceIndustry(models.Model):
 
 
 class CompanyType(models.Model):
+    company = models.ForeignKey('Company', on_delete=models.CASCADE, null=True, blank=True)
     name = models.TextField(
         max_length=1095,
-        verbose_name='Name company type'
+        verbose_name='Тип компании'
     )
 
+
+# Документы
+
+
+class Passport(models.Model):
+    company = models.ForeignKey(
+        'Company',
+        related_name='passports',
+        on_delete=models.CASCADE,
+        null=True, blank=True
+    )
+    pass_doc = models.ImageField(
+        upload_to='companies/documents/passports',
+        null=True, blank=True,
+        verbose_name='Паспорт'
+    )
+
+
+class UkraineStatistic(models.Model):
+    company = models.ForeignKey(
+        'Company',
+        related_name='ukraine_statistics',
+        on_delete=models.CASCADE,
+        null=True, blank=True
+        )
+    uk_doc = models.ImageField(
+        upload_to='companies/documents/uk_statistics',
+        null=True, blank=True,
+        verbose_name='Справка Государственного комитета статистики Украины'
+    )
+
+
+class Certificate(models.Model):
+    company = models.ForeignKey(
+        'Company',
+        related_name='certificates',
+        on_delete=models.CASCADE,
+        null=True, blank=True
+        )
+    cert_doc = models.ImageField(
+        upload_to='companies/documents/certificates',
+        null=True, blank=True,
+        verbose_name='Свидетельство о регистрации или выписка с ЕГРПОУ'
+    )
+
+
+class TaxPayer(models.Model):
+    company = models.ForeignKey(
+        'Company',
+        related_name='tax_payers',
+        on_delete=models.CASCADE,
+        null=True, blank=True
+        )
+    tax_doc = models.ImageField(
+        upload_to='companies/documents/tax_payers',
+        null=True, blank=True,
+        verbose_name='Справка 4 Учета плательщика налогов'
+    )
+
+
+class PayerRegister(models.Model):
+    company = models.ForeignKey(
+        'Company',
+        related_name='payer_registers',
+        on_delete=models.CASCADE,
+        null=True, blank=True
+        )
+    payer_reg_doc = models.ImageField(
+        upload_to='companies/documents/payer_registers',
+        null=True, blank=True,
+        verbose_name='Выписка из реестра плательщиков НДС'
+    )
+
+
+class PayerCertificate(models.Model):
+    company = models.ForeignKey(
+        'Company',
+        related_name='payer_certificates',
+        on_delete=models.CASCADE,
+        null=True, blank=True
+    )
+    payer_cert_doc = models.ImageField(
+        upload_to='companies/documents/payer_certificates',
+        null=True, blank=True,
+        verbose_name='Cвидетельство плательщика единого налога'
+    )
+
+# Питч
+
+
+class CompanyPitch(models.Model):
+    company = models.OneToOneField(
+        'Company',
+        on_delete=models.CASCADE,
+        null=True, blank=True
+    )
+    who_are_you = models.TextField(
+        max_length=30,
+        null=True, blank=True,
+        verbose_name='Кто вы?'
+    )
+
+    guru = models.TextField(
+        max_length=100,
+        null=True, blank=True,
+        verbose_name='В чем вы Гуру?'
+    )
+
+    for_whom = models.TextField(
+        max_length=50,
+        null=True, blank=True,
+        verbose_name='Для кого работает ваша компания?'
+    )
+
+    difference = models.TextField(
+        max_length=100,
+        null=True, blank=True,
+        verbose_name='Чем отличаетесь от конкурентов?'
+    )
+
+    good_partner = models.TextField(
+        max_length=100,
+        null=True, blank=True,
+        verbose_name='Мы классные партнеры, потому что:'
+    )
+
+    future = models.TextField(
+        max_length=100,
+        null=True, blank=True,
+        verbose_name='Какой будет Ваша компания через 5 лет?'
+    )

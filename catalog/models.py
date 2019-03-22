@@ -120,7 +120,7 @@ class ProductImage(models.Model):
         on_delete=models.CASCADE
     )
     image = models.ImageField(
-        upload_to='catalog/prodcts/images',
+        upload_to='catalog/products/images',
         verbose_name='Изображение товара',
     )
 

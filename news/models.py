@@ -25,7 +25,7 @@ class Like(models.Model):
 
 class News(TimeStampedModel):
 
-    avatar = models.ImageField(upload_to='new/avatars/', blank=True, null=True)
+    avatar = models.ImageField(upload_to='news/avatars/', blank=True, null=True)
     name = models.CharField(max_length=20)
     text = models.TextField(blank=True, null=True)
     likes = GenericRelation(Like)
