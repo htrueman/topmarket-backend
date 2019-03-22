@@ -8,6 +8,10 @@ User = get_user_model()
 
 
 class Category(MPTTModel):
+    id = models.PositiveIntegerField(
+        primary_key=True,
+        verbose_name='id - primary key',
+    )
     name = models.CharField(
         max_length=256,
         verbose_name='Название категории',
@@ -43,6 +47,9 @@ class Category(MPTTModel):
         return '{}'.format(self.slug)
 
     def save(self, *args, **kwargs):
+        if self._state.adding:
+            last = Category.objects.last()
+            self.id = last.id + 1
         self.slug = slugify(self.name, allow_unicode=True)
         super(Category, self).save(*args, **kwargs)
 
@@ -105,6 +112,8 @@ class Product(TimeStampedModel):
         return '{0}'.format(self.slug)
 
     def save(self, *args, **kwargs):
+        if self.request.user:
+            self.contractor = self.request.user
         self.slug = slugify('{}-{}'.format(self.name, self.vendor_code), allow_unicode=True)
         super(Product, self).save(*args, **kwargs)
 
@@ -120,7 +129,7 @@ class ProductImage(models.Model):
         on_delete=models.CASCADE
     )
     image = models.ImageField(
-        upload_to='catalog/prodcts/images',
+        upload_to='catalog/products/images',
         verbose_name='Изображение товара',
     )
 
