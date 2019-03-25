@@ -41,4 +41,3 @@ class ProductView(viewsets.ModelViewSet):
         serializer = ProductSerializer(queryset, many=True)
         return Response(status=status.HTTP_200_OK, data=serializer.data)
 
-    
