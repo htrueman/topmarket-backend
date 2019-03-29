@@ -1,13 +1,26 @@
+from django.conf import settings
 from django.db import models
 from django.core.validators import RegexValidator, MinValueValidator, MaxValueValidator
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 
-
+from users.constants import DOMEN, CALL_BACK
 from .managers import CustomUserManager
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
+    USER_POCKET = (
+        ('BASE', 'Base'),
+        ('FULL', 'Full'),
+        ('NO', 'No')
+    )
+
+    user_pocket = models.CharField(
+        max_length=10,
+        choices=USER_POCKET,
+        null=True, blank=True,
+        verbose_name='Пакет услуг'
+    )
 
     first_name = models.CharField(
         max_length=256,
@@ -15,18 +28,21 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         blank=True,
         verbose_name='First name'
     )
+
     last_name = models.CharField(
         max_length=256,
         null=True,
         blank=True,
         verbose_name='Last name'
     )
+
     patronymic = models.CharField(
         max_length=256,
         null=True,
         blank=True,
         verbose_name='Patronymic'
     )
+
     email = models.EmailField(unique=True, null=True)
     date_joined = models.DateTimeField(auto_now_add=True)
     is_staff = models.BooleanField(
@@ -374,3 +390,34 @@ class CompanyPitch(models.Model):
         null=True, blank=True,
         verbose_name='Какой будет Ваша компания через 5 лет?'
     )
+
+
+# Мой магазин
+
+class MyStore(models.Model):
+
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
+
+    domain_subdomain = models.CharField(max_length=2, choices=DOMEN, blank=True, null=True)
+    domain_name = models.URLField(max_length=200, null=True, blank=True)
+    call_back = models.CharField(max_length=3, choices=CALL_BACK, null=True, blank=True)
+    facebook = models.URLField(max_length=200, null=True, blank=True)
+    instagram = models.URLField(max_length=200, null=True, blank=True)
+    linkedin = models.URLField(max_length=200, null=True, blank=True)
+    top_sales = models.BooleanField(default=False, verbose_name='Топ продаж')
+    no_items = models.BooleanField(default=False, verbose_name='Без товара')
+    logo = models.ImageField(upload_to='users/company_logo', null=True, blank=True)
+
+
+class PhoneNumber(models.Model):
+
+    store = models.ForeignKey('MyStore', on_delete=models.CASCADE, related_name='phones', null=True, blank=True)
+    number = models.CharField(max_length=20, null=True, blank=True)
+
+
+class Navigation(models.Model):
+    store = models.ForeignKey('MyStore', on_delete=models.CASCADE, related_name='navigations', null=True, blank=True)
+    navigation = models.CharField(max_length=200, null=True, blank=True)
+
+
+

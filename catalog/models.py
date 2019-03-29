@@ -37,7 +37,8 @@ class Category(MPTTModel):
 
     class Meta:
         unique_together = ('parent', 'slug',)
-        verbose_name_plural = 'categories'
+        verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
 
     @property
     def get_category_level(self):
@@ -54,24 +55,14 @@ class Category(MPTTModel):
         super(Category, self).save(*args, **kwargs)
 
 
-class Product(TimeStampedModel):
+class ProductAbstract(TimeStampedModel):
     category = TreeForeignKey(
         Category,
         null=True, blank=True,
         verbose_name='Категория товара',
         on_delete=models.SET_NULL,
     )
-    contractor = models.ForeignKey(
-        User,
-        null=True, blank=True,
-        on_delete=models.CASCADE,
-        related_name='contractors'
-    )
-    partners = models.ManyToManyField(
-        User,
-        blank=True,
-        verbose_name='Партнеры'
-    )
+
     slug = models.SlugField(
         max_length=511,
         db_index=True,
@@ -111,21 +102,59 @@ class Product(TimeStampedModel):
     def __str__(self):
         return '{0}'.format(self.slug)
 
-    def save(self, *args, **kwargs):
-        if self.request.user:
-            self.contractor = self.request.user
-        self.slug = slugify('{}-{}'.format(self.name, self.vendor_code), allow_unicode=True)
-        super(Product, self).save(*args, **kwargs)
-
     class Meta:
-        verbose_name = 'Товар'
-        verbose_name_plural = 'Товары'
-        unique_together = (('name', 'vendor_code'), )
+        # verbose_name = 'Товар'
+        # verbose_name_plural = 'Товары'
+        # unique_together = (('name', 'vendor_code'), )
+        abstract = True
 
 
-class ProductImage(models.Model):
+class ProductContractor(ProductAbstract):
+    contractors = models.ForeignKey(
+        User,
+        null=True, blank=True,
+        on_delete=models.CASCADE,
+        related_name='поставщики'
+    )
+
+
+class ProductContractorImage(models.Model):
     product = models.ForeignKey(
-        Product,
+        ProductContractor,
+        on_delete=models.CASCADE
+    )
+    image = models.ImageField(
+        upload_to='catalog/products/contractor/images',
+        verbose_name='Изображение товара',
+    )
+
+
+class ProductContractorImageURL(models.Model):
+    product = models.ForeignKey(
+        ProductContractor,
+        on_delete=models.CASCADE
+    )
+    url = models.URLField(
+        verbose_name='Ссылка на изображение товара',
+    )
+
+
+class ProductPartner(ProductAbstract):
+    partner = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='партнер'
+    )
+    product_by_contractor = models.ForeignKey(
+        ProductContractor,
+        on_delete=models.CASCADE,
+        verbose_name='продукция поставщика'
+    )
+
+
+class ProductPartnerImage(models.Model):
+    product = models.ForeignKey(
+        ProductPartner,
         on_delete=models.CASCADE
     )
     image = models.ImageField(
@@ -134,9 +163,9 @@ class ProductImage(models.Model):
     )
 
 
-class ProductImageURL(models.Model):
+class ProductPartnerImageURL(models.Model):
     product = models.ForeignKey(
-        Product,
+        ProductPartner,
         on_delete=models.CASCADE
     )
     url = models.URLField(

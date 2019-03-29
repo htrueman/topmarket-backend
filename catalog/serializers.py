@@ -1,8 +1,10 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
+from drf_writable_nested import WritableNestedModelSerializer
 from rest_framework import serializers
 
-from catalog.models import Category, Product, ProductImage, ProductImageURL
+from catalog.models import Category, ProductAbstract, ProductContractorImage, ProductContractorImageURL, \
+    ProductPartnerImage, ProductPartnerImageURL
 
 
 class RecursiveField(serializers.BaseSerializer):
@@ -52,30 +54,30 @@ class CategorySerializer(serializers.ModelSerializer):
         return attrs
 
 
-class ProductImageSerializer(serializers.ModelSerializer):
+class ProductContractorImageSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = ProductImage
+        model = ProductContractorImage
         fields = (
             'image',
         )
 
 
-class ProductImageURLSerializer(serializers.ModelSerializer):
+class ProductContractorImageURLSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = ProductImageURL
+        model = ProductContractorImageURL
         fields = (
             'url',
         )
 
 
-class ProductSerializer(serializers.ModelSerializer):
-    images = ProductImageSerializer(many=True, source='productimage_set', required=False)
-    image_urls = ProductImageURLSerializer(many=True, source='productimageurl_set', required=False)
+class ProductContractorSerializer(WritableNestedModelSerializer):
+    images = ProductContractorImageSerializer(many=True, source='productimage_set', required=False)
+    image_urls = ProductContractorImageURLSerializer(many=True, source='productimageurl_set', required=False)
 
     class Meta:
-        model = Product
+        model = ProductAbstract
         fields = (
             'category',
             'name',
@@ -88,80 +90,37 @@ class ProductSerializer(serializers.ModelSerializer):
             'image_urls',
         )
 
-    def create(self, validated_data):
-        print(validated_data)
-        try:
-            images_data = validated_data.pop('productimage_set')
-        except KeyError:
-            images_data = None
 
-        try:
-            image_urls_data = validated_data.pop('productimageurl_set')
-        except KeyError:
-            image_urls_data = None
-        product = Product.objects.create(**validated_data)
-        with transaction.atomic():
-            if images_data:
-                for image_data in images_data:
-                    ProductImage.objects.create(product=product, **image_data)
-            if image_urls_data:
-                for image_url_data in image_urls_data:
-                    ProductImageURL.objects.create(product=product, **image_url_data)
-        return product
-
-    def update(self, instance, validated_data):
-        try:
-            images_data = validated_data.pop('productimage_set')
-        except KeyError:
-            images_data = None
-
-        try:
-            image_urls_data = validated_data.pop('productimageurl_set')
-        except KeyError:
-            image_urls_data = None
-
-        serializers.raise_errors_on_nested_writes('update', self, validated_data)
-        with transaction.atomic():
-            for attr, value in validated_data.items():
-                setattr(instance, attr, value)
-
-            # save product image instances
-            if images_data:
-                images_list = []
-                for image_data in images_data:
-                    image, _ = ProductImage.objects.get_or_create(
-                        image=image_data['image'],
-                        product=instance
-                    )
-                    images_list.append(image)
-                instance.productimages = images_list
-
-            # save product image url instances
-            if image_urls_data:
-                urls_list = []
-                for image_url_data in image_urls_data:
-                    url, _ = ProductImageURL.objects.get_or_create(
-                        url=image_url_data['url'],
-                        product=instance,
-                    )
-                    urls_list.append(url)
-                instance.productimageurls = urls_list
-
-            instance.save()
-        return instance
+class ProductPartnerImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductPartnerImage
+        fields = (
+            'image',
+        )
 
 
+class ProductPartnerImageURLSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductPartnerImageURL
+        fields = (
+            'url',
+        )
 
 
+class ProductPartnerSerializer(WritableNestedModelSerializer):
+    images = ProductPartnerImageSerializer(many=True, source='productimage_set', required=False)
+    image_urls = ProductPartnerImageURLSerializer(many=True, source='productimageurl_set', required=False)
 
-
-
-
-
-
-        # instance.category = validated_data.get('category', instance.category)
-        # instance.name = validated_data.get('name', instance.name)
-        # instance.vendor_code = validated_data.get('vendor_code', instance.vendor_code)
-        # instance.count = validated_data.get('count', instance.count)
-        # instance.price = validated_data.get('price', instance.price)
-        # instance.description = validated_data.get('description', )
+    class Meta:
+        model = ProductAbstract
+        fields = (
+            'category',
+            'name',
+            'vendor_code',
+            'brand',
+            'count',
+            'description',
+            'price',
+            'images',
+            'image_urls',
+        )

@@ -65,3 +65,36 @@ class ImageForLesson(models.Model):
         upload_to='marketplace/images_for_lessons',
         null=True, blank=True
     )
+
+# Инструкция добавления товара
+
+
+class VideoTraining(models.Model):
+
+    video = models.FileField(
+        upload_to='marketplace/video_lessons',
+        null=True, blank=True
+    )
+
+    title = models.CharField(
+        max_length=50,
+        null=True, blank=True,
+        verbose_name='Заголовок'
+    )
+
+    text = models.TextField(
+        blank=True, null=True,
+        verbose_name='Содержание'
+    )
+
+
+class ImageForTraining(models.Model):
+
+    video_lesson = models.ForeignKey('VideoLesson', related_name='image_for_training', on_delete=models.CASCADE)
+    text = models.TextField(null=True, blank=True)
+    image = models.ImageField(
+        upload_to='marketplace/images_for_lessons',
+        null=True, blank=True
+    )
+
+

@@ -5,6 +5,7 @@ from .views import *
 router = DefaultRouter()
 router.register(r'video-lesson', VideoLessonViewSet, base_name='video-lessons')
 router.register(r'training-module', TrainingModuleViewSet, base_name='training-module')
+router.register(r'video-training', VideoTrainingViewSet, base_name='video-training-for-add-items')
 
 urlpatterns = router.urls
 

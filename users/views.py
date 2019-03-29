@@ -5,8 +5,8 @@ from rest_framework.viewsets import GenericViewSet
 from users.tokens import account_activation_token
 from .serializers import UserSerializer, PasswordResetSerializer, PasswordResetConfirm, \
     UserProfileSerializer, PasswordChangeSerializer, UserNotificationSerializer, CompanySerializer, DocumentSerializer, \
-    CompanyPitchSerializer
-from .models import UserNotification, Company, CompanyPitch
+    CompanyPitchSerializer, MyStoreSerializer
+from .models import UserNotification, Company, CompanyPitch, MyStore
 from rest_framework.generics import CreateAPIView, get_object_or_404, UpdateAPIView, RetrieveUpdateAPIView
 from rest_framework import permissions, status, mixins, generics
 from rest_framework.views import APIView
@@ -134,3 +134,11 @@ class CompanyPitchRUView(generics.RetrieveUpdateAPIView):
         obj, created = Company.objects.get_or_create(user=self.request.user)
         return obj
 
+
+class MyStoreRUView(generics.RetrieveUpdateAPIView):
+    queryset = MyStore.objects.all()
+    serializer_class = MyStoreSerializer
+
+    def get_object(self):
+        obj, created = MyStore.objects.get_or_create(user=self.request.user)
+        return obj

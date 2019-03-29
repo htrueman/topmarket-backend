@@ -45,5 +45,6 @@ urlpatterns += [
     path('profile/notifications/', views.UserNotificationRetrieveUpdateView.as_view(), name='user_notification'),
     path('company/', views.CompanyUpdateView.as_view(), name='company'),
     path('company/documents/', views.DocumentSerializerRUView.as_view(), name='documents'),
-    path('company/pitch/', views.CompanyPitchRUView.as_view(), name='pitch')
+    path('company/pitch/', views.CompanyPitchRUView.as_view(), name='pitch'),
+    path('my_store/', views.MyStoreRUView.as_view(), name='my-store')
 ]
