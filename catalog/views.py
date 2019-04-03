@@ -1,4 +1,4 @@
-from rest_framework import generics, viewsets, status
+from rest_framework import generics, viewsets
 from catalog.serializers import CategorySerializer, ProductContractorSerializer, ProductPartnerSerializer
 from catalog.models import Category, ProductContractor, ProductPartner, ProductPartnerImage, \
     ProductPartnerImageURL, ProductContractorImage

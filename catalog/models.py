@@ -143,12 +143,14 @@ class ProductPartner(ProductAbstract):
     partner = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        verbose_name='партнер'
+        verbose_name='партнер',
+        null=True, blank=True
     )
     product_by_contractor = models.ForeignKey(
         ProductContractor,
         on_delete=models.CASCADE,
-        verbose_name='продукция поставщика'
+        verbose_name='продукция поставщика',
+        null=True, blank=True
     )
 
 

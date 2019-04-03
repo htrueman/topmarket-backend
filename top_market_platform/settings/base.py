@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # libs
+    'registration',
     'rest_framework',
     'drf_yasg',
     'mptt',
@@ -181,3 +182,4 @@ SWAGGER_SETTINGS = {
 
 LOGIN_URL = 'admin:login'
 LOGOUT_URL = 'admin:logout'
+REGISTRATION_OPEN = True

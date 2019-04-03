@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.db import models
-from django.core.validators import RegexValidator, MinValueValidator, MaxValueValidator
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 
@@ -15,6 +14,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         ('NO', 'No')
     )
 
+    manager = models.ForeignKey('Company', on_delete=models.CASCADE, verbose_name='Менеджер')
     user_pocket = models.CharField(
         max_length=10,
         choices=USER_POCKET,
@@ -102,7 +102,8 @@ class UserNotification(models.Model):
 
 
 class Company(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name='Владецел компании')
+
 
     name = models.CharField(
         max_length=255,
