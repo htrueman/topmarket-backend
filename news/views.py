@@ -5,8 +5,6 @@ from django.shortcuts import get_object_or_404
 from news.mixin import LikedMixin
 from .serializers import *
 from .models import *
-from rest_framework import status
-from rest_framework.response import Response
 
 
 class NewsViewSet(LikedMixin, viewsets.ModelViewSet):

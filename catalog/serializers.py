@@ -3,7 +3,7 @@ from django.db import transaction
 from drf_writable_nested import WritableNestedModelSerializer
 from rest_framework import serializers
 
-from catalog.models import Category, ProductAbstract, ProductContractorImage, ProductContractorImageURL, \
+from catalog.models import Category, ProductPartner, ProductContractor, ProductContractorImage, ProductContractorImageURL, \
     ProductPartnerImage, ProductPartnerImageURL
 
 
@@ -73,19 +73,21 @@ class ProductContractorImageURLSerializer(serializers.ModelSerializer):
 
 
 class ProductContractorSerializer(WritableNestedModelSerializer):
-    images = ProductContractorImageSerializer(many=True, source='productimage_set', required=False)
-    image_urls = ProductContractorImageURLSerializer(many=True, source='productimageurl_set', required=False)
+    images = ProductContractorImageSerializer(many=True, source='productcontractorimage_set', required=False)
+    image_urls = ProductContractorImageURLSerializer(many=True, source='productcontractorimageurl_set', required=False)
 
     class Meta:
-        model = ProductAbstract
+        model = ProductContractor
         fields = (
             'category',
             'name',
             'vendor_code',
+            'product_code',
             'brand',
             'count',
             'description',
             'price',
+            'availability',
             'images',
             'image_urls',
         )
@@ -112,15 +114,17 @@ class ProductPartnerSerializer(WritableNestedModelSerializer):
     image_urls = ProductPartnerImageURLSerializer(many=True, source='productimageurl_set', required=False)
 
     class Meta:
-        model = ProductAbstract
+        model = ProductPartner
         fields = (
             'category',
             'name',
             'vendor_code',
+            'product_code',
             'brand',
             'count',
             'description',
             'price',
+            'availability',
             'images',
             'image_urls',
         )

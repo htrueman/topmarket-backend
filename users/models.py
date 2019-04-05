@@ -13,8 +13,12 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         ('FULL', 'Full'),
         ('NO', 'No')
     )
-
-    manager = models.ForeignKey('Company', on_delete=models.CASCADE, verbose_name='Менеджер')
+    manager = models.ForeignKey(
+        'Company',
+        on_delete=models.SET_NULL,
+        verbose_name='Менеджер',
+        null=True, blank=True
+    )
     user_pocket = models.CharField(
         max_length=10,
         choices=USER_POCKET,
@@ -103,8 +107,6 @@ class UserNotification(models.Model):
 
 class Company(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name='Владецел компании')
-
-
     name = models.CharField(
         max_length=255,
         null=True, blank=True,
@@ -421,4 +423,6 @@ class Navigation(models.Model):
     navigation = models.CharField(max_length=200, null=True, blank=True)
 
 
-
+class StoreSliderImage(models.Model):
+    store = models.ForeignKey(MyStore, on_delete=models.CASCADE, related_name='slider_images')
+    image = models.ImageField(upload_to='users/company/store/slider', verbose_name='Картинка для слайдера')

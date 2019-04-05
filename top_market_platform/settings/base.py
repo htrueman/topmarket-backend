@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_yasg',
     'mptt',
+    'django_filters',
 
     # apps
     'users',
@@ -66,7 +67,7 @@ ROOT_URLCONF = 'top_market_platform.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'DIRS': [os.path.join(BASE_DIR, '../templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -157,6 +158,9 @@ REST_FRAMEWORK = {
     'DEFAULT_PARSER_CLASSES': (
         'djangorestframework_camel_case.parser.CamelCaseJSONParser',
     ),
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ),
 }
 
 HOST_NAME = os.getenv('HOST_NAME')
@@ -183,3 +187,4 @@ SWAGGER_SETTINGS = {
 LOGIN_URL = 'admin:login'
 LOGOUT_URL = 'admin:logout'
 REGISTRATION_OPEN = True
+MPTT_DEFAULT_LEVEL_INDICATOR = 10

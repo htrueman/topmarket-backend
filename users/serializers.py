@@ -13,7 +13,7 @@ from .mixins import UserSerializerMixin, RequireTogetherFields
 from .tokens import account_activation_token, password_reset_token
 from .models import UserNotification, Company, ActivityAreas, ServiceIndustry, CompanyType, CompanyPitch, Passport, \
     UkraineStatistic, Certificate, TaxPayer, PayerRegister, PayerCertificate, PhoneNumber, Navigation, \
-    MyStore
+    MyStore, StoreSliderImage
 
 User = get_user_model()
 
@@ -435,9 +435,18 @@ class NavigationSerializer(serializers.ModelSerializer):
         fields = ('navigation', )
 
 
+class SliderImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StoreSliderImage
+        fields = (
+            'image',
+        )
+
+
 class MyStoreSerializer(WritableNestedModelSerializer):
     phones_number = PhoneNumberSerializer(many=True, source='phones', required=False)
     navigation = NavigationSerializer(many=True, source='navigations', required=False)
+    slider_images = SliderImageSerializer(many=True, source='storesliderimages', required=False)
 
     class Meta:
         model = MyStore
@@ -452,7 +461,8 @@ class MyStoreSerializer(WritableNestedModelSerializer):
             'no_items',
             'logo',
             'phones_number',
-            'navigation'
+            'navigation',
+            'slider_images',
         )
 
     # def create(self, validated_data):

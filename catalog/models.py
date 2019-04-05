@@ -3,6 +3,10 @@ from django.utils.text import slugify
 from mptt.models import MPTTModel, TreeForeignKey
 from news.models import TimeStampedModel
 from django.contrib.auth import get_user_model
+import catalog.constants as constants
+from django.db import transaction
+from .utils import get_category_data
+from pprint import pprint
 
 User = get_user_model()
 
@@ -48,11 +52,32 @@ class Category(MPTTModel):
         return '{}'.format(self.slug)
 
     def save(self, *args, **kwargs):
-        if self._state.adding:
-            last = Category.objects.last()
-            self.id = last.id + 1
-        self.slug = slugify(self.name, allow_unicode=True)
+        self.slug = slugify('{}-{}'.format(self.name, self.id), allow_unicode=True)
+        print(self.slug)
         super(Category, self).save(*args, **kwargs)
+
+    @staticmethod
+    def load_categories():
+        data = get_category_data()
+        with transaction.atomic():
+            with Category.objects.disable_mptt_updates():
+                for obj in data:
+                    if int(obj['parent_id'] > 0):
+                        parent, created_parent = Category.objects.get_or_create(
+                            id=int(obj['parent_id'])
+                        )
+                        if created_parent:
+                            parent.name = 'instance'
+                            parent.save()
+                    else:
+                        parent = None
+                    instance, _ = Category.objects.get_or_create(
+                        id=int(obj['category_id']),
+                    )
+                    instance.name = str(obj['name']),
+                    instance.parent = parent
+                    instance.save()
+            Category.objects.rebuild()
 
 
 class ProductAbstract(TimeStampedModel):
@@ -62,7 +87,12 @@ class ProductAbstract(TimeStampedModel):
         verbose_name='Категория товара',
         on_delete=models.SET_NULL,
     )
-
+    availability = models.CharField(
+        max_length=13,
+        verbose_name='Доступность товара',
+        choices=constants.PRODUCT_AVAILABILITY,
+        default='IN_STOCK'
+    )
     slug = models.SlugField(
         max_length=511,
         db_index=True,
@@ -77,6 +107,10 @@ class ProductAbstract(TimeStampedModel):
     vendor_code = models.CharField(
         max_length=63,
         verbose_name='Артикул',
+    )
+    product_code = models.CharField(
+        max_length=63,
+        verbose_name='Код товара'
     )
     brand = models.CharField(
         max_length=255,
@@ -103,19 +137,23 @@ class ProductAbstract(TimeStampedModel):
         return '{0}'.format(self.slug)
 
     class Meta:
-        # verbose_name = 'Товар'
-        # verbose_name_plural = 'Товары'
-        # unique_together = (('name', 'vendor_code'), )
         abstract = True
 
 
 class ProductContractor(ProductAbstract):
-    contractors = models.ForeignKey(
+    contractor = models.ForeignKey(
         User,
         null=True, blank=True,
         on_delete=models.CASCADE,
-        related_name='поставщики'
+        verbose_name='Поставщик',
+        related_name='contractors',
+        db_index=True
     )
+
+    class Meta:
+        verbose_name = 'Товар (как поставщик)'
+        verbose_name_plural = 'Товары (как поставщик)'
+        unique_together = (('vendor_code', 'product_code'),)
 
 
 class ProductContractorImage(models.Model):
@@ -144,7 +182,6 @@ class ProductPartner(ProductAbstract):
         User,
         on_delete=models.CASCADE,
         verbose_name='партнер',
-        null=True, blank=True
     )
     product_by_contractor = models.ForeignKey(
         ProductContractor,
@@ -152,6 +189,11 @@ class ProductPartner(ProductAbstract):
         verbose_name='продукция поставщика',
         null=True, blank=True
     )
+
+    class Meta:
+        verbose_name = 'Мой товар (добавленный от поставшика)'
+        verbose_name_plural = 'Мои товары (добавленные от поставщика)'
+        unique_together = (('partner', 'product_by_contractor'),)
 
 
 class ProductPartnerImage(models.Model):

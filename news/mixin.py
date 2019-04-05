@@ -9,7 +9,8 @@ class LikedMixin:
 
     @action(detail=True, methods=['POST'])
     def like(self, request, pk=None):
-        """Лайкает `obj`.
+        """
+        Лайкает `obj`.
         """
         obj = self.get_object()
         services.add_like(obj, request.user)
@@ -17,7 +18,8 @@ class LikedMixin:
 
     @action(detail=True, methods=['POST'])
     def unlike(self, request, pk=None):
-        """Удаляет лайк с `obj`.
+        """
+        Удаляет лайк с `obj`.
         """
         obj = self.get_object()
         services.remove_like(obj, request.user)
@@ -25,7 +27,8 @@ class LikedMixin:
 
     @action(detail=True, methods=['GET'])
     def fans(self, request, pk=None):
-        """Получает всех пользователей, которые лайкнули `obj`.
+        """
+        Получает всех пользователей, которые лайкнули `obj`.
         """
         obj = self.get_object()
         fans = services.get_fans(obj)
