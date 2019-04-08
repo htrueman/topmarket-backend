@@ -5,7 +5,7 @@ from .models import Product, Category
 class ProductFilter(filters.FilterSet):
     min_price = filters.NumberFilter(field_name="price", lookup_expr='gte')
     max_price = filters.NumberFilter(field_name="price", lookup_expr='lte')
-    category_q = filters.ModelChoiceFilter(
+    category_id = filters.ModelChoiceFilter(
         field_name='category',
         queryset=Category.objects.all()
     )
@@ -13,7 +13,7 @@ class ProductFilter(filters.FilterSet):
     class Meta:
         model = Product
         fields = [
-            'category_q',
+            'category_id',
             'name',
             'availability',
             'vendor_code',

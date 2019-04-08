@@ -1,5 +1,6 @@
 {% autoescape off %}
 Hello,
+    Your password is:  {{ password }}
 Please click on the link to accept invitation,
 {{ domain }}{% url 'users:activate' version='v1' uidb64=uid token=token %}
 {% endautoescape %}

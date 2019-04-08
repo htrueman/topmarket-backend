@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 import catalog.constants as constants
 from django.db import transaction
 from .utils import get_category_data
-
+from catalog.managers import ContractorProductManager, PartnerProductManager
 User = get_user_model()
 
 
@@ -98,7 +98,7 @@ class Product(TimeStampedModel):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        verbose_name='Поставщик',
+        verbose_name='Пользователь',
         related_name='products',
     )
 
@@ -156,6 +156,11 @@ class Product(TimeStampedModel):
         verbose_name='Цена товара',
     )
 
+    # managers
+    objects = models.Manager()
+    products_by_contractors = ContractorProductManager()
+    products_by_parnters = PartnerProductManager()
+
     def __str__(self):
         return '{0}'.format(self.slug)
 
@@ -163,6 +168,13 @@ class Product(TimeStampedModel):
         verbose_name = 'Товар'
         verbose_name_plural = 'Товары'
         unique_together = (('user', 'contractor_product', 'vendor_code', 'product_code'),)
+
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        self.slug = slugify('{}-{}-{}-{}'.format(self.name, self.user.id, self.vendor_code, self.product_code),
+                            allow_unicode=True
+                            )
+        super(Product, self).save(force_insert, force_update, using, update_fields)
 
 
 class ProductImageURL(models.Model):
