@@ -46,5 +46,6 @@ urlpatterns += [
     path('company/', views.CompanyUpdateView.as_view(), name='company'),
     path('company/documents/', views.DocumentSerializerRUView.as_view(), name='documents'),
     path('company/pitch/', views.CompanyPitchRUView.as_view(), name='pitch'),
-    path('my_store/', views.MyStoreRUView.as_view(), name='my-store')
+    path('my_store/', views.MyStoreRUView.as_view(), name='my-store'),
+    path('manager_create/', views.ManagerCreateView.as_view())
 ]

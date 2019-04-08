@@ -5,8 +5,7 @@ from rest_framework.routers import DefaultRouter
 app_name = 'catalog'
 
 router = DefaultRouter()
-router.register(r'added_products', catalog_view.ProductPartnerView, base_name='added_products')
-router.register(r'my_products', catalog_view.ProductContractorView, base_name='my_products')
+router.register(r'products', catalog_view.ProductView, base_name='added_products')
 
 urlpatterns = router.urls
 
