@@ -78,6 +78,7 @@ class ProductSerializer(WritableNestedModelSerializer):
     class Meta:
         model = Product
         fields = (
+            'id',
             'category',
             'name',
             'vendor_code',

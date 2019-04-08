@@ -33,7 +33,7 @@ class ProductView(viewsets.ModelViewSet):
     """
     Продукты
     """
-    parser_classes = (MultiPartParser, CamelCaseJSONParser,)
+    parser_classes = (MultiPartParser, CamelCaseJSONParser, )
     permission_classes = (permissions.AllowAny, )
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
@@ -41,20 +41,18 @@ class ProductView(viewsets.ModelViewSet):
     filter_backends = (filters.DjangoFilterBackend, )
     filterset_class = ProductFilter
 
-    def get_queryset(self):
-        return Product.objects.filter(contractor=self.request.user)
-
-    @action(detail=False, methods=['post'])
-    def copy_to_my_products(self, request, contractor_product_id, *args, **kwargs):
-        contractor_prod = get_object_or_404(Product, pk=contractor_product_id)
+    @action(detail=True, methods=['post'], serializer_class=None)
+    def copy_to_my_products(self, request, pk, **kwargs):
+        contractor_prod = get_object_or_404(Product, pk=pk)
         with transaction.atomic():
             partner_prod = Product(
                 user=request.user,
+                contractor_product=contractor_prod,
                 category=contractor_prod.category,
                 slug=contractor_prod.slug,
                 product_code=contractor_prod.product_code,
                 name=contractor_prod.name,
-                vendore_code=contractor_prod.vendor_code,
+                vendor_code=contractor_prod.vendor_code,
                 brand=contractor_prod.brand,
                 count=contractor_prod.count,
                 description=contractor_prod.description,
@@ -63,11 +61,11 @@ class ProductView(viewsets.ModelViewSet):
             )
             partner_prod.save()
 
-            contractor_imgs = contractor_prod.produductimage_set.all()
+            contractor_imgs = contractor_prod.productimage_set.all()
 
             if contractor_imgs:
                 ProductImage.objects.bulk_create([
-                    ProductImage(product_id=contractor_product_id, **img)
+                    ProductImage(product_id=pk, **img)
                     for img in contractor_imgs
                 ])
 
@@ -75,7 +73,7 @@ class ProductView(viewsets.ModelViewSet):
 
             if contractor_urls:
                 ProductImageURL.objects.bulk_create([
-                    ProductImageURL(product_id=contractor_product_id, **url)
+                    ProductImageURL(product_id=pk, **url)
                     for url in contractor_urls
                 ])
         return Response(

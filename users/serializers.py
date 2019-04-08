@@ -16,6 +16,9 @@ from .models import UserNotification, Company, ActivityAreas, ServiceIndustry, C
     UkraineStatistic, Certificate, TaxPayer, PayerRegister, PayerCertificate, PhoneNumber, Navigation, \
     MyStore, StoreSliderImage
 
+import random
+import string
+
 User = get_user_model()
 
 
@@ -25,16 +28,14 @@ class UserSerializer(UserSerializerMixin, serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'email', 'password', 'confirm_password', 'first_name')
+        fields = ('id', 'email', 'password', 'confirm_password', )
 
     def create(self, validated_data):
         email = validated_data['email']
-        first_name = validated_data['first_name']
         user = User.objects.create(
             email=email,
         )
         user.set_password(validated_data['password'])
-        user.first_name = first_name
         user.save()
         mail_subject = 'Activate your account.'
         message = render_to_string('account_activation_email.html', {
@@ -46,31 +47,40 @@ class UserSerializer(UserSerializerMixin, serializers.ModelSerializer):
         return user
 
 
-class ManagerSerializer(UserSerializerMixin, serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
-    confirm_password = serializers.CharField(write_only=True)
+class ManagerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'email', 'password', 'confirm_password', )
+        fields = ('id', 'email', 'first_name', )
 
     def create(self, validated_data):
         email = validated_data['email']
-        company = get_object_or_404(Company, user=self.request.user)
+        request = self.context.get('request')
+
+        company = get_object_or_404(Company, user=request.user)
         user = User.objects.create(
             email=email,
             manager=company,
         )
-        user.set_password(validated_data['password'])
+        first_name = validated_data['first_name']
+        user.first_name = first_name
+        password = self.generate_password(10)
+        user.set_password(password)
         user.save()
         mail_subject = 'Invitation to TOP MARKET PLACE'
         message = render_to_string('manager_invitation.html', {
             'domain': settings.HOST_NAME,
             'uid': urlsafe_base64_encode(force_bytes(user.pk)).decode(),
             'token': account_activation_token.make_token(user),
+            'password': password,
         })
         send_mail(mail_subject, message, settings.DEFAULT_FROM_EMAIL, [email,])
         return user
+
+    @staticmethod
+    def generate_password(string_length=10):
+        letters = string.ascii_lowercase
+        return ''.join(random.choice(letters) for _ in range(string_length))
 
 
 class PasswordResetSerializer(serializers.Serializer):
