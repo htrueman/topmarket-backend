@@ -4,9 +4,10 @@ from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import AllowAny
 
-from .models import KnowledgeBase, VideoLesson, TrainingModule, VideoTraining
+from .models import KnowledgeBase, VideoLesson, TrainingModule, VideoTraining, AdditionalService
 from .serializers import KnowledgeBaseSerializer, VideoLessonSerializer, TrainingModuleSerializer, \
-    VideoTrainingSerializer
+    VideoTrainingSerializer, AdditionalServiceSerializer
+
 
 class KnowledgeBaseListCreateView(generics.ListCreateAPIView):
     queryset = KnowledgeBase.objects.all()
@@ -47,4 +48,15 @@ class VideoLessonViewSet(viewsets.ModelViewSet):
 class VideoTrainingViewSet(viewsets.ModelViewSet):
     queryset = VideoTraining.objects.all()
     serializer_class = VideoTrainingSerializer
+
+
+class AdditionalServiceView(viewsets.ModelViewSet):
+    queryset = AdditionalService.objects.all()
+    serializer_class = AdditionalServiceSerializer
+
+    @action(detail=True, method=['POST'], serializer_class=None)
+    def add_buyer(self, request, pk, **kwargs):
+        service = get_object_or_404(AdditionalService, pk=pk)
+        service.buyers.add(request.user)
+        return Response(status=status.HTTP_200_OK)
 
