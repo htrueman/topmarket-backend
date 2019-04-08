@@ -56,18 +56,15 @@ class Category(MPTTModel):
     @staticmethod
     def load_categories():
         """
+        python manage.py load_categories
 
-        python manage.py shell
-        from catalog.models import Category
-        Category.load_categories()
-
-        :return: none
+        :return: None
         """
         data = get_category_data()
         with transaction.atomic():
             with Category.objects.disable_mptt_updates():
-                for obj in data:
-                    if int(obj['parent_id'] > 0):
+                for obj in data['content']['marketCategorys']:
+                    if int(obj['parent_id']) > 0:
                         parent, created_parent = Category.objects.get_or_create(
                             id=int(obj['parent_id'])
                         )
@@ -76,12 +73,20 @@ class Category(MPTTModel):
                             parent.save()
                     else:
                         parent = None
-                    instance, _ = Category.objects.get_or_create(
-                        id=int(obj['category_id']),
-                    )
-                    instance.name = str(obj['name']),
-                    instance.parent = parent
-                    instance.save()
+                    try:
+                        instance = Category.objects.get(
+                            id=int(obj['category_id']),
+                        )
+                        # instance.parent = parent
+                        # instance.name = obj['name'],
+                        # instance.save()
+                    except Category.DoesNotExist:
+                        instance = Category(
+                            id=int(obj['category_id']),
+                            parent=parent,
+                            name=obj['name']
+                        )
+                        instance.save()
             Category.objects.rebuild()
 
 
