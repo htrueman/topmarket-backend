@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Product
+from .models import Category, Product, YMLTemplate
 from mptt.admin import MPTTModelAdmin
 
 
@@ -13,4 +13,4 @@ class CategoryAdmin(MPTTModelAdmin):
 
 
 admin.site.register(Category, CategoryAdmin)
-
+admin.site.register(YMLTemplate)

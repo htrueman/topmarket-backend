@@ -1,5 +1,4 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import transaction
 from drf_writable_nested import WritableNestedModelSerializer
 from rest_framework import serializers
 

@@ -57,11 +57,9 @@ class Category(MPTTModel):
     def load_categories():
         """
 
-        python manage.py shell
-        from catalog.models import Category
-        Category.load_categories()
+        python manage.py load_categories
 
-        :return: none
+        :return: None
         """
         data = get_category_data()
         with transaction.atomic():
@@ -188,3 +186,19 @@ class ProductImage(models.Model):
     )
 
 
+class YMLTemplate(models.Model):
+    template = models.FileField(
+        upload_to='yml_templates',
+    )
+    yml_type = models.CharField(
+        max_length=10,
+        choices=constants.YMLFileTypes.YML_TYPES,
+        primary_key=True
+    )
+
+    def __str__(self):
+        return self.yml_type
+
+    class Meta:
+        verbose_name = 'YML шаблон'
+        verbose_name_plural = 'YML шаблоны'

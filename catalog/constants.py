@@ -8,3 +8,13 @@ PRODUCT_AVAILABILITY = (
     ('NOT_IN_STOCK', 'Нет на складе'),
     ('HIDDEN', 'Скрытый')
 )
+
+
+class YMLFileTypes:
+    ROZETKA = 'rozetka'
+    PROM = 'prom'
+
+    YML_TYPES = (
+        (ROZETKA, 'Rozetka'),
+        (PROM, 'Prom'),
+    )

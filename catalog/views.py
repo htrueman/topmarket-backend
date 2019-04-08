@@ -82,3 +82,6 @@ class ProductView(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED,
         )
 
+
+class YMLHandlerViewSet(viewsets.ViewSet):
+    pass
