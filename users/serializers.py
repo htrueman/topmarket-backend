@@ -1,6 +1,7 @@
 from drf_writable_nested import WritableNestedModelSerializer
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
 import django.contrib.auth.password_validation as validators
 from django.core import exceptions
 from django.core.mail import send_mail
@@ -39,8 +40,33 @@ class UserSerializer(UserSerializerMixin, serializers.ModelSerializer):
             'uid': urlsafe_base64_encode(force_bytes(user.pk)).decode(),
             'token': account_activation_token.make_token(user),
         })
-        send_mail(mail_subject, message, settings.DEFAULT_FROM_EMAIL, (email,))
+        send_mail(mail_subject, message, settings.DEFAULT_FROM_EMAIL, [email,])
         return user
+
+
+class ManagerSerializer(UserSerializerMixin, serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+    confirm_password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = User
+        fields = ('id', 'email', 'password', 'confirm_password', )
+
+    def create(self, validated_data):
+        email = validated_data['email']
+        company = get_object_or_404(Company, user=self.request.user)
+        user = User.objects.create(
+            email=email,
+            manager=company,
+        )
+        user.set_password(validated_data['password'])
+        user.save()
+        mail_subject = 'Invitation to TOP MARKET PLACE'
+        message = render_to_string('manager_invitation.html', {
+            'domain': settings.HOST_NAME,
+            'uid': urlsafe_base64_encode(force_bytes(user.pk)).decode(),
+            'token': account_activation_token.make_token(user),
+        })
 
 
 class PasswordResetSerializer(serializers.Serializer):

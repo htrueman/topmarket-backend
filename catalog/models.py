@@ -6,7 +6,6 @@ from django.contrib.auth import get_user_model
 import catalog.constants as constants
 from django.db import transaction
 from .utils import get_category_data
-from pprint import pprint
 
 User = get_user_model()
 
@@ -20,7 +19,6 @@ class Category(MPTTModel):
         max_length=256,
         verbose_name='Название категории',
     )
-
     slug = models.SlugField(
         db_index=True,
         max_length=512,
@@ -53,11 +51,18 @@ class Category(MPTTModel):
 
     def save(self, *args, **kwargs):
         self.slug = slugify('{}-{}'.format(self.name, self.id), allow_unicode=True)
-        print(self.slug)
         super(Category, self).save(*args, **kwargs)
 
     @staticmethod
     def load_categories():
+        """
+
+        python manage.py shell
+        from catalog.models import Category
+        Category.load_categories()
+
+        :return: none
+        """
         data = get_category_data()
         with transaction.atomic():
             with Category.objects.disable_mptt_updates():

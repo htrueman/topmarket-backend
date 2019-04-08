@@ -142,3 +142,4 @@ class MyStoreRUView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         obj, created = MyStore.objects.get_or_create(user=self.request.user)
         return obj
+

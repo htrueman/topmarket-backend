@@ -23,7 +23,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         max_length=10,
         choices=USER_POCKET,
         null=True, blank=True,
-        verbose_name='Пакет услуг'
+        verbose_name='Пакет услуг',
+        default='BASE',
     )
 
     first_name = models.CharField(
@@ -363,7 +364,6 @@ class CompanyPitch(models.Model):
         null=True, blank=True,
         verbose_name='Кто вы?'
     )
-
     guru = models.TextField(
         max_length=100,
         null=True, blank=True,
@@ -426,3 +426,4 @@ class Navigation(models.Model):
 class StoreSliderImage(models.Model):
     store = models.ForeignKey(MyStore, on_delete=models.CASCADE, related_name='slider_images')
     image = models.ImageField(upload_to='users/company/store/slider', verbose_name='Картинка для слайдера')
+
