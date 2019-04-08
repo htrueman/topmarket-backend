@@ -54,7 +54,7 @@ class AdditionalServiceView(viewsets.ModelViewSet):
     queryset = AdditionalService.objects.all()
     serializer_class = AdditionalServiceSerializer
 
-    @action(detail=True, method=['POST'], serializer_class=None)
+    @action(detail=True, methods=['POST'], serializer_class=None)
     def add_buyer(self, request, pk, **kwargs):
         service = get_object_or_404(AdditionalService, pk=pk)
         service.buyers.add(request.user)
