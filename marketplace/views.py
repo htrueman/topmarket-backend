@@ -1,8 +1,11 @@
-from requests import Response
+from rest_framework.response import Response
 from rest_framework import generics, filters, viewsets, status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import AllowAny
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 from .models import KnowledgeBase, VideoLesson, TrainingModule, VideoTraining, AdditionalService
 from .serializers import KnowledgeBaseSerializer, VideoLessonSerializer, TrainingModuleSerializer, \
@@ -60,3 +63,11 @@ class AdditionalServiceView(viewsets.ModelViewSet):
         service.buyers.add(request.user)
         return Response(status=status.HTTP_200_OK)
 
+    @action(detail=True, methods=['get'], serializer_class=None)
+    def check_additional_service_permission(self, request, pk, **kwargs):
+        service = get_object_or_404(AdditionalService, pk=pk)
+        try:
+            user = service.buyers.get(pk=request.user.id)
+            return Response(status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response(status=status.HTTP_403_FORBIDDEN)

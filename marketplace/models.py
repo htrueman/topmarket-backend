@@ -110,6 +110,9 @@ class ImageForTraining(models.Model):
 class AdditionalService(models.Model):
 
     buyers = models.ManyToManyField(User)
-    image = models.ImageField(upload_to='marketplace/additional_service')
+    image = models.ImageField(upload_to='marketplace/additional_service', verbose_name=_('Изображение'), null=True, blank=True)
     title = models.TextField(blank=True, null=True, verbose_name=_('Заголовок'))
     text = models.TextField(blank=True, null=True, verbose_name=_('Текст'))
+
+    class Meta:
+        verbose_name_plural = 'Дополнительные услуги'

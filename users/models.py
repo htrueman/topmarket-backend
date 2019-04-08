@@ -15,7 +15,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         ('NO', 'No')
     )
 
-    manager = models.ForeignKey('Company', on_delete=models.CASCADE, verbose_name=_('Менеджер'))
+    manager = models.ForeignKey('Company', on_delete=models.CASCADE, verbose_name=_('Менеджер'), null=True, blank=True)
     user_pocket = models.CharField(
         max_length=10,
         choices=USER_POCKET,
