@@ -426,4 +426,3 @@ class Navigation(models.Model):
 class StoreSliderImage(models.Model):
     store = models.ForeignKey(MyStore, on_delete=models.CASCADE, related_name='slider_images')
     image = models.ImageField(upload_to='users/company/store/slider', verbose_name='Картинка для слайдера')
-

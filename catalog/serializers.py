@@ -3,8 +3,7 @@ from django.db import transaction
 from drf_writable_nested import WritableNestedModelSerializer
 from rest_framework import serializers
 
-from catalog.models import Category, ProductPartner, ProductContractor, ProductContractorImage, ProductContractorImageURL, \
-    ProductPartnerImage, ProductPartnerImageURL
+from catalog.models import Category, Product, ProductImage, ProductImageURL
 
 
 class RecursiveField(serializers.BaseSerializer):
@@ -54,72 +53,36 @@ class CategorySerializer(serializers.ModelSerializer):
         return attrs
 
 
-class ProductContractorImageSerializer(serializers.ModelSerializer):
+class ProductImageSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = ProductContractorImage
+        model = ProductImage
         fields = (
             'image',
         )
 
 
-class ProductContractorImageURLSerializer(serializers.ModelSerializer):
+class ProductImageURLSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = ProductContractorImageURL
+        model = ProductImageURL
         fields = (
             'url',
         )
 
 
-class ProductContractorSerializer(WritableNestedModelSerializer):
-    images = ProductContractorImageSerializer(many=True, source='productcontractorimage_set', required=False)
-    image_urls = ProductContractorImageURLSerializer(many=True, source='productcontractorimageurl_set', required=False)
+class ProductSerializer(WritableNestedModelSerializer):
+    images = ProductImageSerializer(many=True, source='productimage_set', required=False)
+    image_urls = ProductImageURLSerializer(many=True, source='productimageurl_set', required=False)
 
     class Meta:
-        model = ProductContractor
+        model = Product
         fields = (
             'category',
             'name',
             'vendor_code',
             'product_code',
-            'brand',
-            'count',
-            'description',
-            'price',
-            'availability',
-            'images',
-            'image_urls',
-        )
-
-
-class ProductPartnerImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProductPartnerImage
-        fields = (
-            'image',
-        )
-
-
-class ProductPartnerImageURLSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProductPartnerImageURL
-        fields = (
-            'url',
-        )
-
-
-class ProductPartnerSerializer(WritableNestedModelSerializer):
-    images = ProductPartnerImageSerializer(many=True, source='productimage_set', required=False)
-    image_urls = ProductPartnerImageURLSerializer(many=True, source='productimageurl_set', required=False)
-
-    class Meta:
-        model = ProductPartner
-        fields = (
-            'category',
-            'name',
-            'vendor_code',
-            'product_code',
+            'contractor_product',
             'brand',
             'count',
             'description',

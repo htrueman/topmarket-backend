@@ -25,14 +25,16 @@ class UserSerializer(UserSerializerMixin, serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'email', 'password', 'confirm_password')
+        fields = ('id', 'email', 'password', 'confirm_password', 'first_name')
 
     def create(self, validated_data):
         email = validated_data['email']
+        first_name = validated_data['first_name']
         user = User.objects.create(
             email=email,
         )
         user.set_password(validated_data['password'])
+        user.first_name = first_name
         user.save()
         mail_subject = 'Activate your account.'
         message = render_to_string('account_activation_email.html', {
@@ -67,6 +69,8 @@ class ManagerSerializer(UserSerializerMixin, serializers.ModelSerializer):
             'uid': urlsafe_base64_encode(force_bytes(user.pk)).decode(),
             'token': account_activation_token.make_token(user),
         })
+        send_mail(mail_subject, message, settings.DEFAULT_FROM_EMAIL, [email,])
+        return user
 
 
 class PasswordResetSerializer(serializers.Serializer):

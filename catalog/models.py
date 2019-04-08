@@ -85,13 +85,33 @@ class Category(MPTTModel):
             Category.objects.rebuild()
 
 
-class ProductAbstract(TimeStampedModel):
+class Product(TimeStampedModel):
+    """
+    Если поле contractor=NULL - товар добавлен поставщиком.
+    В противном случае это товар, добавленный партнером от поставщика
+    """
+
     category = TreeForeignKey(
         Category,
         null=True, blank=True,
         verbose_name='Категория товара',
         on_delete=models.SET_NULL,
     )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Поставщик',
+        related_name='products',
+    )
+
+    contractor_product = models.ForeignKey(
+        'self',
+        null=True, blank=True,
+        on_delete=models.CASCADE,
+        verbose_name='Связь с поставщиком продукта',
+        related_name='contractor_products',
+    )
+
     availability = models.CharField(
         max_length=13,
         verbose_name='Доступность товара',
@@ -142,39 +162,14 @@ class ProductAbstract(TimeStampedModel):
         return '{0}'.format(self.slug)
 
     class Meta:
-        abstract = True
+        verbose_name = 'Товар'
+        verbose_name_plural = 'Товары'
+        unique_together = (('user', 'contractor_product', 'vendor_code', 'product_code'),)
 
 
-class ProductContractor(ProductAbstract):
-    contractor = models.ForeignKey(
-        User,
-        null=True, blank=True,
-        on_delete=models.CASCADE,
-        verbose_name='Поставщик',
-        related_name='contractors',
-        db_index=True
-    )
-
-    class Meta:
-        verbose_name = 'Товар (как поставщик)'
-        verbose_name_plural = 'Товары (как поставщик)'
-        unique_together = (('vendor_code', 'product_code'),)
-
-
-class ProductContractorImage(models.Model):
+class ProductImageURL(models.Model):
     product = models.ForeignKey(
-        ProductContractor,
-        on_delete=models.CASCADE
-    )
-    image = models.ImageField(
-        upload_to='catalog/products/contractor/images',
-        verbose_name='Изображение товара',
-    )
-
-
-class ProductContractorImageURL(models.Model):
-    product = models.ForeignKey(
-        ProductContractor,
+        Product,
         on_delete=models.CASCADE
     )
     url = models.URLField(
@@ -182,28 +177,9 @@ class ProductContractorImageURL(models.Model):
     )
 
 
-class ProductPartner(ProductAbstract):
-    partner = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        verbose_name='партнер',
-    )
-    product_by_contractor = models.ForeignKey(
-        ProductContractor,
-        on_delete=models.CASCADE,
-        verbose_name='продукция поставщика',
-        null=True, blank=True
-    )
-
-    class Meta:
-        verbose_name = 'Мой товар (добавленный от поставшика)'
-        verbose_name_plural = 'Мои товары (добавленные от поставщика)'
-        unique_together = (('partner', 'product_by_contractor'),)
-
-
-class ProductPartnerImage(models.Model):
+class ProductImage(models.Model):
     product = models.ForeignKey(
-        ProductPartner,
+        Product,
         on_delete=models.CASCADE
     )
     image = models.ImageField(
@@ -212,11 +188,3 @@ class ProductPartnerImage(models.Model):
     )
 
 
-class ProductPartnerImageURL(models.Model):
-    product = models.ForeignKey(
-        ProductPartner,
-        on_delete=models.CASCADE
-    )
-    url = models.URLField(
-        verbose_name='Ссылка на изображение товара',
-    )

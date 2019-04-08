@@ -1,10 +1,9 @@
 from django.contrib import admin
-from .models import Category, ProductContractor, ProductPartner
+from .models import Category, Product
 from mptt.admin import MPTTModelAdmin
 
 
-admin.site.register(ProductContractor)
-admin.site.register(ProductPartner)
+admin.site.register(Product)
 
 
 class CategoryAdmin(MPTTModelAdmin):

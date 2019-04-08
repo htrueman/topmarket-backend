@@ -1,14 +1,14 @@
-from rest_framework import generics, viewsets, permissions
+from rest_framework import generics, viewsets, permissions, status
 from django.db import transaction
-from catalog.serializers import CategorySerializer, ProductContractorSerializer, ProductPartnerSerializer
-from catalog.models import Category, ProductContractor, ProductPartner, ProductPartnerImage, \
-    ProductPartnerImageURL
+from catalog.serializers import CategorySerializer, ProductSerializer
+from catalog.models import Category, Product, ProductImage, ProductImageURL
 from rest_framework.decorators import action
 from django_filters import rest_framework as filters
-from catalog.filters import ProductContractorFilter, ProductPartnerFilter
+from catalog.filters import ProductFilter
 from djangorestframework_camel_case.parser import CamelCaseJSONParser
 from rest_framework.parsers import MultiPartParser
 from rest_framework.generics import get_object_or_404
+from rest_framework.response import Response
 
 
 class CategoryListView(generics.ListAPIView):
@@ -29,41 +29,27 @@ class CategoryRetrieveView(generics.RetrieveAPIView):
     lookup_field = 'slug'
 
 
-class ProductContractorView(viewsets.ModelViewSet):
+class ProductView(viewsets.ModelViewSet):
     """
-    Продукты, который загрузил себе на сервис юзер, как поставщик.
+    Продукты
     """
     parser_classes = (MultiPartParser, CamelCaseJSONParser,)
     permission_classes = (permissions.AllowAny, )
-    queryset = ProductContractor.objects.all()
-    serializer_class = ProductContractorSerializer
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
     http_method_names = ['get', 'post', 'put', 'patch', 'delete', ]
     filter_backends = (filters.DjangoFilterBackend, )
-    filterset_class = ProductContractorFilter
+    filterset_class = ProductFilter
 
     def get_queryset(self):
-        return ProductContractor.objects.filter(contractor=self.request.user)
+        return Product.objects.filter(contractor=self.request.user)
 
-
-class ProductPartnerView(viewsets.ModelViewSet):
-    """
-    Продукты, которые добавил себе партнер от поставщиков.
-    """
-    parser_classes = (MultiPartParser, CamelCaseJSONParser, )
-    permission_classes = (permissions.AllowAny, )
-    serializer_class = ProductPartnerSerializer
-    http_method_names = ['get', 'put', 'patch', 'delete', ]
-    filter_backends = (filters.DjangoFilterBackend, )
-    filterset_class = ProductPartnerFilter
-
-    def get_queryset(self):
-        return ProductPartner.objects.filter(partner=self.request.user)
-
-    @action(detail=False, methods=['get'])
+    @action(detail=False, methods=['post'])
     def copy_to_my_products(self, request, contractor_product_id, *args, **kwargs):
-        contractor_prod = get_object_or_404(ProductContractor, pk=contractor_product_id)
+        contractor_prod = get_object_or_404(Product, pk=contractor_product_id)
         with transaction.atomic():
-            partner_prod = ProductPartner(
+            partner_prod = Product(
+                user=request.user,
                 category=contractor_prod.category,
                 slug=contractor_prod.slug,
                 product_code=contractor_prod.product_code,
@@ -77,20 +63,22 @@ class ProductPartnerView(viewsets.ModelViewSet):
             )
             partner_prod.save()
 
-            contractor_imgs = contractor_prod.produductcontractorimage_set.all()
+            contractor_imgs = contractor_prod.produductimage_set.all()
 
             if contractor_imgs:
-                ProductPartnerImage.objects.bulk_create([
-                    ProductPartnerImage(product_id=contractor_product_id, **img)
+                ProductImage.objects.bulk_create([
+                    ProductImage(product_id=contractor_product_id, **img)
                     for img in contractor_imgs
                 ])
 
-            contractor_urls = contractor_prod.productcontractorimageurl_set.all()
+            contractor_urls = contractor_prod.productimageurl_set.all()
 
             if contractor_urls:
-                ProductPartnerImageURL.objects.bulk_create([
-                    ProductPartnerImageURL(product_id=contractor_product_id, **url)
+                ProductImageURL.objects.bulk_create([
+                    ProductImageURL(product_id=contractor_product_id, **url)
                     for url in contractor_urls
                 ])
+        return Response(
+            status=status.HTTP_201_CREATED,
+        )
 
-        return contractor_prod
