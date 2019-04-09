@@ -17,7 +17,6 @@ class ProductFilter(filters.FilterSet):
             'name',
             'availability',
             'vendor_code',
-            'product_code',
             'min_price',
             'max_price'
         ]

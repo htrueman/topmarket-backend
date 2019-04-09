@@ -30,13 +30,11 @@ class CategorySerializer(serializers.ModelSerializer):
         source='children',
         many=True, required=False,
     )
-    slug = serializers.SlugField(allow_unicode=True)
 
     class Meta:
         model = Category
         fields = (
             'id',
-            'slug',
             'name',
             'subcategories',
         )
@@ -81,7 +79,6 @@ class ProductSerializer(WritableNestedModelSerializer):
             'category',
             'name',
             'vendor_code',
-            'product_code',
             'contractor_product',
             'brand',
             'count',
