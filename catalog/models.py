@@ -86,11 +86,43 @@ class Product(TimeStampedModel):
         verbose_name='Категория товара',
         on_delete=models.SET_NULL,
     )
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         verbose_name='Пользователь',
         related_name='products',
+    )
+
+    product_type = models.CharField(
+        max_length=256,
+        verbose_name='Вид товара'
+    )
+    brand = models.CharField(
+        max_length=255,
+        verbose_name='Бренд'
+    )
+    name = models.CharField(
+        max_length=255,
+        verbose_name='Имя продукта'
+    )
+    variety_type = models.CharField(
+        max_length=256,
+        verbose_name='Название разновидности',
+        null=True,
+        blank=True
+    )
+    vendor_code = models.CharField(
+        max_length=63,
+        verbose_name='Артикул',
+    )
+
+    warranty_duration = models.PositiveIntegerField(default=0)  # warranty duration in days
+    vendor_country = models.CharField(
+        max_length=256
+    )
+    box_size = models.CharField(
+        max_length=256
     )
 
     contractor_product = models.ForeignKey(
@@ -107,22 +139,7 @@ class Product(TimeStampedModel):
         choices=constants.PRODUCT_AVAILABILITY,
         default='IN_STOCK'
     )
-    name = models.CharField(
-        max_length=255,
-        verbose_name='Имя продукта'
-    )
-    vendor_code = models.CharField(
-        max_length=63,
-        verbose_name='Артикул',
-    )
-    product_type = models.CharField(
-        max_length=256,
-        verbose_name='Вид товара'
-    )
-    brand = models.CharField(
-        max_length=255,
-        verbose_name='Бренд'
-    )
+
     count = models.PositiveIntegerField(
         default=0,
         verbose_name='Наличие',
@@ -145,17 +162,12 @@ class Product(TimeStampedModel):
     products_by_parnters = PartnerProductManager()
 
     def __str__(self):
-        return '{0}'.format(self.name)
+        return self.name
 
     class Meta:
         verbose_name = 'Товар'
         verbose_name_plural = 'Товары'
-        unique_together = (('user', 'contractor_product', 'vendor_code',),)
-
-    def save(self, force_insert=False, force_update=False, using=None,
-             update_fields=None):
-
-        super(Product, self).save(force_insert, force_update, using, update_fields)
+        unique_together = (('user', 'product_type', 'brand', 'name', 'variety_type', 'vendor_code',),)
 
 
 class ProductImageURL(models.Model):
