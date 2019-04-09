@@ -82,7 +82,8 @@ class Product(TimeStampedModel):
 
     category = TreeForeignKey(
         Category,
-        null=True, blank=True,
+        null=True,
+        blank=True,
         verbose_name='Категория товара',
         on_delete=models.SET_NULL,
     )
@@ -204,14 +205,16 @@ class ProductImage(models.Model):
 
 
 class YMLTemplate(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
     template = models.FileField(
         upload_to='yml_templates',
     )
     yml_type = models.CharField(
         max_length=10,
-        choices=constants.YMLFileTypes.YML_TYPES,
-        primary_key=True
+        choices=constants.YMLFileTypes.YML_TYPES
     )
+    products = models.ManyToManyField(Product)
 
     def __str__(self):
         return self.yml_type
@@ -219,3 +222,4 @@ class YMLTemplate(models.Model):
     class Meta:
         verbose_name = 'YML шаблон'
         verbose_name_plural = 'YML шаблоны'
+        unique_together = ('user', 'yml_type',)

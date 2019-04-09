@@ -6,6 +6,7 @@ app_name = 'catalog'
 
 router = DefaultRouter()
 router.register(r'products', catalog_view.ProductView, base_name='added_products')
+router.register(r'yml-handler', catalog_view.YMLHandlerViewSet, base_name='yml_handler')
 
 urlpatterns = router.urls
 

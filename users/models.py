@@ -79,7 +79,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     objects = CustomUserManager()
 
     def __str__(self):
-        return '{}'.format(self.get_full_name())
+        return '{} {}'.format(self.id, self.email)
 
     def get_full_name(self):
         return '{} {} {}'.format(self.last_name, self.first_name, self.patronymic)
@@ -401,6 +401,8 @@ class MyStore(models.Model):
 
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
 
+    company = models.OneToOneField(Company, on_delete=models.CASCADE)
+
     domain_subdomain = models.CharField(max_length=2, choices=DOMEN, blank=True, null=True)
     domain_name = models.URLField(max_length=200, null=True, blank=True)
     call_back = models.CharField(max_length=3, choices=CALL_BACK, null=True, blank=True)
@@ -410,6 +412,11 @@ class MyStore(models.Model):
     top_sales = models.BooleanField(default=False, verbose_name='Топ продаж')
     no_items = models.BooleanField(default=False, verbose_name='Без товара')
     logo = models.ImageField(upload_to='users/company_logo', null=True, blank=True)
+
+    @property
+    def get_url(self):
+        if self.domain_subdomain:
+            return 'https://{}/'.format(self.domain_name)
 
 
 class PhoneNumber(models.Model):

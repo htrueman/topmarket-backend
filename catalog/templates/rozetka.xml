@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<yml_catalog date="{{ current_datetime }}">
+    <shop>
+        <name>{{ user.mystore.company.name }}</name>
+        <company>{{ user.mystore.company.name }}</company>
+        <url>{{ user.mystore.get_url }}</url>
+        <currencies>
+            <currency id="UAH" rate="1" />
+        </currencies>
+        <categories>
+            {% for category in categories %}
+                <category id="{{ category.category__pk }}">{{category.category__name }}</category>
+            {% endfor %}
+        </categories>
+        <offers>
+            {% for product in products %}
+                <offer available="{% if product.count > 0 %}true{% else %}false{% endif %}" id="{{ product.pk }}">
+                    <url>https://krutygolov.com.ua/tovar/3d-models/3d-crystal-puzzle-dog/</url>
+                    <price>{{ product.price }}</price>
+                    <currencyId>UAH</currencyId>
+                    <categoryId>{{ product.category.pk }}</categoryId>
+                    {% for image in product.productimageurl_set.all %}
+                        <picture>{{ image.url.url }}</picture>
+                    {% endfor %}
+                    <name>{{ product.product_type }} {{ product.brand }} {{ product.name }}{% if product.variety_type %}{{ product.variety_type }}{% else %} {% endif %}({{ product.vendor_code }})</name>
+                    <vendor>{{ product.brand }}</vendor>
+                    <description><![CDATA[{{ product.description }}]]></description>
+                    {% if product.extra_description %}
+                        <param name="Дополнительные характеристики"><![CDATA[{{ product.extra_description }}]]></param>
+                    {% endif %}
+                    {% if product.age_group %}
+                        <param name="Возраст">{{ product.age_group }}</param>
+                    {% endif %}
+                    {% if product.material %}
+                        <param name="Материал">{{ product.material }}</param>
+                    {% endif %}
+                    <param name="Вид">{{ product.product_type }}</param>
+                    <param name="Размеры коробки">{{ product.box_size }}</param>
+                    <param name="Страна-производитель">{{ product.vendor_country }}</param>
+                    <param name="Гарантия">{{ product.warranty_duration }}</param>
+                    <stock_quantity>{{ product.count }}</stock_quantity>
+                </offer>
+            {% endfor %}
+        </offers>
+    </shop>
+</yml_catalog>

@@ -1,7 +1,7 @@
 from rest_framework import generics, viewsets, permissions, status
 from django.db import transaction
-from catalog.serializers import CategorySerializer, ProductSerializer
-from catalog.models import Category, Product, ProductImage, ProductImageURL
+from catalog.serializers import CategorySerializer, ProductSerializer, YMLHandlerSerializer
+from catalog.models import Category, Product, ProductImage, ProductImageURL, YMLTemplate
 from rest_framework.decorators import action
 from django_filters import rest_framework as filters
 from catalog.filters import ProductFilter
@@ -77,5 +77,14 @@ class ProductView(viewsets.ModelViewSet):
         )
 
 
-class YMLHandlerViewSet(viewsets.ViewSet):
-    pass
+class YMLHandlerViewSet(viewsets.ModelViewSet):
+    serializer_class = YMLHandlerSerializer
+
+    def get_queryset(self):
+        return YMLTemplate.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(user=self.request.user)

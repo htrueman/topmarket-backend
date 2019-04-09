@@ -10,7 +10,6 @@ django-mptt==0.9.1
 djangorestframework==3.9.2
 djangorestframework-camel-case==1.0.3
 djangorestframework-simplejwt==4.1.0
-djangorestframework-stubs==0.3.0
 drf-writable-nested==0.5.1
 drf-yasg==1.14.0
 idna==2.8
