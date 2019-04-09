@@ -2,7 +2,8 @@ from django.db import transaction
 from drf_writable_nested import WritableNestedModelSerializer
 from rest_framework import serializers
 
-from .models import KnowledgeBase, TrainingModule, VideoLesson, ImageForLesson, ImageForTraining, VideoTraining
+from .models import KnowledgeBase, TrainingModule, VideoLesson, ImageForLesson, ImageForTraining, VideoTraining, \
+    AdditionalService
 
 
 class KnowledgeBaseSerializer(serializers.ModelSerializer):
@@ -46,37 +47,6 @@ class VideoLessonSerializer(WritableNestedModelSerializer):
             'image_for_lesson'
         )
 
-    # def create(self, validated_data):
-    #     image_for_lesson = validated_data.pop('imageforlesson_set', None)
-    #
-    #     lesson = VideoLesson.objects.create(**validated_data)
-    #     with transaction.atomic():
-    #         if image_for_lesson:
-    #             for image_lesson in image_for_lesson:
-    #                 ImageForLesson.objects.create(subscribes=lesson, **image_for_lesson)
-    #     return lesson
-    #
-    # def update(self, instance, validated_data):
-    #     image_for_lesson = validated_data.pop('imageforlesson_set', None)
-    #
-    #     serializers.raise_errors_on_nested_writes('update', self, validated_data)
-    #     with transaction.atomic():
-    #         for attr, value in validated_data.items():
-    #             setattr(instance, attr, value)
-    #
-    #         if image_for_lesson:
-    #             image_for_lesson_list = []
-    #             for image_lesson in image_for_lesson:
-    #                 image, _ = ImageForLesson.objects.create(
-    #                     image=image_lesson['image_for_lesson'],
-    #                     subscribers=instance
-    #                 )
-    #                 image_for_lesson_list.append(image)
-    #             instance.imageforlessons = image_for_lesson_list
-    #
-    #         instance.save()
-    #     return instance
-
 
 # Инструкция по добавлению товаров
 class ImageForTrainingSerializer(serializers.ModelSerializer):
@@ -102,3 +72,12 @@ class VideoTrainingSerializer(WritableNestedModelSerializer):
         )
 
 
+class AdditionalServiceSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = AdditionalService
+        fields = (
+            'image',
+            'title',
+            'text',
+        )

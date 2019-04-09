@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.text import slugify
+from django.utils.translation import ugettext as _
 from mptt.models import MPTTModel, TreeForeignKey
 from news.models import TimeStampedModel
 from django.contrib.auth import get_user_model
@@ -13,11 +14,11 @@ User = get_user_model()
 class Category(MPTTModel):
     id = models.PositiveIntegerField(
         primary_key=True,
-        verbose_name='id - primary key',
+        verbose_name=_('Основной ключ'),
     )
     name = models.CharField(
         max_length=256,
-        verbose_name='Название категории',
+        verbose_name=_('Название категории'),
     )
     slug = models.SlugField(
         db_index=True,
@@ -39,8 +40,8 @@ class Category(MPTTModel):
 
     class Meta:
         unique_together = ('parent', 'slug',)
-        verbose_name = 'Категория'
-        verbose_name_plural = 'Категории'
+        verbose_name = _('Категория')
+        verbose_name_plural = _('Категории')
 
     @property
     def get_category_level(self):
@@ -92,13 +93,13 @@ class Product(TimeStampedModel):
     category = TreeForeignKey(
         Category,
         null=True, blank=True,
-        verbose_name='Категория товара',
+        verbose_name=_('Категория товара'),
         on_delete=models.SET_NULL,
     )
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        verbose_name='Пользователь',
+        verbose_name=_('Пользователь'),
         related_name='products',
     )
 
@@ -106,13 +107,13 @@ class Product(TimeStampedModel):
         'self',
         null=True, blank=True,
         on_delete=models.CASCADE,
-        verbose_name='Связь с поставщиком продукта',
+        verbose_name=_('Связь с поставщиком продукта'),
         related_name='contractor_products',
     )
 
     availability = models.CharField(
         max_length=13,
-        verbose_name='Доступность товара',
+        verbose_name=_('Доступность товара'),
         choices=constants.PRODUCT_AVAILABILITY,
         default='IN_STOCK'
     )
@@ -120,40 +121,40 @@ class Product(TimeStampedModel):
         max_length=511,
         db_index=True,
         allow_unicode=True,
-        verbose_name='Slug',
+        verbose_name='slug',
         unique=True
     )
     name = models.CharField(
         max_length=255,
-        verbose_name='Имя продукта'
+        verbose_name=_('Имя продукта')
     )
     vendor_code = models.CharField(
         max_length=63,
-        verbose_name='Артикул',
+        verbose_name=_('Артикул'),
     )
     product_code = models.CharField(
         max_length=63,
-        verbose_name='Код товара'
+        verbose_name=_('Код товара')
     )
     brand = models.CharField(
         max_length=255,
-        verbose_name='Бренд',
+        verbose_name=_('Бренд'),
         null=True, blank=True,
     )
     count = models.PositiveIntegerField(
         default=0,
-        verbose_name='Наличие',
+        verbose_name=_('Наличие'),
     )
     description = models.TextField(
         max_length=4095,
         null=True, blank=True,
-        verbose_name='Описание',
+        verbose_name=_('Описание'),
     )
     price = models.DecimalField(
         max_digits=10,
         decimal_places=2,
         null=True, blank=True,
-        verbose_name='Цена товара',
+        verbose_name=_('Цена товара'),
     )
 
     # managers
@@ -165,8 +166,8 @@ class Product(TimeStampedModel):
         return '{0}'.format(self.slug)
 
     class Meta:
-        verbose_name = 'Товар'
-        verbose_name_plural = 'Товары'
+        verbose_name = _('Товар')
+        verbose_name_plural = _('Товары')
         unique_together = (('user', 'contractor_product', 'vendor_code', 'product_code'),)
 
     def save(self, force_insert=False, force_update=False, using=None,
@@ -183,7 +184,7 @@ class ProductImageURL(models.Model):
         on_delete=models.CASCADE
     )
     url = models.URLField(
-        verbose_name='Ссылка на изображение товара',
+        verbose_name=_('Ссылка на изображение товара'),
     )
 
 
@@ -194,7 +195,7 @@ class ProductImage(models.Model):
     )
     image = models.ImageField(
         upload_to='catalog/products/images',
-        verbose_name='Изображение товара',
+        verbose_name=_('Изображение товара'),
     )
 
 
@@ -212,5 +213,5 @@ class YMLTemplate(models.Model):
         return self.yml_type
 
     class Meta:
-        verbose_name = 'YML шаблон'
-        verbose_name_plural = 'YML шаблоны'
+        verbose_name = _('YML шаблон')
+        verbose_name_plural = _('YML шаблоны')
