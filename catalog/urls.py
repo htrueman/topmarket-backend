@@ -11,5 +11,5 @@ urlpatterns = router.urls
 
 urlpatterns += [
     path('categories/', catalog_view.CategoryListView.as_view(), name='category_list'),
-    path('categories/<str:slug>', catalog_view.CategoryRetrieveView.as_view(), name='category_retrieve'),
+    path('categories/<int:id>', catalog_view.CategoryRetrieveView.as_view(), name='category_retrieve'),
 ]

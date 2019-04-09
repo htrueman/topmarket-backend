@@ -1,6 +1,5 @@
 from django.db import models
 from django.utils.text import slugify
-from django.utils.translation import ugettext as _
 from mptt.models import MPTTModel, TreeForeignKey
 from news.models import TimeStampedModel
 from django.contrib.auth import get_user_model
@@ -14,32 +13,25 @@ User = get_user_model()
 class Category(MPTTModel):
     id = models.PositiveIntegerField(
         primary_key=True,
-        verbose_name=_('Основной ключ'),
+        verbose_name='id - primary key',
     )
     name = models.CharField(
         max_length=256,
         verbose_name=_('Название категории'),
     )
-    slug = models.SlugField(
-        db_index=True,
-        max_length=512,
-        allow_unicode=True,
-        verbose_name='Slug',
-        unique=True
-    )
     parent = TreeForeignKey(
         'self',
-        null=True, blank=True,
+        null=True,
+        blank=True,
         related_name='children',
         on_delete=models.SET_NULL,
-        db_index=True
+        db_index=True,
     )
 
     class MPTTMeta:
         order_insertion_by = ['name']
 
     class Meta:
-        unique_together = ('parent', 'slug',)
         verbose_name = _('Категория')
         verbose_name_plural = _('Категории')
 
@@ -48,10 +40,9 @@ class Category(MPTTModel):
         return self.get_level()
 
     def __str__(self):
-        return '{}'.format(self.slug)
+        return '{}'.format(self.name)
 
     def save(self, *args, **kwargs):
-        self.slug = slugify('{}-{}'.format(self.name, self.id), allow_unicode=True)
         super(Category, self).save(*args, **kwargs)
 
     @staticmethod
@@ -117,13 +108,6 @@ class Product(TimeStampedModel):
         choices=constants.PRODUCT_AVAILABILITY,
         default='IN_STOCK'
     )
-    slug = models.SlugField(
-        max_length=511,
-        db_index=True,
-        allow_unicode=True,
-        verbose_name='slug',
-        unique=True
-    )
     name = models.CharField(
         max_length=255,
         verbose_name=_('Имя продукта')
@@ -132,14 +116,13 @@ class Product(TimeStampedModel):
         max_length=63,
         verbose_name=_('Артикул'),
     )
-    product_code = models.CharField(
-        max_length=63,
-        verbose_name=_('Код товара')
+    product_type = models.CharField(
+        max_length=256,
+        verbose_name=_('Вид товара')
     )
     brand = models.CharField(
         max_length=255,
         verbose_name=_('Бренд'),
-        null=True, blank=True,
     )
     count = models.PositiveIntegerField(
         default=0,
@@ -163,18 +146,16 @@ class Product(TimeStampedModel):
     products_by_parnters = PartnerProductManager()
 
     def __str__(self):
-        return '{0}'.format(self.slug)
+        return '{0}'.format(self.name)
 
     class Meta:
         verbose_name = _('Товар')
         verbose_name_plural = _('Товары')
-        unique_together = (('user', 'contractor_product', 'vendor_code', 'product_code'),)
+        unique_together = (('user', 'contractor_product', 'vendor_code',),)
 
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):
-        self.slug = slugify('{}-{}-{}-{}'.format(self.name, self.user.id, self.vendor_code, self.product_code),
-                            allow_unicode=True
-                            )
+
         super(Product, self).save(force_insert, force_update, using, update_fields)
 
 

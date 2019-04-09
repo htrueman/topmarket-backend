@@ -26,7 +26,6 @@ class CategoryRetrieveView(generics.RetrieveAPIView):
     """
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
-    lookup_field = 'slug'
 
 
 class ProductView(viewsets.ModelViewSet):
@@ -49,8 +48,6 @@ class ProductView(viewsets.ModelViewSet):
                 user=request.user,
                 contractor_product=contractor_prod,
                 category=contractor_prod.category,
-                slug=contractor_prod.slug,
-                product_code=contractor_prod.product_code,
                 name=contractor_prod.name,
                 vendor_code=contractor_prod.vendor_code,
                 brand=contractor_prod.brand,
