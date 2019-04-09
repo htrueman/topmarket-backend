@@ -15,7 +15,6 @@ class ProductFilter(filters.FilterSet):
         fields = [
             'category_id',
             'name',
-            'availability',
             'vendor_code',
             'min_price',
             'max_price'

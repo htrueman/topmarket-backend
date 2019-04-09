@@ -54,7 +54,6 @@ class ProductView(viewsets.ModelViewSet):
                 count=contractor_prod.count,
                 description=contractor_prod.description,
                 price=contractor_prod.price,
-                availability=contractor_prod.availability,
             )
             partner_prod.save()
 

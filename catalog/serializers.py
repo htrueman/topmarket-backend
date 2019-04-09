@@ -84,7 +84,6 @@ class ProductSerializer(WritableNestedModelSerializer):
             'count',
             'description',
             'price',
-            'availability',
             'images',
             'image_urls',
         )

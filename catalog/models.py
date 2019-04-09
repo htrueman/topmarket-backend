@@ -94,6 +94,7 @@ class Product(TimeStampedModel):
         related_name='products',
     )
 
+    # product full name fields
     product_type = models.CharField(
         max_length=256,
         verbose_name='Вид товара'
@@ -117,6 +118,7 @@ class Product(TimeStampedModel):
         verbose_name='Артикул',
     )
 
+    # required product specs
     warranty_duration = models.PositiveIntegerField(default=0)  # warranty duration in days
     vendor_country = models.CharField(
         max_length=256
@@ -124,36 +126,46 @@ class Product(TimeStampedModel):
     box_size = models.CharField(
         max_length=256
     )
-
-    contractor_product = models.ForeignKey(
-        'self',
-        null=True, blank=True,
-        on_delete=models.CASCADE,
-        verbose_name='Связь с поставщиком продукта',
-        related_name='contractor_products',
-    )
-
-    availability = models.CharField(
-        max_length=13,
-        verbose_name='Доступность товара',
-        choices=constants.PRODUCT_AVAILABILITY,
-        default='IN_STOCK'
-    )
-
     count = models.PositiveIntegerField(
         default=0,
         verbose_name='Наличие',
     )
-    description = models.TextField(
-        max_length=4095,
-        null=True, blank=True,
-        verbose_name='Описание',
-    )
     price = models.DecimalField(
         max_digits=10,
         decimal_places=2,
-        null=True, blank=True,
         verbose_name='Цена товара',
+    )
+    description = models.TextField(
+        max_length=4095,
+        verbose_name='Описание',
+    )  # html tags allowed
+
+    # not required product specs
+    extra_description = models.TextField(
+        null=True,
+        blank=True,
+        verbose_name='Дополнительные характеристики'
+    )  # html tags allowed
+    age_group = models.CharField(
+        max_length=128,
+        null=True,
+        blank=True,
+        verbose_name='Возрастная группа'
+    )
+    material = models.CharField(
+        max_length=128,
+        null=True,
+        blank=True,
+        verbose_name='Материал товара'
+    )
+
+    contractor_product = models.ForeignKey(
+        'self',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        verbose_name='Связь с поставщиком продукта',
+        related_name='contractor_products',
     )
 
     # managers
