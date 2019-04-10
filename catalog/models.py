@@ -181,6 +181,35 @@ class ProductImage(models.Model):
     )
 
 
+class ProductUploadFile(models.Model):
+    owner = models.ForeignKey(
+        User,
+        related_name='product_import_files',
+        verbose_name=_('Пользователь'),
+        on_delete=models.CASCADE,
+    )
+    file = models.FileField(
+        upload_to='catalog/product/uploads/',
+        verbose_name=_('Файл для загрузки товаров'),
+    )
+    created = models.DateTimeField(auto_now_add=True, verbose_name=_('Дата создания'))
+    is_upload = models.BooleanField(
+        verbose_name=_('Загружен'),
+        default=False,
+    )
+    errors = models.TextField(
+        verbose_name=_('Ошибки'),
+        null=True, blank=True,
+    )
+
+    def __str__(self):
+        return '{}'.format(self.owner)
+
+    class Meta:
+        verbose_name = _('Файл для импорта товаров')
+        verbose_name_plural = _('Файлы для импорта товаров')
+
+
 class YMLTemplate(models.Model):
     template = models.FileField(
         upload_to='yml_templates',

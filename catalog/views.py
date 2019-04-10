@@ -1,7 +1,7 @@
 from rest_framework import generics, viewsets, permissions, status
 from django.db import transaction
-from catalog.serializers import CategorySerializer, ProductSerializer
-from catalog.models import Category, Product, ProductImage, ProductImageURL
+from catalog.serializers import CategorySerializer, ProductSerializer, ProductUploadFileSerializer
+from catalog.models import Category, Product, ProductImage, ProductImageURL, ProductUploadFile
 from rest_framework.decorators import action
 from django_filters import rest_framework as filters
 from catalog.filters import ProductFilter
@@ -9,7 +9,8 @@ from djangorestframework_camel_case.parser import CamelCaseJSONParser
 from rest_framework.parsers import MultiPartParser
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
-
+from rest_framework import parsers
+from catalog.tasks import load_products_from_xls
 
 class CategoryListView(generics.ListAPIView):
     """
@@ -80,3 +81,43 @@ class ProductView(viewsets.ModelViewSet):
 
 class YMLHandlerViewSet(viewsets.ViewSet):
     pass
+
+
+class ProductImportViewSet(viewsets.ModelViewSet):
+    """
+    Wrong method in swagger.
+    Use postman.
+    For post method, u must set in body field "file".
+    """
+
+    parser_classes = (parsers.MultiPartParser, parsers.FormParser, )
+    queryset = ProductUploadFile.objects.all()
+    serializer_class = ProductUploadFileSerializer
+    http_method_names = ('post')
+    permission_classes = (permissions.AllowAny, )
+
+    def perform_create(self, serializer):
+        file = self.request.data.get('file')
+        if file.content_type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+            serializer.save(
+                owner=self.request.user,
+                file=file,
+            )
+            data = {
+                'user_id': self.request.user.id,
+                'file': file
+                # 'file': serializer.data.get('file'),
+            }
+
+            # load_products_from_xls.apply_async(kwargs=data)
+            load_products_from_xls(**data)
+            return status.HTTP_201_CREATED
+        else:
+            return status.HTTP_415_UNSUPPORTED_MEDIA_TYPE
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        status_response = self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(status=status_response, headers=headers)

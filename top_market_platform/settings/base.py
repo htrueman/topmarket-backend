@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'mptt',
     'django_filters',
+    'import_export',
 
     # apps
     'users',
@@ -197,3 +198,5 @@ CELERY_TASK_RESULT_EXPIRES = 86400
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
+
+IMPORT_EXPORT_USE_TRANSACTIONS = True
