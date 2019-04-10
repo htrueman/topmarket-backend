@@ -2,7 +2,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from drf_writable_nested import WritableNestedModelSerializer
 from rest_framework import serializers
 
-from catalog.models import Category, Product, ProductImage, ProductImageURL, ProductUploadFile
+from catalog.models import Category, Product, ProductImage, ProductImageURL, ProductUploadHistory
 
 
 class RecursiveField(serializers.BaseSerializer):
@@ -90,13 +90,10 @@ class ProductSerializer(WritableNestedModelSerializer):
         )
 
 
-class ProductUploadFileSerializer(serializers.HyperlinkedModelSerializer):
-    owner = serializers.SlugRelatedField(
-        read_only=True,
-        slug_field='id'
-    )
+class ProductUploadHistorySerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = ProductUploadFile
-        fields = ('created', 'file', 'owner')
-        read_only_fields = ('created', 'file', 'owner')
+        model = ProductUploadHistory
+        fields = (
+            'xls_file',
+        )

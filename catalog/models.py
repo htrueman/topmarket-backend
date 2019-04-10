@@ -43,9 +43,6 @@ class Category(MPTTModel):
     def __str__(self):
         return '{}'.format(self.name)
 
-    def save(self, *args, **kwargs):
-        super(Category, self).save(*args, **kwargs)
-
     @staticmethod
     def load_categories():
         """
@@ -154,11 +151,6 @@ class Product(TimeStampedModel):
         verbose_name_plural = _('Товары')
         unique_together = (('user', 'contractor_product', 'vendor_code',),)
 
-    def save(self, force_insert=False, force_update=False, using=None,
-             update_fields=None):
-
-        super(Product, self).save(force_insert, force_update, using, update_fields)
-
 
 class ProductImageURL(models.Model):
     product = models.ForeignKey(
@@ -181,29 +173,29 @@ class ProductImage(models.Model):
     )
 
 
-class ProductUploadFile(models.Model):
-    owner = models.ForeignKey(
+class ProductUploadHistory(models.Model):
+    user = models.ForeignKey(
         User,
         related_name='product_import_files',
         verbose_name=_('Пользователь'),
         on_delete=models.CASCADE,
     )
-    file = models.FileField(
-        upload_to='catalog/product/uploads/',
-        verbose_name=_('Файл для загрузки товаров'),
-    )
     created = models.DateTimeField(auto_now_add=True, verbose_name=_('Дата создания'))
-    is_upload = models.BooleanField(
-        verbose_name=_('Загружен'),
+    is_uploaded = models.BooleanField(
+        verbose_name=_('Загрузка прошла успешно'),
         default=False,
     )
     errors = models.TextField(
         verbose_name=_('Ошибки'),
         null=True, blank=True,
     )
+    xls_file = models.FileField(
+        upload_to='catalog/product/uploads',
+        verbose_name=_('XLS файл')
+    )
 
     def __str__(self):
-        return '{}'.format(self.owner)
+        return '{}'.format(self.user)
 
     class Meta:
         verbose_name = _('Файл для импорта товаров')

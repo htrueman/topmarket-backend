@@ -38,7 +38,7 @@ urlpatterns += [
     re_path(r'^activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
             views.activate, name='activate'),
 
-    path('password_change/<user_id>/', views.PasswordChangeView.as_view()),
+    path('password_change/', views.PasswordChangeView.as_view()),
 
     path('login/', decorated_login_view, name='token_obtain_pair'),
     path('token_refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
@@ -47,5 +47,7 @@ urlpatterns += [
     path('company/documents/', views.DocumentSerializerRUView.as_view(), name='documents'),
     path('company/pitch/', views.CompanyPitchRUView.as_view(), name='pitch'),
     path('my_store/', views.MyStoreRUView.as_view(), name='my-store'),
-    path('manager_create/', views.ManagerCreateView.as_view())
+    path('manager_create/', views.ManagerCreateView.as_view()),
+    path('password_reset/', views.PasswordResetView.as_view()),
+    path('password_reset_confirm/', views.PasswordResetConfirmView.as_view()),
 ]

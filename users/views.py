@@ -82,7 +82,7 @@ class PasswordChangeView(UpdateAPIView):
     serializer_class = PasswordChangeSerializer
 
     def get_object(self):
-        return get_object_or_404(User, pk=self.kwargs.get('user_id'))
+        return get_object_or_404(User, pk=self.request.user.id)
 
     def put(self, request, *args, **kwargs):
         obj = self.get_object()

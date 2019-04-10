@@ -1,7 +1,7 @@
-from rest_framework import generics, viewsets, permissions, status
+from rest_framework import generics, viewsets, permissions, status, views
 from django.db import transaction
-from catalog.serializers import CategorySerializer, ProductSerializer, ProductUploadFileSerializer
-from catalog.models import Category, Product, ProductImage, ProductImageURL, ProductUploadFile
+from catalog.serializers import CategorySerializer, ProductSerializer, ProductUploadHistorySerializer
+from catalog.models import Category, Product, ProductImage, ProductImageURL, ProductUploadHistory
 from rest_framework.decorators import action
 from django_filters import rest_framework as filters
 from catalog.filters import ProductFilter
@@ -11,6 +11,10 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import parsers
 from catalog.tasks import load_products_from_xls
+#####
+from catalog.resources import ProductResource
+from tablib import Dataset
+
 
 class CategoryListView(generics.ListAPIView):
     """
@@ -91,26 +95,27 @@ class ProductImportViewSet(viewsets.ModelViewSet):
     """
 
     parser_classes = (parsers.MultiPartParser, parsers.FormParser, )
-    queryset = ProductUploadFile.objects.all()
-    serializer_class = ProductUploadFileSerializer
-    http_method_names = ('post')
+    queryset = ProductUploadHistory.objects.all()
+    serializer_class = ProductUploadHistorySerializer
+    http_method_names = ('post', )
     permission_classes = (permissions.AllowAny, )
 
     def perform_create(self, serializer):
-        file = self.request.data.get('file')
-        if file.content_type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+        # input_file = self.request.data.get('file')
+        input_file = self.request.FILES['xls_file']
+        if input_file.content_type: # in ('application/vnd.ms-excel', ) :
             serializer.save(
-                owner=self.request.user,
-                file=file,
+                user=self.request.user,
+                xls_file=input_file,
             )
-            data = {
-                'user_id': self.request.user.id,
-                'file': file
-                # 'file': serializer.data.get('file'),
-            }
-
-            # load_products_from_xls.apply_async(kwargs=data)
-            load_products_from_xls(**data)
+            print(serializer.data)
+            # dataset = Dataset()
+            # dataset.load(input_file.read(), format='xls')
+            # data = {
+            #     # 'dataset': dataset,
+            #     'user_id': self.request.user.id,
+            # }
+            # load_products_from_xls.apply_async(dataset=dataset, **data)
             return status.HTTP_201_CREATED
         else:
             return status.HTTP_415_UNSUPPORTED_MEDIA_TYPE
