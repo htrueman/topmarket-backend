@@ -5,7 +5,8 @@ from rest_framework.routers import DefaultRouter
 app_name = 'catalog'
 
 router = DefaultRouter()
-router.register(r'products', catalog_view.ProductView, base_name='added_products')
+router.register(r'products', catalog_view.ProductView, base_name='products')
+router.register(r'products_upload', catalog_view.ProductImportViewSet, base_name='product_uploads')
 router.register(r'yml-handler', catalog_view.YMLHandlerViewSet, base_name='yml_handler')
 
 urlpatterns = router.urls

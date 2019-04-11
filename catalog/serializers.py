@@ -8,7 +8,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from django.utils.translation import gettext as _
 
-from catalog.models import Category, Product, ProductImage, ProductImageURL, YMLTemplate
+from catalog.models import Category, Product, ProductImage, ProductImageURL, YMLTemplate, ProductUploadHistory
 
 
 class RecursiveField(serializers.BaseSerializer):
@@ -142,3 +142,12 @@ class YMLHandlerSerializer(serializers.ModelSerializer):
         content = render_to_response('rozetka.xml', context).content
         yml_template.template.save('rozetka.xml', ContentFile(content), save=True)
         return yml_template
+
+
+class ProductUploadHistorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ProductUploadHistory
+        fields = (
+            'xls_file',
+        )

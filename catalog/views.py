@@ -1,7 +1,8 @@
-from rest_framework import generics, viewsets, permissions, status
+from rest_framework import generics, viewsets, permissions, status, views
 from django.db import transaction
-from catalog.serializers import CategorySerializer, ProductSerializer, YMLHandlerSerializer
-from catalog.models import Category, Product, ProductImage, ProductImageURL, YMLTemplate
+from catalog.serializers import CategorySerializer, ProductSerializer, YMLHandlerSerializer, \
+    ProductUploadHistorySerializer
+from catalog.models import Category, Product, ProductImage, ProductImageURL, YMLTemplate, ProductUploadHistory
 from rest_framework.decorators import action
 from django_filters import rest_framework as filters
 from catalog.filters import ProductFilter
@@ -9,6 +10,11 @@ from djangorestframework_camel_case.parser import CamelCaseJSONParser
 from rest_framework.parsers import MultiPartParser
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
+from rest_framework import parsers
+from catalog.tasks import load_products_from_xls
+#####
+from catalog.resources import ProductResource
+from tablib import Dataset
 
 
 class CategoryListView(generics.ListAPIView):
@@ -88,3 +94,35 @@ class YMLHandlerViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         serializer.save(user=self.request.user)
+
+
+class ProductImportViewSet(viewsets.ModelViewSet):
+    """
+    Wrong method in swagger.
+    Use postman.
+    For post method, u must set in body field "xls_field".
+    """
+
+    parser_classes = (parsers.MultiPartParser, parsers.FormParser, )
+    queryset = ProductUploadHistory.objects.all()
+    serializer_class = ProductUploadHistorySerializer
+    http_method_names = ('post', )
+    permission_classes = (permissions.AllowAny, )
+
+    def perform_create(self, serializer):
+        input_file = self.request.FILES['xls_file']
+        if input_file.content_type in ('application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', ):
+            serializer.save(
+                user=self.request.user,
+                xls_file=input_file,
+            )
+            return status.HTTP_201_CREATED
+        else:
+            return status.HTTP_415_UNSUPPORTED_MEDIA_TYPE
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        status_response = self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(status=status_response, headers=headers)
