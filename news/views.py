@@ -1,5 +1,4 @@
 from rest_framework import viewsets, filters, generics
-from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from django.shortcuts import get_object_or_404
 from news.mixin import LikedMixin
@@ -39,6 +38,3 @@ class CommentCreateView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(news=get_object_or_404(News, pk=self.kwargs.get('news_id')), user=self.request.user)
-
-
-
