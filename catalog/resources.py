@@ -8,6 +8,7 @@ class ProductResource(resources.ModelResource):
         fields = (
             'id',
             'name',
+            'category',
             'vendor_code',
             'product_type',
             'brand',

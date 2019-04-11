@@ -4,6 +4,7 @@ from celery.utils.log import get_task_logger
 from catalog.resources import ProductResource
 from tablib import Dataset
 from catalog.models import ProductUploadHistory
+import itertools
 from pprint import pprint
 logger = get_task_logger(__name__)
 
@@ -36,8 +37,5 @@ def load_products_from_xls(**kwargs):
                 prod_hist.errors = 'No errors'
                 prod_hist.save()
         else:
-            # prod_hist.errors = ' '.join(str(error[1][0].error) for error in result.row_errors())
-            print([x.error for x in result.invalid_rows])
-
-            prod_hist.errors = 'Errors'
+            prod_hist.errors = '. '.join(itertools.chain.from_iterable([x.error.messages for x in result.invalid_rows]))
             prod_hist.save()

@@ -91,7 +91,7 @@ class ProductImportViewSet(viewsets.ModelViewSet):
     """
     Wrong method in swagger.
     Use postman.
-    For post method, u must set in body field "file".
+    For post method, u must set in body field "xls_field".
     """
 
     parser_classes = (parsers.MultiPartParser, parsers.FormParser, )
@@ -101,21 +101,12 @@ class ProductImportViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.AllowAny, )
 
     def perform_create(self, serializer):
-        # input_file = self.request.data.get('file')
         input_file = self.request.FILES['xls_file']
-        if input_file.content_type: # in ('application/vnd.ms-excel', ) :
+        if input_file.content_type in ('application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', ):
             serializer.save(
                 user=self.request.user,
                 xls_file=input_file,
             )
-            print(serializer.data)
-            # dataset = Dataset()
-            # dataset.load(input_file.read(), format='xls')
-            # data = {
-            #     # 'dataset': dataset,
-            #     'user_id': self.request.user.id,
-            # }
-            # load_products_from_xls.apply_async(dataset=dataset, **data)
             return status.HTTP_201_CREATED
         else:
             return status.HTTP_415_UNSUPPORTED_MEDIA_TYPE
