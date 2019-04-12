@@ -17,7 +17,7 @@ from users.models import Company, MyStore
 
 
 class ClientAccessPermission(permissions.BasePermission):
-    message = 'Check if user has both Company and MyStore added to user.'
+    message = 'Check if both Company and MyStore added to user.'
 
     def has_permission(self, request, view):
         return (request.user.is_authenticated
