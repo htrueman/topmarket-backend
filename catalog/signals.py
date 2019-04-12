@@ -10,6 +10,5 @@ def upload_product_from_xls(sender, instance, created, **kwargs):
         data = {
             'instance_id': instance.id,
         }
-        print(data)
         load_products_from_xls.delay(**data)
         # load_products_from_xls(**data)

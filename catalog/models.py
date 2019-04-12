@@ -170,7 +170,7 @@ class Product(TimeStampedModel):
     # managers
     objects = models.Manager()
     products_by_contractors = ContractorProductManager()
-    products_by_parnters = PartnerProductManager()
+    products_by_partners = PartnerProductManager()
 
     def __str__(self):
         return self.name
