@@ -1,5 +1,4 @@
-version: 2
-
+version: 2.1
 commands:
   docker_login:
     steps:
@@ -27,6 +26,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
+      - docker_login
       - docker_build_push
 
 workflows:
