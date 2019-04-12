@@ -34,8 +34,4 @@ class Migration(migrations.Migration):
             name='warranty_duration',
             field=models.PositiveIntegerField(default=0),
         ),
-        migrations.AlterUniqueTogether(
-            name='product',
-            unique_together={('user', 'product_type', 'brand', 'name', 'variety_type', 'vendor_code')},
-        ),
     ]

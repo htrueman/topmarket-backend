@@ -1,5 +1,4 @@
 from django.db import models
-from django.utils.text import slugify
 from django.utils.translation import ugettext as _
 from mptt.models import MPTTModel, TreeForeignKey
 from news.models import TimeStampedModel
@@ -180,6 +179,7 @@ class Product(TimeStampedModel):
         verbose_name = _('Товар')
         verbose_name_plural = _('Товары')
         unique_together = (('user', 'product_type', 'brand', 'name', 'variety_type', 'vendor_code',),)
+
 
 class ProductImageURL(models.Model):
     product = models.ForeignKey(
