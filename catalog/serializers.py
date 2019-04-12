@@ -115,11 +115,17 @@ class YMLHandlerSerializer(serializers.ModelSerializer):
                 _('Продукты с этими id не существуют: ') + ', '.join([str(item) for item in non_existing_product_ids]))
         return val
 
+    def validate_user(self, user, yml_type):
+        if YMLTemplate.objects.filter(user=user, yml_type=yml_type).exists():
+            raise ValidationError({
+                'user': _('Для пользователя {} уже создан YML файл данного типа.'.format(user.email))})
+
     def create(self, validated_data):
+        self.validate_user(validated_data['user'], validated_data['yml_type'])
         product_ids = validated_data.pop('product_ids')
         yml_template = super().create(validated_data)
         yml_template.products.add(*product_ids)
-        yml_template = self.render_yml_file(yml_template, validated_data['user'], yml_template.products.all())
+        yml_template = self.render_yml_file(yml_template, validated_data['user'].mystore, yml_template.products.all())
         return yml_template
 
     def update(self, instance, validated_data):
@@ -127,17 +133,17 @@ class YMLHandlerSerializer(serializers.ModelSerializer):
         yml_template = super().update(instance, validated_data)
         yml_template.products.remove(*yml_template.products.all().values_list('pk', flat=True))
         yml_template.products.add(*product_ids)
-        yml_template = self.render_yml_file(yml_template, validated_data['user'], yml_template.products.all())
+        yml_template = self.render_yml_file(yml_template, validated_data['user'].mystore, yml_template.products.all())
         return yml_template
 
     @staticmethod
-    def render_yml_file(yml_template, user, products):
+    def render_yml_file(yml_template, store, products):
         category_dict = products.values('category__pk', 'category__name')
         context = {
             'categories': category_dict,
             'products': products,
             'current_datetime': datetime.datetime.now().strftime('%Y-%m-%d %H:%M'),
-            'user': user,
+            'store': store,
         }
         content = render_to_response('rozetka.xml', context).content
         yml_template.template.save('rozetka.xml', ContentFile(content), save=True)

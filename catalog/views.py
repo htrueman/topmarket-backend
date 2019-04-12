@@ -1,5 +1,6 @@
-from rest_framework import generics, viewsets, permissions, status, views
+from rest_framework import generics, viewsets, permissions, status
 from django.db import transaction
+
 from catalog.serializers import CategorySerializer, ProductSerializer, YMLHandlerSerializer, \
     ProductUploadHistorySerializer
 from catalog.models import Category, Product, ProductImage, ProductImageURL, YMLTemplate, ProductUploadHistory
@@ -11,10 +12,17 @@ from rest_framework.parsers import MultiPartParser
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import parsers
-from catalog.tasks import load_products_from_xls
-#####
-from catalog.resources import ProductResource
-from tablib import Dataset
+
+from users.models import Company, MyStore
+
+
+class ClientAccessPermission(permissions.BasePermission):
+    message = 'Check if user has both Company and MyStore added to user.'
+
+    def has_permission(self, request, view):
+        return (request.user.is_authenticated
+                and Company.objects.filter(user=request.user).exists()
+                and MyStore.objects.filter(user=request.user).exists())
 
 
 class CategoryListView(generics.ListAPIView):
@@ -85,6 +93,8 @@ class ProductView(viewsets.ModelViewSet):
 
 class YMLHandlerViewSet(viewsets.ModelViewSet):
     serializer_class = YMLHandlerSerializer
+    permission_classes = (ClientAccessPermission,)
+    lookup_field = 'yml_type'
 
     def get_queryset(self):
         return YMLTemplate.objects.filter(user=self.request.user)
