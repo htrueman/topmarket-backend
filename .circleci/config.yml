@@ -34,7 +34,6 @@ workflows:
   backend:
     jobs:
       - build:
-          context: org-global
           filters:
             branches:
               only:
