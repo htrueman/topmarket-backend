@@ -13,4 +13,4 @@ COPY . /app
 
 EXPOSE 8080
 
-ENTRYPOINT ["/app/start.sh"]
+CMD ["/app/start.sh"]
