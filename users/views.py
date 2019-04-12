@@ -12,7 +12,8 @@ from rest_framework import permissions, status, mixins, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.utils.encoding import force_text
-from django.utils.http import urlsafe_base64_decode
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes
 
 User = get_user_model()
 
@@ -21,6 +22,18 @@ class CreateUserView(CreateAPIView):
     model = User
     permission_classes = (permissions.AllowAny,)
     serializer_class = UserSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+
+        data = serializer.data
+        data['confirm_url'] = 'http://api.topmarket.club/api/v1/activate/' + \
+                              urlsafe_base64_encode(force_bytes(data['id'])).decode() + \
+                              account_activation_token.make_token(User.objects.get(id=data['id']))
+        return Response(data=data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class PasswordResetView(APIView):

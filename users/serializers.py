@@ -44,6 +44,7 @@ class UserSerializer(UserSerializerMixin, serializers.ModelSerializer):
             'token': account_activation_token.make_token(user),
         })
         send_mail(mail_subject, message, settings.DEFAULT_FROM_EMAIL, [email,])
+
         return user
 
 
