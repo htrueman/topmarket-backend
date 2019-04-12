@@ -20,22 +20,22 @@ commands:
             docker push gofriends/$CIRCLE_PROJECT_REPONAME
 
 jobs:
-    build:
-        docker:
-            - image: docker:stable
-        working_directory: /app
-        steps:
-            - checkout
-            - setup_remote_docker
-            - docker_build_push
+  build:
+    docker:
+      - image: docker:stable
+    working_directory: /app
+    steps:
+      - checkout
+      - setup_remote_docker
+      - docker_build_push
 
 workflows:
   version: 2
   backend:
     jobs:
-      - build
-      context: org-global
-      filters:
-        branches:
-          only:
-            - develop
+      - build:
+          context: org-global
+          filters:
+            branches:
+              only:
+                - develop
