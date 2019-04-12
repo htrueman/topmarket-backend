@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <yml_catalog date="{{ current_datetime }}">
     <shop>
-        <name>{{ user.mystore.company.name }}</name>
-        <company>{{ user.mystore.company.name }}</company>
-        <url>{{ user.mystore.get_url }}</url>
+        <name>{{ store.company.name }}</name>
+        <company>{{ store.company.name }}</company>
+        <url>{{ store.get_url }}</url>
         <currencies>
             <currency id="UAH" rate="1" />
         </currencies>
