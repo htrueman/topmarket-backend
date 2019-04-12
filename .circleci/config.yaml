@@ -1,0 +1,41 @@
+version: 2
+
+commands:
+  docker_login:
+    steps:
+      - run:
+          name: Docker Login
+          command: echo $DOCKER_PASS | docker login --username $DOCKER_USER --password-stdin
+
+  docker_build_push:
+    steps:
+      - run:
+          name: Build and Push Image
+          command: |
+            PROJECT_BRANCH=$(echo $CIRCLE_BRANCH | awk -F "/" '{print $1}')
+            #if [ "${CIRCLE_BRANCH}" == "master" ] || [ "${PROJECT_BRANCH}" == "dev" ];
+            TAG=$PROJECT_BRANCH-$CIRCLE_BUILD_NUM
+            docker build -t gofriends/$CIRCLE_PROJECT_REPONAME:latest .
+            docker tag gofriends/$CIRCLE_PROJECT_REPONAME:latest gofriends/$CIRCLE_PROJECT_REPONAME:$TAG
+            docker push gofriends/$CIRCLE_PROJECT_REPONAME
+
+jobs:
+    build:
+        docker:
+            - image: docker:stable
+        working_directory: /app
+        steps:
+            - checkout
+            - setup_remote_docker
+            - docker_build_push
+
+workflows:
+  version: 2
+  backend:
+    jobs:
+      - build
+      context: org-global
+      filters:
+        branches:
+          only:
+            - develop
