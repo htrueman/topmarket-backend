@@ -4,7 +4,7 @@ from django.db import models
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 
-from users.constants import DOMEN, CALL_BACK
+from users.constants import DOMEN, CALL_BACK, USER_ROLE
 from .managers import CustomUserManager
 
 
@@ -19,6 +19,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         on_delete=models.SET_NULL,
         verbose_name=_('Менеджер'),
         null=True, blank=True,
+    )
+    role = models.CharField(
+        max_length=10,
+        choices=USER_ROLE,
+
     )
     user_pocket = models.CharField(
         max_length=10,
