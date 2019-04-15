@@ -40,29 +40,33 @@ class PasswordResetView(APIView):
     permission_classes = (permissions.AllowAny,)
     serializer_class = PasswordResetSerializer
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
+
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+
+            password = serializer.save()
+            data = serializer.data
+            data['pass'] = password
+            return Response(data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class PasswordResetConfirmView(APIView):
-    permission_classes = (permissions.AllowAny,)
-    serializer_class = PasswordResetConfirm
-
-    def put(self, request):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            uid = serializer.data['uid']
-            uid = force_text(urlsafe_base64_decode(uid))
-            user = User.objects.get(pk=uid)
-            return Response('Password for {} has been succesfully changed'.format(user), status=status.HTTP_200_OK)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# class PasswordResetConfirmView(APIView):
+#     permission_classes = (permissions.AllowAny,)
+#     serializer_class = PasswordResetConfirm
+#
+#     def put(self, request):
+#         serializer = self.serializer_class(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             uid = serializer.data['uid']
+#             uid = force_text(urlsafe_base64_decode(uid))
+#             user = User.objects.get(pk=uid)
+#             return Response('Password for {} has been succesfully changed'.format(user), status=status.HTTP_200_OK)
+#         else:
+#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 def activate(request, uidb64, token, *args, **kwargs):
