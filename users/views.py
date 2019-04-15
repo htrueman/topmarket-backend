@@ -32,7 +32,7 @@ class CreateUserView(CreateAPIView):
 
         data = serializer.data
         domain = settings.HOST_NAME
-        data['confirm_url'] = domain + '/api/v1/activate/' + urlsafe_base64_encode(force_bytes(data['id'])).decode() + '/' + \
+        data['confirm_url'] = 'https://api.topmarket.club/api/v1/activate/' + urlsafe_base64_encode(force_bytes(data['id'])).decode() + '/' + \
                               account_activation_token.make_token(User.objects.get(id=data['id']))
         return Response(data=data, status=status.HTTP_201_CREATED, headers=headers)
 
