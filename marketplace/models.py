@@ -71,9 +71,8 @@ class ImageForLesson(models.Model):
         verbose_name=_('Изображение')
     )
 
+
 # Инструкция добавления товара
-
-
 class VideoTraining(models.Model):
 
     video = models.FileField(
@@ -96,7 +95,7 @@ class VideoTraining(models.Model):
 
 class ImageForTraining(models.Model):
 
-    video_lesson = models.ForeignKey('VideoLesson', related_name='image_for_training', on_delete=models.CASCADE)
+    video_training = models.ForeignKey('VideoTraining', related_name='image_for_training', on_delete=models.CASCADE)
     text = models.TextField(null=True, blank=True, verbose_name=_('Текст'))
     image = models.ImageField(
         upload_to='marketplace/images_for_lessons',

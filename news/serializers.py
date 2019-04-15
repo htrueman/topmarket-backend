@@ -1,3 +1,4 @@
+from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
 from news.models import *
@@ -7,10 +8,11 @@ from news import services as likes_services
 
 class NewsSerializer(serializers.ModelSerializer):
     is_fan = serializers.SerializerMethodField()
+    avatar_decoded = Base64ImageField(source='avatar')
 
     class Meta:
         model = News
-        fields = ('avatar', 'name', 'text', 'total_likes', 'is_fan')
+        fields = ('avatar_decoded', 'name', 'text', 'total_likes', 'is_fan')
 
     def get_is_fan(self, obj) -> bool:
         """Проверяет, лайкнул ли `request.user` твит (`obj`).
