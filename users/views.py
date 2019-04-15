@@ -4,9 +4,9 @@ from rest_framework.viewsets import GenericViewSet
 
 from users.tokens import account_activation_token, password_reset_token
 from .serializers import UserSerializer, PasswordResetSerializer, PasswordResetConfirm, \
-    UserProfileSerializer, PasswordChangeSerializer, UserNotificationSerializer, CompanySerializer, DocumentSerializer, \
+    UserProfileSerializer, PasswordChangeSerializer, CompanySerializer, DocumentSerializer, \
     CompanyPitchSerializer, MyStoreSerializer, ManagerSerializer
-from .models import UserNotification, Company, CompanyPitch, MyStore
+from .models import Company, CompanyPitch, MyStore
 from rest_framework.generics import CreateAPIView, get_object_or_404, UpdateAPIView, RetrieveUpdateAPIView
 from rest_framework import permissions, status, mixins, generics
 from rest_framework.views import APIView
@@ -14,7 +14,6 @@ from rest_framework.response import Response
 from django.utils.encoding import force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
-from django.conf import settings
 
 User = get_user_model()
 
@@ -31,7 +30,6 @@ class CreateUserView(CreateAPIView):
         headers = self.get_success_headers(serializer.data)
 
         data = serializer.data
-        domain = settings.HOST_NAME
         data['confirm_url'] = 'https://api.topmarket.club/api/v1/activate/' + urlsafe_base64_encode(force_bytes(data['id'])).decode() + '/' + \
                               account_activation_token.make_token(User.objects.get(id=data['id']))
         return Response(data=data, status=status.HTTP_201_CREATED, headers=headers)

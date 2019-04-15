@@ -1,6 +1,5 @@
 from django.db import transaction
 from drf_extra_fields.fields import Base64ImageField
-from drf_writable_nested import WritableNestedModelSerializer
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
@@ -14,9 +13,9 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 
 from .mixins import UserSerializerMixin, RequireTogetherFields
 from .tokens import account_activation_token, password_reset_token
-from .models import UserNotification, Company, ActivityAreas, ServiceIndustry, CompanyType, CompanyPitch, Passport, \
-    UkraineStatistic, Certificate, TaxPayer, PayerRegister, PayerCertificate, PhoneNumber, Navigation, \
-    MyStore, StoreSliderImage
+from .models import UserNotificationEmail, UserNotificationPhone, Company, ActivityAreas, ServiceIndustry, CompanyType, \
+    CompanyPitch, Passport, UkraineStatistic, Certificate, TaxPayer, PayerRegister, PayerCertificate, PhoneNumber,\
+    Navigation, MyStore, StoreSliderImage
 
 import random
 import string
@@ -30,7 +29,7 @@ class UserSerializer(UserSerializerMixin, serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'email', 'password', 'confirm_password', )
+        fields = ('id', 'email', 'password', 'confirm_password', 'role')
 
     def create(self, validated_data):
         email = validated_data['email']
@@ -169,12 +168,11 @@ class PasswordChangeSerializer(serializers.Serializer):
         return super(PasswordChangeSerializer, self).validate(data)
 
 
-class UserNotificationSerializer(serializers.ModelSerializer):
+class UserNotificationEmailSerializer(serializers.ModelSerializer):
     class Meta:
-        model = UserNotification
+        model = UserNotificationEmail
         fields = (
-            'new_order_email',
-            'new_order_tel',
+            'new_order',
             'ttn_change',
             'order_paid',
             'sales_report',
@@ -183,11 +181,20 @@ class UserNotificationSerializer(serializers.ModelSerializer):
         )
 
 
+class UserNotificationPhoneSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserNotificationPhone
+        fields = (
+            'new_order',
+        )
+
+
 class UserProfileSerializer(RequireTogetherFields, UserSerializerMixin, serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=False)
     confirm_password = serializers.CharField(write_only=True, required=False)
-    avatar_image = serializers.ImageField(source='avatar', required=False)
-    notifications = UserNotificationSerializer(many=False, required=True)
+    avatar_image = Base64ImageField(source='avatar', required=False)
+    email_notifications = UserNotificationEmailSerializer(many=False, required=False)
+    phone_notifications = UserNotificationPhoneSerializer(many=False, required=False)
 
     class Meta:
         model = User
@@ -201,21 +208,33 @@ class UserProfileSerializer(RequireTogetherFields, UserSerializerMixin, serializ
             'patronymic',
             'avatar_image',
             'username',
-            'notifications'
+            'email_notifications',
+            'phone_notifications',
         )
 
     REQUIRED_TOGETHER = ('password', 'confirm_password',)
 
     def update(self, instance, validated_data):
         password = validated_data.pop('password', None)
-        notifications = validated_data.pop('notifications', None)
+        email_notifications = validated_data.pop('email_notifications', None)
+        phone_notifications = validated_data.pop('phone_notifications', None)
         if password:
             instance.set_password(password)
-        if notifications:
-            notification, _ = UserNotification.objects.get_or_create(
+        if email_notifications:
+            notification, _ = UserNotificationEmail.objects.get_or_create(
                 user=self.context['request'].user,
-                **notifications
             )
+            for attr, value in email_notifications.items():
+                setattr(notification, attr, value)
+            notification.save()
+
+        if phone_notifications:
+            notification, _ = UserNotificationPhone.objects.get_or_create(
+                user=self.context['request'].user,
+            )
+            for attr, value in phone_notifications.items():
+                setattr(notification, attr, value)
+            notification.save()
         return super().update(instance, validated_data)
 
 

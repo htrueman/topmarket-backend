@@ -94,10 +94,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         return '{}'.format(self.first_name)
 
 
-class UserNotification(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='notifications')
-    new_order_email = models.BooleanField(default=False, verbose_name=_('Новый заказ (email)'))
-    new_order_tel = models.BooleanField(default=False, verbose_name=_('Новый заказ (смс)'))
+class UserNotificationEmail(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='email_notifications')
+    new_order = models.BooleanField(default=False, verbose_name=_('Новый заказ (email)'))
     ttn_change = models.BooleanField(default=False, verbose_name=_('Смена ТТН заказа'))
     order_paid = models.BooleanField(default=False, verbose_name=_('Получение счета на оплату'))
     sales_report = models.BooleanField(default=False, verbose_name=_('Уведомление о продажах'))
@@ -108,8 +107,20 @@ class UserNotification(models.Model):
         return '{}'.format(self.user.get_full_name())
 
     class Meta:
-        verbose_name =_('Уведомление пользователя')
-        verbose_name_plural =_('Увидемления пользователя')
+        verbose_name =_('Уведомление пользователя(email)')
+        verbose_name_plural =_('Увидемления пользователя(email)')
+
+
+class UserNotificationPhone(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='phone_notifications')
+    new_order = models.BooleanField(default=False, verbose_name=_('Новый заказ (смс)'))
+
+    def __str__(self):
+        return '{}'.format(self.user.get_full_name())
+
+    class Meta:
+        verbose_name =_('Уведомление пользователя(тел)')
+        verbose_name_plural =_('Увидемления пользователя(тел)')
 
 
 class Company(models.Model):
