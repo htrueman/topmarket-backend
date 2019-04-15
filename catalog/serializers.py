@@ -1,9 +1,9 @@
 import datetime
 
 from django.core.exceptions import ObjectDoesNotExist
+from drf_extra_fields.fields import Base64ImageField
 from django.core.files.base import ContentFile
 from django.shortcuts import render_to_response
-from drf_writable_nested import WritableNestedModelSerializer
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from django.utils.translation import gettext as _
@@ -56,11 +56,12 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class ProductImageSerializer(serializers.ModelSerializer):
+    image_decoded = Base64ImageField(source='image', required=False)
 
     class Meta:
         model = ProductImage
         fields = (
-            'image',
+            'image_decoded',
         )
 
 
@@ -73,8 +74,8 @@ class ProductImageURLSerializer(serializers.ModelSerializer):
         )
 
 
-class ProductSerializer(WritableNestedModelSerializer):
-    images = ProductImageSerializer(many=True, source='productimage_set', required=False)
+class ProductSerializer(serializers.ModelSerializer):
+    cover_images = ProductImageSerializer(many=True, source='productimage_set', required=False)
     image_urls = ProductImageURLSerializer(many=True, source='productimageurl_set', required=False)
 
     class Meta:
@@ -89,9 +90,26 @@ class ProductSerializer(WritableNestedModelSerializer):
             'count',
             'description',
             'price',
-            'images',
+            'cover_images',
             'image_urls',
         )
+
+    def create(self, validated_data):
+        cover_images_data = validated_data.pop('productimage_set', None)
+        image_url = validated_data.pop('productimageurl_set', None)
+        # print(self.validated_data)
+        product = Product.objects.create(**validated_data, user=self.context['request'].user)
+        if cover_images_data:
+            ProductImage.objects.bulk_create([
+                ProductImage(product=product, **image_data)
+                for image_data in cover_images_data
+            ])
+        if image_url:
+            ProductImageURL.objects.bulk_create([
+                ProductImageURL(product=product, **url_data)
+                for url_data in image_url
+            ])
+        return product
 
 
 class YMLHandlerSerializer(serializers.ModelSerializer):
