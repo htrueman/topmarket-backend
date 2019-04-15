@@ -74,6 +74,20 @@ class ProductImageURLSerializer(serializers.ModelSerializer):
         )
 
 
+class ProductListIdSerializer(serializers.ModelSerializer):
+    product_list_ids = serializers.PrimaryKeyRelatedField(
+        many=True,
+        read_only=False,
+        queryset=Product.products_by_contractors.all(),
+    )
+
+    class Meta:
+        model = Product
+        fields = (
+            'product_list_ids',
+        )
+
+
 class ProductSerializer(serializers.ModelSerializer):
     cover_images = ProductImageSerializer(many=True, source='productimage_set', required=False)
     image_urls = ProductImageURLSerializer(many=True, source='productimageurl_set', required=False)

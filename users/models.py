@@ -55,6 +55,15 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     )
 
     email = models.EmailField(unique=True, null=True, verbose_name=_('Емейл'))
+    phone = models.CharField(
+        max_length=50,
+        null=True, blank=True,
+        verbose_name=_('Телефон')
+    )
+    web_site = models.URLField(
+        null=True, blank=True,
+        verbose_name=_('Веб сайт (url)'),
+    )
     date_joined = models.DateTimeField(auto_now_add=True)
     is_staff = models.BooleanField(
         'staff status',

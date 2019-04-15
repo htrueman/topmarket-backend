@@ -214,6 +214,8 @@ class UserProfileSerializer(RequireTogetherFields, UserSerializerMixin, serializ
             'first_name',
             'last_name',
             'patronymic',
+            'phone',
+            'web_site',
             'avatar_image',
             'username',
             'email_notifications',
