@@ -11,16 +11,4 @@ admin.site.register(ProductUploadHistory)
 
 @admin.register(Product)
 class ProductAdmin(ImportExportActionModelAdmin):
-    # pass
-    # fields = (
-    #     'id',
-    #     'availability',
-    #     'name',
-    #     'vendor_code',
-    #     'product_type',
-    #     'brand',
-    #     'count',
-    #     'description',
-    #     'price',
-    # )
     resource_class = ProductResource

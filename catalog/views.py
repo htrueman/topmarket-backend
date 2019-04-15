@@ -1,6 +1,6 @@
 from rest_framework import generics, viewsets, permissions, status
 from django.db import transaction
-
+from django.db import IntegrityError
 from catalog.serializers import CategorySerializer, ProductSerializer, YMLHandlerSerializer, \
     ProductUploadHistorySerializer, ProductListIdSerializer
 from catalog.models import Category, Product, ProductImage, ProductImageURL, YMLTemplate, ProductUploadHistory
@@ -61,17 +61,31 @@ class ProductView(viewsets.ModelViewSet):
             for prod_id in prod_list_id:
                 contractor_prod = get_object_or_404(Product, pk=prod_id)
                 partner_prod = Product(
-                    user=request.user,
-                    contractor_product=contractor_prod,
                     category=contractor_prod.category,
-                    name=contractor_prod.name,
-                    vendor_code=contractor_prod.vendor_code,
+                    user=request.user,
+                    product_type=contractor_prod.product_type,
                     brand=contractor_prod.brand,
+                    name=contractor_prod.name,
+                    variety_type=contractor_prod.variety_type,
+                    vendor_code=contractor_prod.vendor_code,
+                    warranty_duration=contractor_prod.warranty_duration,
+                    vendor_country=contractor_prod.vendor_country,
+                    box_size=contractor_prod.box_size,
                     count=contractor_prod.count,
                     description=contractor_prod.description,
+                    extra_description=contractor_prod.extra_description,
+                    age_group=contractor_prod.age_group,
+                    material=contractor_prod.material,
                     price=contractor_prod.price,
+                    contractor_product=contractor_prod,
                 )
-                partner_prod.save()
+                try:
+                    partner_prod.save()
+                except IntegrityError as e:
+                    if 'unique constraint' in e.args[0]:
+                        return Response(
+                            status=status.HTTP_409_CONFLICT,
+                        )
 
                 contractor_imgs = contractor_prod.productimage_set.all()
 

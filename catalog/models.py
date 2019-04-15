@@ -179,7 +179,8 @@ class Product(TimeStampedModel):
         verbose_name = _('Товар')
         verbose_name_plural = _('Товары')
         unique_together = (
-            ('user', 'product_type', 'brand', 'name', 'variety_type', 'vendor_code',),)
+            ('user', 'product_type', 'brand', 'name', 'variety_type', 'vendor_code', 'contractor_product'),
+        )
 
 
 class ProductImageURL(models.Model):
