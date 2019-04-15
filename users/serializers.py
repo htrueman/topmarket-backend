@@ -88,17 +88,20 @@ class ManagerSerializer(serializers.ModelSerializer):
 class PasswordResetSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
-    def save(self):
+    def save(self, *args):
         email = self.validated_data['email']
         user = User.objects.filter(email=email).first()
+        password = self.generate_password(10)
+        user.set_password(password)
+        user.save()
         if user:
             mail_subject = 'Reset your topmarket password.'
             message = render_to_string('password_reset_email.html', {
                 'user': user,
-                'uid': urlsafe_base64_encode(force_bytes(user.pk)).decode(),
-                'token': password_reset_token.make_token(user),
+                'password': password
             })
             send_mail(mail_subject, message, settings.DEFAULT_FROM_EMAIL, (email,))
+            return password
         else:
             errors = dict()
             errors['email'] = "The user with given email does not exist."
@@ -108,6 +111,11 @@ class PasswordResetSerializer(serializers.Serializer):
         fields = (
             'email',
         )
+
+    @staticmethod
+    def generate_password(string_length=10):
+        letters = string.ascii_lowercase
+        return ''.join(random.choice(letters) for _ in range(string_length))
 
 
 class PasswordResetConfirm(serializers.Serializer):
