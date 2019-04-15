@@ -169,10 +169,25 @@ class PasswordChangeSerializer(serializers.Serializer):
         return super(PasswordChangeSerializer, self).validate(data)
 
 
+class UserNotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserNotification
+        fields = (
+            'new_order_email',
+            'new_order_tel',
+            'ttn_change',
+            'order_paid',
+            'sales_report',
+            'new_message',
+            'cancel_order',
+        )
+
+
 class UserProfileSerializer(RequireTogetherFields, UserSerializerMixin, serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=False)
     confirm_password = serializers.CharField(write_only=True, required=False)
     avatar_image = serializers.ImageField(source='avatar', required=False)
+    notifications = UserNotificationSerializer(many=False, required=True)
 
     class Meta:
         model = User
@@ -186,29 +201,22 @@ class UserProfileSerializer(RequireTogetherFields, UserSerializerMixin, serializ
             'patronymic',
             'avatar_image',
             'username',
+            'notifications'
         )
 
     REQUIRED_TOGETHER = ('password', 'confirm_password',)
 
     def update(self, instance, validated_data):
         password = validated_data.pop('password', None)
+        notifications = validated_data.pop('notifications', None)
         if password:
             instance.set_password(password)
+        if notifications:
+            notification, _ = UserNotification.objects.get_or_create(
+                user=self.context['request'].user,
+                **notifications
+            )
         return super().update(instance, validated_data)
-
-
-class UserNotificationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserNotification
-        fields = (
-            'new_order_email',
-            'new_order_tel',
-            'ttn_change',
-            'order_paid',
-            'sales_report',
-            'new_message',
-            'cancel_order',
-        )
 
 
 class ActivityAreasSerializer(serializers.ModelSerializer):

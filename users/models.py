@@ -95,7 +95,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
 
 class UserNotification(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='notifications')
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='notifications')
     new_order_email = models.BooleanField(default=False, verbose_name=_('Новый заказ (email)'))
     new_order_tel = models.BooleanField(default=False, verbose_name=_('Новый заказ (смс)'))
     ttn_change = models.BooleanField(default=False, verbose_name=_('Смена ТТН заказа'))

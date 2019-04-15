@@ -118,15 +118,6 @@ class PasswordChangeView(UpdateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserNotificationRetrieveUpdateView(RetrieveUpdateAPIView):
-    serializer_class = UserNotificationSerializer
-    permission_classes = (permissions.AllowAny, )
-
-    def get_object(self):
-        obj, created = UserNotification.objects.get_or_create(user=self.request.user)
-        return obj
-
-
 class CompanyUpdateView(generics.RetrieveUpdateAPIView):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
