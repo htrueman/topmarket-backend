@@ -91,7 +91,7 @@ class PasswordResetSerializer(serializers.Serializer):
         email = self.validated_data['email']
         user = User.objects.filter(email=email).first()
         if user:
-            mail_subject = 'Reset your project_W password.'
+            mail_subject = 'Reset your topmarket password.'
             message = render_to_string('password_reset_email.html', {
                 'user': user,
                 'uid': urlsafe_base64_encode(force_bytes(user.pk)).decode(),
@@ -102,6 +102,11 @@ class PasswordResetSerializer(serializers.Serializer):
             errors = dict()
             errors['email'] = "The user with given email does not exist."
             raise serializers.ValidationError(errors)
+
+    class Meta:
+        fields = (
+            'email',
+        )
 
 
 class PasswordResetConfirm(serializers.Serializer):

@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.contrib.auth import get_user_model
 from rest_framework.viewsets import GenericViewSet
 
-from users.tokens import account_activation_token
+from users.tokens import account_activation_token, password_reset_token
 from .serializers import UserSerializer, PasswordResetSerializer, PasswordResetConfirm, \
     UserProfileSerializer, PasswordChangeSerializer, UserNotificationSerializer, CompanySerializer, DocumentSerializer, \
     CompanyPitchSerializer, MyStoreSerializer, ManagerSerializer
@@ -30,7 +30,7 @@ class CreateUserView(CreateAPIView):
         headers = self.get_success_headers(serializer.data)
 
         data = serializer.data
-        data['confirm_url'] = 'http://api.topmarket.club/api/v1/activate/' + \
+        data['confirm_url'] = 'https://api.topmarket.club/api/v1/activate/' + \
                               urlsafe_base64_encode(force_bytes(data['id'])).decode() + \
                               account_activation_token.make_token(User.objects.get(id=data['id']))
         return Response(data=data, status=status.HTTP_201_CREATED, headers=headers)
@@ -40,11 +40,16 @@ class PasswordResetView(APIView):
     permission_classes = (permissions.AllowAny,)
     serializer_class = PasswordResetSerializer
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            print(serializer.data)
+            data = serializer.data
+            user = User.objects.get(email=serializer.data['email'])
+            data['uid'] = urlsafe_base64_encode(force_bytes(user.pk)).decode()
+            data['token'] = password_reset_token.make_token(user)
+            return Response(data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -53,7 +58,7 @@ class PasswordResetConfirmView(APIView):
     permission_classes = (permissions.AllowAny,)
     serializer_class = PasswordResetConfirm
 
-    def put(self, request):
+    def put(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             serializer.save()
