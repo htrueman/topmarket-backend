@@ -1,7 +1,8 @@
 from rest_framework import viewsets, filters, generics
-from rest_framework.permissions import AllowAny
+from rest_framework import permissions
 from django.shortcuts import get_object_or_404
 from news.mixin import LikedMixin
+from users.permissions import IsPartner, IsContractor
 from .serializers import *
 from .models import *
 
@@ -10,7 +11,7 @@ class NewsViewSet(LikedMixin, viewsets.ModelViewSet):
 
     queryset = News.objects.all()
     serializer_class = NewsSerializer
-    permission_classes = [AllowAny, ]
+    permission_classes = [permissions.IsAuthenticated]
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     search_fields = ('name', 'text')
     ordering_fields = ('name', 'text')
@@ -25,7 +26,7 @@ class NewsViewSet(LikedMixin, viewsets.ModelViewSet):
 class CommentListView(generics.ListAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentListSerializer
-    permission_classes = [AllowAny, ]
+    permission_classes = [permissions.IsAuthenticated, ]
 
     def get_object(self):
         return Comment.objects.filter(news=get_object_or_404(News, pk=self.kwargs.get('news_id')))
@@ -34,7 +35,7 @@ class CommentListView(generics.ListAPIView):
 class CommentCreateView(generics.CreateAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentCreateSerializer
-    permission_classes = [AllowAny, ]
+    permission_classes = [permissions.IsAuthenticated, ]
 
     def perform_create(self, serializer):
         serializer.save(news=get_object_or_404(News, pk=self.kwargs.get('news_id')), user=self.request.user)

@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 from django.contrib.auth import get_user_model
 from rest_framework.viewsets import GenericViewSet
-
+from users.permissions import IsOwner, IsPartner
 from users.tokens import account_activation_token, password_reset_token
 from .serializers import UserSerializer, PasswordResetSerializer, PasswordResetConfirm, \
     UserProfileSerializer, PasswordChangeSerializer, CompanySerializer, DocumentSerializer, \
@@ -94,7 +94,7 @@ class UserProfileViewSet(mixins.RetrieveModelMixin,
 
 
 class PasswordChangeView(UpdateAPIView):
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (permissions.IsAuthenticated,)
     serializer_class = PasswordChangeSerializer
 
     def get_object(self):
@@ -118,15 +118,32 @@ class PasswordChangeView(UpdateAPIView):
 class CompanyUpdateView(generics.RetrieveUpdateAPIView):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
+    permission_classes = [IsOwner, ]
 
     def get_object(self):
         obj, created = Company.objects.get_or_create(user=self.request.user)
         return obj
 
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        print(request.data)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)
+
 
 class DocumentSerializerRUView(generics.RetrieveUpdateAPIView):
     queryset = Company.objects.all()
     serializer_class = DocumentSerializer
+    permission_classes = [IsOwner, ]
 
     def get_object(self):
         obj, created = Company.objects.get_or_create(user=self.request.user)
@@ -136,6 +153,7 @@ class DocumentSerializerRUView(generics.RetrieveUpdateAPIView):
 class CompanyPitchRUView(generics.RetrieveUpdateAPIView):
     queryset = CompanyPitch.objects.all()
     serializer_class = CompanyPitchSerializer
+    permission_classes = [IsOwner, ]
 
     def get_object(self):
         obj, created = Company.objects.get_or_create(user=self.request.user)
@@ -145,6 +163,7 @@ class CompanyPitchRUView(generics.RetrieveUpdateAPIView):
 class MyStoreRUView(generics.RetrieveUpdateAPIView):
     queryset = MyStore.objects.all()
     serializer_class = MyStoreSerializer
+    permission_classes = [IsOwner, ]
 
     def get_object(self):
         obj, created = MyStore.objects.get_or_create(user=self.request.user)
@@ -153,7 +172,7 @@ class MyStoreRUView(generics.RetrieveUpdateAPIView):
 
 class ManagerCreateView(CreateAPIView):
     model = User
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (IsPartner,)
     serializer_class = ManagerSerializer
 
     def create(self, request, *args, **kwargs):

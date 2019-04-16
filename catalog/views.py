@@ -4,6 +4,7 @@ from django.db import IntegrityError
 from catalog.serializers import CategorySerializer, ProductSerializer, YMLHandlerSerializer, \
     ProductUploadHistorySerializer, ProductListIdSerializer
 from catalog.models import Category, Product, ProductImage, ProductImageURL, YMLTemplate, ProductUploadHistory
+from users.permissions import IsPartner, IsContractor
 from rest_framework.decorators import action
 from django_filters import rest_framework as filters
 from catalog.filters import ProductFilter
@@ -42,12 +43,30 @@ class CategoryRetrieveView(generics.RetrieveAPIView):
     queryset = Category.objects.all()
 
 
-class ProductView(viewsets.ModelViewSet):
+class ProductContractorViewSet(viewsets.ModelViewSet):
     """
-    Продукты
+    Продукты поставщика
+    """
+    parser_classes = (MultiPartParser, CamelCaseJSONParser,)
+    permission_classes = (IsContractor, )
+    serializer_class = ProductSerializer
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete', ]
+    filter_backends = (filters.DjangoFilterBackend, )
+    filterset_class = ProductFilter
+
+    def get_queryset(self):
+        return Product.objects.filter(
+            user=self.request.user,
+            contractor_product=None,
+        )
+
+
+class ProductPartnerViewSet(viewsets.ModelViewSet):
+    """
+    Продукты партнера
     """
     parser_classes = (MultiPartParser, CamelCaseJSONParser, )
-    permission_classes = (permissions.AllowAny, )
+    permission_classes = (IsPartner, )
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     http_method_names = ['get', 'post', 'put', 'patch', 'delete', ]
@@ -106,10 +125,21 @@ class ProductView(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED,
         )
 
+    @action(detail=True, methods=['get'])
+    def products_by_contractors(self, request, *args, **kwargs):
+        queryset = Product.products_by_contractors.exclude(
+            user=request.user
+        )
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(
+            status=status.HTTP_200_OK,
+            data=serializer.data
+        )
+
 
 class YMLHandlerViewSet(viewsets.ModelViewSet):
     serializer_class = YMLHandlerSerializer
-    permission_classes = (ClientAccessPermission,)
+    permission_classes = (IsPartner, )
     lookup_field = 'yml_type'
 
     def get_queryset(self):
@@ -133,11 +163,13 @@ class ProductImportViewSet(viewsets.ModelViewSet):
     queryset = ProductUploadHistory.objects.all()
     serializer_class = ProductUploadHistorySerializer
     http_method_names = ('post', )
-    permission_classes = (permissions.AllowAny, )
+    permission_classes = (IsPartner, )
 
     def perform_create(self, serializer):
         input_file = self.request.FILES['xls_file']
-        if input_file.content_type in ('application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', ):
+        if input_file.content_type in (
+                'application/vnd.ms-excel',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', ):
             serializer.save(
                 user=self.request.user,
                 xls_file=input_file,

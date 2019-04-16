@@ -23,13 +23,24 @@ class NoPocket(BasePermission):
 
 class IsContractor(BasePermission):
     def has_permission(self, request, view):
-        if request.user.role == 'CONTRACTOR':
+        if request.user.role == 'CONTRACTOR' or request.user.is_staff:
             return True
         return False
 
 
 class IsPartner(BasePermission):
     def has_permission(self, request, view):
-        if request.user.role == 'PARTNER':
+        if request.user.role == 'PARTNER' or request.user.is_staff:
             return True
         return False
+
+
+class IsOwner(BasePermission):
+    """
+    Custom permission to only allow owners of an object to edit it.
+    """
+    def has_permission(self, request, view):
+        return request.user and request.user.is_authenticated
+
+    def has_object_permission(self, request, view, obj):
+        return obj.user == request.user
