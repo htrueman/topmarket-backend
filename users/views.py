@@ -5,9 +5,10 @@ from rest_framework.viewsets import GenericViewSet
 from users.tokens import account_activation_token, password_reset_token
 from .serializers import UserSerializer, PasswordResetSerializer, PasswordResetConfirm, \
     UserProfileSerializer, PasswordChangeSerializer, CompanySerializer, DocumentSerializer, \
-    CompanyPitchSerializer, MyStoreSerializer, ManagerSerializer
-from .models import Company, CompanyPitch, MyStore
-from rest_framework.generics import CreateAPIView, get_object_or_404, UpdateAPIView, RetrieveUpdateAPIView
+    CompanyPitchSerializer, MyStoreSerializer, ManagerSerializer, ActivityAreasSerializer, ServiceIndustrySerializer, \
+    CompanyTypeSerializer
+from .models import Company, CompanyPitch, MyStore, ActivityAreas, ServiceIndustry, CompanyType
+from rest_framework.generics import CreateAPIView, get_object_or_404, UpdateAPIView, RetrieveUpdateAPIView, ListAPIView
 from rest_framework import permissions, status, mixins, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -163,3 +164,17 @@ class ManagerCreateView(CreateAPIView):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
+
+class ActivityAreasListView(ListAPIView):
+    queryset = ActivityAreas.objects.all()
+    serializer_class = ActivityAreasSerializer
+
+
+class ServiceIndustryListView(ListAPIView):
+    queryset = ServiceIndustry.objects.all()
+    serializer_class = ServiceIndustrySerializer
+
+
+class CompanyTypeListView(ListAPIView):
+    queryset = CompanyType.objects.all()
+    serializer_class = CompanyTypeSerializer

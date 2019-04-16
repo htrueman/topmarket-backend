@@ -6,6 +6,8 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from users import views
 from rest_framework_simplejwt import views as jwt_views
 
+from users.views import ActivityAreasListView, ServiceIndustryListView, CompanyTypeListView
+
 app_name = 'users'
 
 
@@ -43,6 +45,9 @@ urlpatterns += [
     path('login/', decorated_login_view, name='token_obtain_pair'),
     path('token_refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
     path('company/', views.CompanyUpdateView.as_view(), name='company'),
+    path('company/activity_areas/', ActivityAreasListView.as_view(), name='activity_areas'),
+    path('company/service_industry/', ServiceIndustryListView.as_view(), name='service_industry'),
+    path('company/company_type/', CompanyTypeListView.as_view(), name='company_type'),
     path('company/documents/', views.DocumentSerializerRUView.as_view(), name='documents'),
     path('company/pitch/', views.CompanyPitchRUView.as_view(), name='pitch'),
     path('my_store/', views.MyStoreRUView.as_view(), name='my-store'),
