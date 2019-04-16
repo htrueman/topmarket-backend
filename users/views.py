@@ -2,17 +2,18 @@ from django.http import HttpResponse
 from django.contrib.auth import get_user_model
 from rest_framework.viewsets import GenericViewSet
 
-from users.tokens import account_activation_token
+from users.tokens import account_activation_token, password_reset_token
 from .serializers import UserSerializer, PasswordResetSerializer, PasswordResetConfirm, \
-    UserProfileSerializer, PasswordChangeSerializer, UserNotificationSerializer, CompanySerializer, DocumentSerializer, \
+    UserProfileSerializer, PasswordChangeSerializer, CompanySerializer, DocumentSerializer, \
     CompanyPitchSerializer, MyStoreSerializer, ManagerSerializer
-from .models import UserNotification, Company, CompanyPitch, MyStore
+from .models import Company, CompanyPitch, MyStore
 from rest_framework.generics import CreateAPIView, get_object_or_404, UpdateAPIView, RetrieveUpdateAPIView
 from rest_framework import permissions, status, mixins, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.utils.encoding import force_text
-from django.utils.http import urlsafe_base64_decode
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes
 
 User = get_user_model()
 
@@ -22,34 +23,49 @@ class CreateUserView(CreateAPIView):
     permission_classes = (permissions.AllowAny,)
     serializer_class = UserSerializer
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+
+        data = serializer.data
+        data['confirm_url'] = 'https://api.topmarket.club/api/v1/activate/' + urlsafe_base64_encode(force_bytes(data['id'])).decode() + '/' + \
+                              account_activation_token.make_token(User.objects.get(id=data['id']))
+        return Response(data=data, status=status.HTTP_201_CREATED, headers=headers)
+
 
 class PasswordResetView(APIView):
     permission_classes = (permissions.AllowAny,)
     serializer_class = PasswordResetSerializer
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
+
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+
+            password = serializer.save()
+            data = serializer.data
+            data['pass'] = password
+            return Response(data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class PasswordResetConfirmView(APIView):
-    permission_classes = (permissions.AllowAny,)
-    serializer_class = PasswordResetConfirm
-
-    def put(self, request):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            uid = serializer.data['uid']
-            uid = force_text(urlsafe_base64_decode(uid))
-            user = User.objects.get(pk=uid)
-            return Response('Password for {} has been succesfully changed'.format(user), status=status.HTTP_200_OK)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# class PasswordResetConfirmView(APIView):
+#     permission_classes = (permissions.AllowAny,)
+#     serializer_class = PasswordResetConfirm
+#
+#     def put(self, request):
+#         serializer = self.serializer_class(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             uid = serializer.data['uid']
+#             uid = force_text(urlsafe_base64_decode(uid))
+#             user = User.objects.get(pk=uid)
+#             return Response('Password for {} has been succesfully changed'.format(user), status=status.HTTP_200_OK)
+#         else:
+#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 def activate(request, uidb64, token, *args, **kwargs):
@@ -97,15 +113,6 @@ class PasswordChangeView(UpdateAPIView):
             return Response('Password for {} has been succesfully changed'.format(obj),
                             status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class UserNotificationRetrieveUpdateView(RetrieveUpdateAPIView):
-    serializer_class = UserNotificationSerializer
-    permission_classes = (permissions.AllowAny, )
-
-    def get_object(self):
-        obj, created = UserNotification.objects.get_or_create(user=self.request.user)
-        return obj
 
 
 class CompanyUpdateView(generics.RetrieveUpdateAPIView):

@@ -12,9 +12,16 @@ class ProductResource(resources.ModelResource):
             'vendor_code',
             'product_type',
             'brand',
+            'variety_type',
+            'warranty_duration',
+            'vendor_country',
+            'box_size',
             'count',
             'description',
             'price',
+            'extra_description',
+            'age_group',
+            'material',
         )
 
     def after_import_instance(self, instance, new, **kwargs):

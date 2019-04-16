@@ -1,9 +1,16 @@
+from django.utils.translation import ugettext as _
+
 DOMEN = (
-    ('DM', "Домен"),
-    ('SD', 'Поддомен')
+    ('DM', _("Домен")),
+    ('SD', _('Поддомен'))
 )
 
 CALL_BACK = (
-    ('YES', 'Включена'),
-    ('NO', 'Выключена')
+    ('YES', _('Включена')),
+    ('NO', _('Выключена'))
+)
+
+USER_ROLE = (
+    ('CONTRACTOR', _('Поставщик')),
+    ('PARTNER', _('Партнер')),
 )

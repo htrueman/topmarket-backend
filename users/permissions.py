@@ -19,3 +19,17 @@ class NoPocket(BasePermission):
         if request.user.user_pocket == 'NO':
             return True
         return False
+
+
+class IsContractor(BasePermission):
+    def has_permission(self, request, view):
+        if request.user.role == 'CONTRACTOR':
+            return True
+        return False
+
+
+class IsPartner(BasePermission):
+    def has_permission(self, request, view):
+        if request.user.role == 'PARTNER':
+            return True
+        return False

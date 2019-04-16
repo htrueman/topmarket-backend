@@ -1,8 +1,8 @@
 from rest_framework import generics, viewsets, permissions, status
 from django.db import transaction
-
+from django.db import IntegrityError
 from catalog.serializers import CategorySerializer, ProductSerializer, YMLHandlerSerializer, \
-    ProductUploadHistorySerializer
+    ProductUploadHistorySerializer, ProductListIdSerializer
 from catalog.models import Category, Product, ProductImage, ProductImageURL, YMLTemplate, ProductUploadHistory
 from rest_framework.decorators import action
 from django_filters import rest_framework as filters
@@ -54,38 +54,54 @@ class ProductView(viewsets.ModelViewSet):
     filter_backends = (filters.DjangoFilterBackend, )
     filterset_class = ProductFilter
 
-    @action(detail=True, methods=['post'], serializer_class=None)
-    def copy_to_my_products(self, request, pk, **kwargs):
-        contractor_prod = get_object_or_404(Product, pk=pk)
+    @action(detail=False, methods=['post'], serializer_class=ProductListIdSerializer)
+    def copy_to_my_products(self, request, **kwargs):
+        prod_list_id = request.data['product_list_ids']
         with transaction.atomic():
-            partner_prod = Product(
-                user=request.user,
-                contractor_product=contractor_prod,
-                category=contractor_prod.category,
-                name=contractor_prod.name,
-                vendor_code=contractor_prod.vendor_code,
-                brand=contractor_prod.brand,
-                count=contractor_prod.count,
-                description=contractor_prod.description,
-                price=contractor_prod.price,
-            )
-            partner_prod.save()
+            for prod_id in prod_list_id:
+                contractor_prod = get_object_or_404(Product, pk=prod_id)
+                partner_prod = Product(
+                    category=contractor_prod.category,
+                    user=request.user,
+                    product_type=contractor_prod.product_type,
+                    brand=contractor_prod.brand,
+                    name=contractor_prod.name,
+                    variety_type=contractor_prod.variety_type,
+                    vendor_code=contractor_prod.vendor_code,
+                    warranty_duration=contractor_prod.warranty_duration,
+                    vendor_country=contractor_prod.vendor_country,
+                    box_size=contractor_prod.box_size,
+                    count=contractor_prod.count,
+                    description=contractor_prod.description,
+                    extra_description=contractor_prod.extra_description,
+                    age_group=contractor_prod.age_group,
+                    material=contractor_prod.material,
+                    price=contractor_prod.price,
+                    contractor_product=contractor_prod,
+                )
+                try:
+                    partner_prod.save()
+                except IntegrityError as e:
+                    if 'unique constraint' in e.args[0]:
+                        return Response(
+                            status=status.HTTP_409_CONFLICT,
+                        )
 
-            contractor_imgs = contractor_prod.productimage_set.all()
+                contractor_imgs = contractor_prod.productimage_set.all()
 
-            if contractor_imgs:
-                ProductImage.objects.bulk_create([
-                    ProductImage(product_id=pk, **img)
-                    for img in contractor_imgs
-                ])
+                if contractor_imgs:
+                    ProductImage.objects.bulk_create([
+                        ProductImage(product_id=prod_id, **img)
+                        for img in contractor_imgs
+                    ])
 
-            contractor_urls = contractor_prod.productimageurl_set.all()
+                contractor_urls = contractor_prod.productimageurl_set.all()
 
-            if contractor_urls:
-                ProductImageURL.objects.bulk_create([
-                    ProductImageURL(product_id=pk, **url)
-                    for url in contractor_urls
-                ])
+                if contractor_urls:
+                    ProductImageURL.objects.bulk_create([
+                        ProductImageURL(product_id=prod_id, **url)
+                        for url in contractor_urls
+                    ])
         return Response(
             status=status.HTTP_201_CREATED,
         )

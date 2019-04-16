@@ -3,7 +3,7 @@ from django.urls import path, include
 from drf_yasg import openapi
 from drf_yasg.inspectors import SwaggerAutoSchema
 from drf_yasg.views import get_schema_view
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAdminUser, AllowAny
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -20,7 +20,7 @@ schema_view = get_schema_view(
       title="Top Market Platform API",
       default_version='v1',
     ),
-    permission_classes=(IsAdminUser,),
+    permission_classes=(AllowAny,),
 )
 
 urlpatterns = [
