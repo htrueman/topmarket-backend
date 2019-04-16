@@ -6,7 +6,6 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from users import views
 from rest_framework_simplejwt import views as jwt_views
 
-from users.views import ActivityAreasListView, ServiceIndustryListView, CompanyTypeListView
 
 app_name = 'users'
 
@@ -44,10 +43,17 @@ urlpatterns += [
 
     path('login/', decorated_login_view, name='token_obtain_pair'),
     path('token_refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
-    path('company/', views.CompanyUpdateView.as_view(), name='company'),
-    path('company/activity_areas/', ActivityAreasListView.as_view(), name='activity_areas'),
-    path('company/service_industry/', ServiceIndustryListView.as_view(), name='service_industry'),
-    path('company/company_type/', CompanyTypeListView.as_view(), name='company_type'),
+    path('company/update/', views.CompanyUpdateView.as_view(), name='retrieve_update_company'),
+    path('company/detail/', views.CompanyRetrieveView.as_view(), name='retrieve_update_company'),
+    path('company/activity_areas/', views.ActivityAreasListCreateView.as_view(), name='activity_areas_list_create'),
+    path('company/activity_areas/<int:pk>/', views.ActivityAreasUpdateDestroyView.as_view(),
+         name='activity_areas_retrieve_update_destroy'),
+    path('company/service_industry/', views.ServiceIndustryListCreateView.as_view(), name='service_industry_list_create'),
+    path('company/service_industry/', views.ServiceIndustryUpdateDestroyView.as_view(),
+         name='service_industry_retrieve_update_destroy'),
+    path('company/company_type/', views.CompanyTypeListCreateView.as_view(), name='company_type_list_create'),
+    path('company/company_type/<int:pk>/', views.CompanyTypeUpdateDestroyView.as_view(),
+         name='company_type_update_destroy_view'),
     path('company/documents/', views.DocumentSerializerRUView.as_view(), name='documents'),
     path('company/pitch/', views.CompanyPitchRUView.as_view(), name='pitch'),
     path('my_store/', views.MyStoreRUView.as_view(), name='my-store'),

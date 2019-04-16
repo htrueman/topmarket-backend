@@ -4,9 +4,9 @@ from rest_framework.viewsets import GenericViewSet
 from users.permissions import IsOwner, IsPartner
 from users.tokens import account_activation_token, password_reset_token
 from .serializers import UserSerializer, PasswordResetSerializer, PasswordResetConfirm, \
-    UserProfileSerializer, PasswordChangeSerializer, CompanySerializer, DocumentSerializer, \
+    UserProfileSerializer, PasswordChangeSerializer, CompanyUpdateSerializer, DocumentSerializer, \
     CompanyPitchSerializer, MyStoreSerializer, ManagerSerializer, ActivityAreasSerializer, ServiceIndustrySerializer, \
-    CompanyTypeSerializer
+    CompanyTypeSerializer, CompanyRetrieveSerializer
 from .models import Company, CompanyPitch, MyStore, ActivityAreas, ServiceIndustry, CompanyType
 from rest_framework.generics import CreateAPIView, get_object_or_404, UpdateAPIView, RetrieveUpdateAPIView, ListAPIView
 from rest_framework import permissions, status, mixins, generics
@@ -116,29 +116,22 @@ class PasswordChangeView(UpdateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CompanyUpdateView(generics.RetrieveUpdateAPIView):
-    queryset = Company.objects.all()
-    serializer_class = CompanySerializer
+class CompanyRetrieveView(generics.RetrieveAPIView):
+    serializer_class = CompanyRetrieveSerializer
     permission_classes = [IsOwner, ]
 
     def get_object(self):
         obj, created = Company.objects.get_or_create(user=self.request.user)
         return obj
 
-    def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
-        print(request.data)
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
 
-        if getattr(instance, '_prefetched_objects_cache', None):
-            # If 'prefetch_related' has been applied to a queryset, we need to
-            # forcibly invalidate the prefetch cache on the instance.
-            instance._prefetched_objects_cache = {}
+class CompanyUpdateView(generics.UpdateAPIView):
+    serializer_class = CompanyUpdateSerializer
+    permission_classes = [IsOwner, ]
 
-        return Response(serializer.data)
+    def get_object(self):
+        obj, created = Company.objects.get_or_create(user=self.request.user)
+        return obj
 
 
 class DocumentSerializerRUView(generics.RetrieveUpdateAPIView):
@@ -184,16 +177,37 @@ class ManagerCreateView(CreateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
-class ActivityAreasListView(ListAPIView):
+class ActivityAreasListCreateView(generics.ListCreateAPIView):
     queryset = ActivityAreas.objects.all()
     serializer_class = ActivityAreasSerializer
+    permission_classes = [permissions.IsAuthenticated, ]
 
 
-class ServiceIndustryListView(ListAPIView):
+class ActivityAreasUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = ActivityAreas.objects.all()
+    serializer_class = ActivityAreasSerializer
+    permission_classes = [permissions.IsAdminUser, ]
+
+
+class ServiceIndustryListCreateView(generics.ListCreateAPIView):
     queryset = ServiceIndustry.objects.all()
     serializer_class = ServiceIndustrySerializer
+    permission_classes = [permissions.IsAuthenticated, ]
 
 
-class CompanyTypeListView(ListAPIView):
+class ServiceIndustryUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = ServiceIndustry.objects.all()
+    serializer_class = ServiceIndustrySerializer
+    permission_classes = [permissions.IsAdminUser, ]
+
+
+class CompanyTypeListCreateView(generics.ListCreateAPIView):
     queryset = CompanyType.objects.all()
     serializer_class = CompanyTypeSerializer
+    permission_classes = [permissions.IsAuthenticated, ]
+
+
+class CompanyTypeUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = CompanyType.objects.all()
+    serializer_class = CompanyTypeSerializer
+    permission_classes = [permissions.IsAdminUser, ]

@@ -251,19 +251,19 @@ class UserProfileSerializer(RequireTogetherFields, UserSerializerMixin, serializ
 class ActivityAreasSerializer(serializers.ModelSerializer):
     class Meta:
         model = ActivityAreas
-        fields = ('name',)
+        fields = ('id', 'name',)
 
 
 class ServiceIndustrySerializer(serializers.ModelSerializer):
     class Meta:
         model = ServiceIndustry
-        fields = ('name',)
+        fields = ('id', 'name',)
 
 
 class CompanyTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = CompanyType
-        fields = ('name', )
+        fields = ('id', 'name', )
 
 
 class PassportSerializer(serializers.ModelSerializer):
@@ -315,7 +315,43 @@ class CompanyPitchSerializer(serializers.ModelSerializer):
         )
 
 
-class CompanySerializer(serializers.ModelSerializer):
+class CompanyRetrieveSerializer(serializers.ModelSerializer):
+    activity_area = ActivityAreasSerializer(many=False, read_only=True)
+    service_industry = ServiceIndustrySerializer(many=False, read_only=True)
+    company_type = CompanyTypeSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Company
+        fields = (
+            'name',
+            'town',
+            'address',
+            'url',
+            'working_conditions',
+            'logo',
+            'web_site',
+            'phone',
+            'email',
+            'who_see_contact',
+            'is_internet_shop',
+            'is_offline_shop',
+            'retail_network',
+            'distributor',
+            'manufacturer',
+            'importer',
+            'dealer',
+            'sub_dealer',
+            'exporter',
+            'official_representative',
+            'about_company',
+            'activity_area',
+            'service_industry',
+            'company_type'
+        )
+
+
+
+class CompanyUpdateSerializer(serializers.ModelSerializer):
     logo_decoded = Base64ImageField(source='logo', required=False, allow_null=True)
     activity_area = serializers.PrimaryKeyRelatedField(
         many=False,
