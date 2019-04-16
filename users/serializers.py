@@ -315,9 +315,20 @@ class CompanyPitchSerializer(serializers.ModelSerializer):
 
 class CompanySerializer(serializers.ModelSerializer):
     logo_decoded = Base64ImageField(source='logo', required=False)
-    activity_areas = ActivityAreasSerializer(many=False)
-    service_industry = ServiceIndustrySerializer(many=False)
-    company_type = CompanyTypeSerializer(many=False)
+    activity_area = serializers.PrimaryKeyRelatedField(
+        many=False,
+        queryset=ActivityAreas.objects.all()
+    )
+
+    service_industry = serializers.PrimaryKeyRelatedField(
+        many=False,
+        queryset=ServiceIndustry.objects.all()
+    )
+
+    company_type = serializers.PrimaryKeyRelatedField(
+        many=False,
+        queryset=CompanyType.objects.all()
+    )
 
     class Meta:
         model = Company
@@ -343,7 +354,7 @@ class CompanySerializer(serializers.ModelSerializer):
             'exporter',
             'official_representative',
             'about_company',
-            'activity_areas',
+            'activity_area',
             'service_industry',
             'company_type'
         )

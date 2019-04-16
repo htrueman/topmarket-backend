@@ -248,14 +248,31 @@ class Company(models.Model):
         verbose_name=_('Информация')
     )
 
+    activity_area = models.ForeignKey(
+        'ActivityAreas',
+        null=True, blank=True,
+        related_name='activity_areas',
+        on_delete=models.SET_NULL
+
+        )
+
+    service_industry = models.ForeignKey(
+        'ServiceIndustry',
+        null=True, blank=True,
+        related_name='service_industries',
+        on_delete=models.SET_NULL
+    )
+
+    company_type = models.ForeignKey(
+        'CompanyType',
+        null=True, blank=True,
+        related_name='company_types',
+        on_delete=models.SET_NULL
+    )
+
 
 class ActivityAreas(models.Model):
-    company = models.ForeignKey(
-        'Company',
-        on_delete=models.CASCADE,
-        null=True, blank=True,
-        related_name='activity_areas'
-    )
+
     name = models.TextField(
         max_length=1095,
         verbose_name=_('Имя сферы деятельности')
@@ -266,7 +283,7 @@ class ActivityAreas(models.Model):
 
 
 class ServiceIndustry(models.Model):
-    company = models.ForeignKey('Company', on_delete=models.CASCADE, null=True, blank=True, verbose_name=_('Компания'))
+
     name = models.TextField(
         max_length=1095,
         verbose_name=_('Имя сферы услуг')
@@ -277,7 +294,7 @@ class ServiceIndustry(models.Model):
 
 
 class CompanyType(models.Model):
-    company = models.ForeignKey('Company', on_delete=models.CASCADE, null=True, blank=True)
+
     name = models.TextField(
         max_length=1095,
         verbose_name=_('Тип компании')
@@ -285,8 +302,6 @@ class CompanyType(models.Model):
 
 
 # Документы
-
-
 class Passport(models.Model):
     company = models.ForeignKey(
         'Company',
