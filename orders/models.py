@@ -25,6 +25,7 @@ class Order(models.Model):
     created_type = models.PositiveSmallIntegerField(choices=OrderCreateTypes.CREATE_TYPES)
 
     last_update = models.DateTimeField(auto_now=True)
+    system_comment = models.TextField(blank=True)
 
     user = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE)
 
