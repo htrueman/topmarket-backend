@@ -6,6 +6,7 @@ from subprocess import PIPE
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 
+from catalog.models import Product
 from .models import Order, OrderUser, OrderDelivery, OrderItemPhoto, OrderSellerComment, OrderStatusHistoryItem
 from top_market_platform.celery import app
 from users.models import Company, MyStore
@@ -30,11 +31,6 @@ def checkout_orders():
 
                     output = subprocess.check_output(curl_get_access_key, stderr=PIPE, shell=True)
                     data = json.loads(output)
-
-                    # res_access_key = requests.request("POST", '{}sites'.format(API_BASE), data={
-                    #     "username": user.rozetka_username,
-                    #     "password": base64.b64encode(bytes(user.rozetka_password, 'utf-8')).decode('utf-8')
-                    # }, headers=headers)
 
                     if data['success']:
                         token = data['content']['access_token']
@@ -96,6 +92,8 @@ def checkout_orders():
                             product_id=photo_dict['id'],
                             url=photo_dict['url']
                         )
+                        if Product.objects.filter(id=photo_dict['id']).exists():
+                            order_instance.product.add(photo_dict['id'])
 
                     for seller_comment_dict in order['seller_comment']:
                         OrderSellerComment.objects.update_or_create(
