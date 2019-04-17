@@ -150,7 +150,9 @@ class CompanyPitchRUView(generics.RetrieveUpdateAPIView):
     permission_classes = [IsOwner, ]
 
     def get_object(self):
-        obj, created = Company.objects.get_or_create(user=self.request.user)
+        company = get_object_or_404(Company, user=self.request.user)
+        obj, created = CompanyPitch.objects.get_or_create(company=company)
+        print(obj)
         return obj
 
 
