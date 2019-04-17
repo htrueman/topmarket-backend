@@ -24,7 +24,11 @@ class Order(models.Model):
     can_copy = models.BooleanField()
     created_type = models.PositiveSmallIntegerField(choices=OrderCreateTypes.CREATE_TYPES)
 
-    product = models.ManyToManyField('users.CustomUser', blank=True)
+    last_update = models.DateTimeField(auto_now=True)
+
+    user = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE)
+
+    products = models.ManyToManyField('catalog.Product', blank=True)
 
     def __str__(self):
         return '{}, {}, {}'.format(

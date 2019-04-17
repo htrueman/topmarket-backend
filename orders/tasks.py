@@ -16,7 +16,7 @@ User = get_user_model()
 
 @app.task
 def checkout_orders():
-    for user in User.objects.all():
+    for user in User.objects.filter(role='PARTNER'):
         if (Company.objects.filter(user=user).exists()
                 and MyStore.objects.filter(user=user).exists()):
             token = cache.get('user_id_{}'.format(user.pk))
@@ -49,6 +49,7 @@ def checkout_orders():
                     seller_comment_created = order.pop('seller_comment_created')
                     order_instance, created = Order.objects.update_or_create(
                         id=order['id'],
+                        user=user,
                         defaults={
                             'market_id': order['market_id'],
                             'created': order['created'],
