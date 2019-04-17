@@ -462,64 +462,65 @@ class DocumentSerializer(serializers.ModelSerializer):
                     setattr(instance, attr, value)
 
                 if passports_data:
-                    passport_list = []
-                    for passport_data in passports_data:
-                        passport, _ = Passport.objects.get_or_create(
-                            pass_doc=passport_data['passports'],
-                            company=instance
-                        )
-                        passport_list.append(passport)
-                    instance.passports = passport_list
+                    print(passports_data)
+                    # passport_list = []
+                    # for passport_data in passports_data:
+                    #     passport, _ = Passport.objects.get_or_create(
+                    #         pass_doc=passport_data['passports'],
+                    #         company=instance
+                    #     )
+                    #     passport_list.append(passport)
+                    # instance.passports = passport_list
 
-                if uks_data:
-                    uk_list = []
-                    for uk_data in uks_data:
-                        uk, _ = UkraineStatistic.objects.get_or_create(
-                            uk_doc=uk_data['ukraine_statistics'],
-                            company=instance
-                        )
-                        uk_list.append(uk)
-                    instance.ukraine_statistics = uk_list
-
-                if certificates_data:
-                    cert_list = []
-                    for certificate_data in certificates_data:
-                        certificate, _ = Certificate.objects.get_or_create(
-                            cert_doc=certificate_data['certificates'],
-                            company=instance
-                        )
-                        cert_list.append(certificate)
-                    instance.certificates = cert_list
-
-                if tax_payers_data:
-                    tax_payer_list = []
-                    for tax_payer_data in tax_payers_data:
-                        tax_payer, _ = TaxPayer.objects.get_or_create(
-                            tax_doc=tax_payer_data['tax_payers'],
-                            company=instance
-                        )
-                        tax_payer_list.append(tax_payer)
-                    instance.tax_payers = tax_payer_list
-                if registers_data:
-                    register_list = []
-                    for register_data in registers_data:
-                        register, _ = PayerRegister.objects.get_or_create(
-                            payer_reg_doc=register_data['payer_registers'],
-                            company=instance
-                        )
-                        register_list.append(register)
-                    instance.payer_registers = register_list
-                if payer_certificates_data:
-                    payer_cert_list = []
-                    for payer_certificate_data in payer_certificates_data:
-                        payer_certificate, _ = PayerCertificate.objects.get_or_create(
-                            payer_cert_doc=payer_certificate_data['payer_certificates'],
-                            company=instance
-                        )
-                        payer_cert_list.append(payer_certificate)
-                    instance.payer_certificates = payer_cert_list
-
-                instance.save();
+                # if uks_data:
+                #     uk_list = []
+                #     for uk_data in uks_data:
+                #         uk, _ = UkraineStatistic.objects.get_or_create(
+                #             uk_doc=uk_data['ukraine_statistics'],
+                #             company=instance
+                #         )
+                #         uk_list.append(uk)
+                #     instance.ukraine_statistics = uk_list
+                #
+                # if certificates_data:
+                #     cert_list = []
+                #     for certificate_data in certificates_data:
+                #         certificate, _ = Certificate.objects.get_or_create(
+                #             cert_doc=certificate_data['certificates'],
+                #             company=instance
+                #         )
+                #         cert_list.append(certificate)
+                #     instance.certificates = cert_list
+                #
+                # if tax_payers_data:
+                #     tax_payer_list = []
+                #     for tax_payer_data in tax_payers_data:
+                #         tax_payer, _ = TaxPayer.objects.get_or_create(
+                #             tax_doc=tax_payer_data['tax_payers'],
+                #             company=instance
+                #         )
+                #         tax_payer_list.append(tax_payer)
+                #     instance.tax_payers = tax_payer_list
+                # if registers_data:
+                #     register_list = []
+                #     for register_data in registers_data:
+                #         register, _ = PayerRegister.objects.get_or_create(
+                #             payer_reg_doc=register_data['payer_registers'],
+                #             company=instance
+                #         )
+                #         register_list.append(register)
+                #     instance.payer_registers = register_list
+                # if payer_certificates_data:
+                #     payer_cert_list = []
+                #     for payer_certificate_data in payer_certificates_data:
+                #         payer_certificate, _ = PayerCertificate.objects.get_or_create(
+                #             payer_cert_doc=payer_certificate_data['payer_certificates'],
+                #             company=instance
+                #         )
+                #         payer_cert_list.append(payer_certificate)
+                #     instance.payer_certificates = payer_cert_list
+                #
+                instance.save()
             return instance
 
 
@@ -572,7 +573,8 @@ class MyStoreSerializer(serializers.ModelSerializer):
             'top_sales',
             'no_items',
             'logo_decoded',
-            'phones_number',
+            'header_phones_number',
+            'footer_phones_number',
             'navigation',
             'slider_images',
         )
