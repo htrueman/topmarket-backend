@@ -14,8 +14,8 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from .mixins import UserSerializerMixin, RequireTogetherFields
 from .tokens import account_activation_token, password_reset_token
 from .models import UserNotificationEmail, UserNotificationPhone, Company, ActivityAreas, ServiceIndustry, CompanyType, \
-    CompanyPitch, Passport, UkraineStatistic, Certificate, TaxPayer, PayerRegister, PayerCertificate, PhoneNumber,\
-    Navigation, MyStore, StoreSliderImage
+    CompanyPitch, Passport, UkraineStatistic, Certificate, TaxPayer, PayerRegister, PayerCertificate, HeaderPhoneNumber,\
+    Navigation, MyStore, StoreSliderImage, FooterPhoneNumber
 
 import random
 import string
@@ -350,7 +350,6 @@ class CompanyRetrieveSerializer(serializers.ModelSerializer):
         )
 
 
-
 class CompanyUpdateSerializer(serializers.ModelSerializer):
     logo_decoded = Base64ImageField(source='logo', required=False, allow_null=True)
     activity_area = serializers.PrimaryKeyRelatedField(
@@ -525,10 +524,17 @@ class DocumentSerializer(serializers.ModelSerializer):
 
 
 # Мой магазин
-class PhoneNumberSerializer(serializers.ModelSerializer):
+class HeaderPhoneNumberSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = PhoneNumber
+        model = HeaderPhoneNumber
+        fields = ('number', )
+
+
+class FooterPhoneNumberSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = FooterPhoneNumber
         fields = ('number', )
 
 
@@ -548,7 +554,8 @@ class SliderImageSerializer(serializers.ModelSerializer):
 
 
 class MyStoreSerializer(serializers.ModelSerializer):
-    phones_number = PhoneNumberSerializer(many=True, source='phonenumber_set', required=False)
+    header_phones_number = HeaderPhoneNumberSerializer(many=True, source='header_phones', required=False)
+    footer_phones_number = FooterPhoneNumberSerializer(many=True, source='footer_phones', required=False)
     navigation = NavigationSerializer(many=True, source='navigation_set', required=False)
     slider_images = SliderImageSerializer(many=True, source='storesliderimage_set', required=False)
     logo_decoded = Base64ImageField(source='logo', required=False)
@@ -571,20 +578,35 @@ class MyStoreSerializer(serializers.ModelSerializer):
         )
 
     def create(self, validated_data):
-        phones_number_data = validated_data.pop('phone_set', None)
+        header_phones_number_data = validated_data.pop('header_phones', None)
+        footer_phones_number_data = validated_data.pop('footer_phones', None)
         navigations_data = validated_data.pop('navigation_set', None)
 
         my_store = MyStore.objects.create(**validated_data)
 
         with transaction.atomic():
-            if phones_number_data:
-                for phone_number_data in phones_number_data:
-                    PhoneNumber.objects.create(store=my_store, **phone_number_data)
+            if header_phones_number_data:
+                HeaderPhoneNumber.objects.bulk_create([
+                    HeaderPhoneNumber(
+                        store=my_store,
+                        **phone
+                    ) for phone in header_phones_number_data
+                ])
+            if footer_phones_number_data:
+                FooterPhoneNumber.objects.bulk_create([
+                    FooterPhoneNumber(
+                        store=my_store,
+                        **phone
+                    ) for phone in footer_phones_number_data
+                ])
 
             if navigations_data:
-                for navigation_data in navigations_data:
-                    Navigation.objects.create(store=my_store, **navigation_data)
-
+                Navigation.objects.bulk_create([
+                    Navigation(
+                        store=my_store,
+                        **navigation_data
+                    ) for navigation_data in navigations_data
+                ])
         return my_store
 
     def update(self, instance, validated_data):
@@ -599,8 +621,8 @@ class MyStoreSerializer(serializers.ModelSerializer):
             if phones_number_data:
                 phone_list = []
                 for phone_number_data in phones_number_data:
-                    print(phone_number_data)
-                    phone, _ = PhoneNumber.objects.get_or_create(
+                    HeaderPhoneNumber.objects.filter(store=instance).delete()
+                    phone, _ = HeaderPhoneNumber.objects.get_or_create(
                         number=phone_number_data['phones'],
                         store=instance
                     )

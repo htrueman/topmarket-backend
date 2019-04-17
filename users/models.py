@@ -454,8 +454,6 @@ class MyStore(models.Model):
 
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
 
-    company = models.OneToOneField(Company, on_delete=models.CASCADE)
-
     domain_subdomain = models.CharField(max_length=2, choices=DOMEN, blank=True, null=True, verbose_name=_('Домен/поддомен'))
     domain_name = models.URLField(max_length=200, null=True, blank=True, verbose_name=_('Имя домена'))
     call_back = models.CharField(max_length=3, choices=CALL_BACK, null=True, blank=True, verbose_name=_('Функция Сall-back'))
@@ -472,10 +470,16 @@ class MyStore(models.Model):
             return 'https://{}/'.format(self.domain_name)
 
 
-class PhoneNumber(models.Model):
+class HeaderPhoneNumber(models.Model):
 
-    store = models.ForeignKey('MyStore', on_delete=models.CASCADE, related_name='phones', null=True, blank=True)
-    number = models.CharField(max_length=20, null=True, blank=True, verbose_name=_('Номер телефона'))
+    store = models.ForeignKey('MyStore', on_delete=models.CASCADE, related_name='header_phones', null=True, blank=True)
+    number = models.CharField(max_length=20, null=True, blank=True, verbose_name=_('Номер телефона для хедера'))
+
+
+class FooterPhoneNumber(models.Model):
+
+    store = models.ForeignKey('MyStore', on_delete=models.CASCADE, related_name='footer_phones', null=True, blank=True)
+    number = models.CharField(max_length=20, null=True, blank=True, verbose_name=_('Номер телефона для футера'))
 
 
 class Navigation(models.Model):
