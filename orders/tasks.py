@@ -12,8 +12,6 @@ from users.models import Company, MyStore
 
 User = get_user_model()
 
-API_BASE = 'https://api.seller.rozetka.com.ua/'
-
 
 @app.task
 def checkout_orders():
