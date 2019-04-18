@@ -31,8 +31,8 @@ class CreateUserView(CreateAPIView):
         headers = self.get_success_headers(serializer.data)
 
         data = serializer.data
-        data['confirm_url'] = 'https://api.topmarket.club/api/v1/activate/' + urlsafe_base64_encode(force_bytes(data['id'])).decode() + '/' + \
-                              account_activation_token.make_token(User.objects.get(id=data['id']))
+        # data['confirm_url'] = 'https://api.topmarket.club/api/v1/activate/' + urlsafe_base64_encode(force_bytes(data['id'])).decode() + '/' + \
+        #                       account_activation_token.make_token(User.objects.get(id=data['id']))
         return Response(data=data, status=status.HTTP_201_CREATED, headers=headers)
 
 
@@ -45,10 +45,10 @@ class PasswordResetView(APIView):
 
         if serializer.is_valid():
 
-            password = serializer.save()
-            data = serializer.data
-            data['pass'] = password
-            return Response(data, status=status.HTTP_200_OK)
+            # password = serializer.save()
+            # data = serializer.data
+            # data['pass'] = password
+            return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

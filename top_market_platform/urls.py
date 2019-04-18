@@ -3,7 +3,7 @@ from django.urls import path, include
 from drf_yasg import openapi
 from drf_yasg.inspectors import SwaggerAutoSchema
 from drf_yasg.views import get_schema_view
-from rest_framework.permissions import IsAdminUser, AllowAny
+from rest_framework.permissions import AllowAny
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -30,8 +30,7 @@ urlpatterns = [
     path('api/<version>/news/', include('news.urls')),
     path('api/<version>/marketplace/', include('marketplace.urls')),
     path('api/<version>/catalog/', include('catalog.urls')),
+    path('api/<version>/orders/', include('orders.urls')),
 ] \
     + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) \
     + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-

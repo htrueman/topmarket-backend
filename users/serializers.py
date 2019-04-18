@@ -1,5 +1,5 @@
 from django.db import transaction
-from drf_extra_fields.fields import Base64ImageField, HybridImageField
+from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
@@ -16,10 +16,10 @@ from .tokens import account_activation_token, password_reset_token
 from .models import UserNotificationEmail, UserNotificationPhone, Company, ActivityAreas, ServiceIndustry, CompanyType, \
     CompanyPitch, Passport, UkraineStatistic, Certificate, TaxPayer, PayerRegister, PayerCertificate, HeaderPhoneNumber,\
     Navigation, MyStore, StoreSliderImage, FooterPhoneNumber
-from .utils import CustomBase64Field
+from .utils import CustomBase64Field, valid_url_extension
 import random
 import string
-from users.utils import valid_url_extension
+
 User = get_user_model()
 
 
@@ -296,31 +296,31 @@ class PassportSerializer(serializers.ModelSerializer):
 class UkraineStatisticSerializer(serializers.ModelSerializer):
     class Meta:
         model = UkraineStatistic
-        fields = ('uk_doc',)
+        fields = ('id', 'uk_doc',)
 
 
 class CertificateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Certificate
-        fields = ('cert_doc',)
+        fields = ('id', 'cert_doc',)
 
 
 class TaxPayerSerializer(serializers.ModelSerializer):
     class Meta:
         model = TaxPayer
-        fields = ('tax_doc',)
+        fields = ('id', 'tax_doc',)
 
 
 class PayerRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = PayerRegister
-        fields = ('payer_reg_doc',)
+        fields = ('id', 'payer_reg_doc',)
 
 
 class PayerCertificateSerializer(serializers.ModelSerializer):
     class Meta:
         model = PayerCertificate
-        fields = ('payer_cert_doc',)
+        fields = ('id', 'payer_cert_doc',)
 
 
 class CompanyPitchSerializer(serializers.ModelSerializer):

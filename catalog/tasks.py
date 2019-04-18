@@ -5,7 +5,7 @@ from catalog.resources import ProductResource
 from tablib import Dataset
 from catalog.models import ProductUploadHistory
 import itertools
-from pprint import pprint
+
 logger = get_task_logger(__name__)
 
 
