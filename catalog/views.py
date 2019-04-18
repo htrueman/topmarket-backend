@@ -61,9 +61,14 @@ class ProductContractorViewSet(viewsets.ModelViewSet):
         )
 
     @action(detail=False, methods=['get'], serializer_class=CategorySerializer)
-    def contractor_categories(self):
-        queryset = Product.products_by_contractors.filter(
-
+    def contractor_categories(self, request, *args, **kwargs):
+        queryset = Category.objects.filter(
+            product__in=self.get_queryset()
+        ).get_ancestors(include_self=True)
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(
+            status=status.HTTP_200_OK,
+            data=serializer.data
         )
 
     @action(detail=False, methods=['get'], serializer_class=ProductUploadHistorySerializer, filterset_class=None)

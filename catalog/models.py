@@ -7,6 +7,7 @@ import catalog.constants as constants
 from django.db import transaction
 from .utils import get_category_data
 from catalog.managers import ContractorProductManager, PartnerProductManager
+
 User = get_user_model()
 
 
