@@ -274,7 +274,8 @@ class PassportSerializer(serializers.ModelSerializer):
     pass_doc_decoded = CustomBase64Field(
         source='pass_doc',
         required=False,
-        use_url=True
+        use_url=True,
+        allow_null=True
     )
 
     # def to_internal_value(self, data):
@@ -633,10 +634,3 @@ class MyStoreSerializer(serializers.ModelSerializer):
 
             instance.save()
         return instance
-
-
-
-
-
-
-
