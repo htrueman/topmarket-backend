@@ -19,7 +19,7 @@ from .models import UserNotificationEmail, UserNotificationPhone, Company, Activ
 from .utils import CustomBase64Field
 import random
 import string
-
+from users.utils import valid_url_extension
 User = get_user_model()
 
 
@@ -430,11 +430,11 @@ class DocumentSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         passports_data = validated_data.pop('passports', None)
-        # uks_data = validated_data.pop('ukrainestatistic_set', None)
-        # certificates_data = validated_data.pop('certificates_set', None)
-        # tax_payers_data = validated_data.pop('taxpayer_set', None)
-        # registers_data = validated_data.pop('payerregister_set', None)
-        # payer_certificates_data = validated_data.pop('payercertificate_set', None)
+        uks_data = validated_data.pop('ukraine_statistics', None)
+        certificates_data = validated_data.pop('certificates', None)
+        tax_payers_data = validated_data.pop('tax_payers', None)
+        registers_data = validated_data.pop('payer_registers', None)
+        payer_certificates_data = validated_data.pop('payer_certificates', None)
 
         serializers.raise_errors_on_nested_writes('update', self, validated_data)
         with transaction.atomic():
@@ -442,67 +442,75 @@ class DocumentSerializer(serializers.ModelSerializer):
                 setattr(instance, attr, value)
 
             if passports_data:
-                print(passports_data)
-                # print(isinstance(passports_data[1].get('pass_doc', None), ContentFile))
+                for pass_data in passports_data:
+                    pass_id = pass_data.get('id', None)
+                    image_data = pass_data.get('pass_doc', None)
+                    if pass_id:
+                        is_url_field = valid_url_extension(image_data)
+                        if is_url_field is not True:
+                            Passport.objects.filter(id=pass_id).delete()
+                    else:
+                        if type(image_data) == ContentFile:
+                            Passport.objects.create(company=instance, pass_doc=image_data)
+            if uks_data:
+                for uk_data in uks_data:
+                    uk_id = uk_data.get('id', None)
+                    image_data = uk_data.get('pass_doc', None)
+                    if uk_id:
+                        is_url_field = valid_url_extension(image_data)
+                        if is_url_field is not True:
+                            UkraineStatistic.objects.filter(id=uk_id).delete()
+                    else:
+                        if type(image_data) == ContentFile:
+                            UkraineStatistic.objects.create(company=instance, uk_doc=image_data)
 
-                # passport_list = []
-            #     for passport_data in passports_data:
-            #         passport, _ = Passport.objects.get_or_create(
-            #             pass_doc=passport_data['passports'],
-            #             company=instance
-            #         )
-            #         passport_list.append(passport)
-            #     instance.passports = passport_list
-            #
-            # if uks_data:
-            #     uk_list = []
-            #     for uk_data in uks_data:
-            #         uk, _ = UkraineStatistic.objects.get_or_create(
-            #             uk_doc=uk_data['ukraine_statistics'],
-            #             company=instance
-            #         )
-            #         uk_list.append(uk)
-            #     instance.ukraine_statistics = uk_list
-            #
-            # if certificates_data:
-            #     cert_list = []
-            #     for certificate_data in certificates_data:
-            #         certificate, _ = Certificate.objects.get_or_create(
-            #             cert_doc=certificate_data['certificates'],
-            #             company=instance
-            #         )
-            #         cert_list.append(certificate)
-            #     instance.certificates = cert_list
-            #
-            # if tax_payers_data:
-            #     tax_payer_list = []
-            #     for tax_payer_data in tax_payers_data:
-            #         tax_payer, _ = TaxPayer.objects.get_or_create(
-            #             tax_doc=tax_payer_data['tax_payers'],
-            #             company=instance
-            #         )
-            #         tax_payer_list.append(tax_payer)
-            #     instance.tax_payers = tax_payer_list
-            # if registers_data:
-            #     register_list = []
-            #     for register_data in registers_data:
-            #         register, _ = PayerRegister.objects.get_or_create(
-            #             payer_reg_doc=register_data['payer_registers'],
-            #             company=instance
-            #         )
-            #         register_list.append(register)
-            #     instance.payer_registers = register_list
-            # if payer_certificates_data:
-            #     payer_cert_list = []
-            #     for payer_certificate_data in payer_certificates_data:
-            #         payer_certificate, _ = PayerCertificate.objects.get_or_create(
-            #             payer_cert_doc=payer_certificate_data['payer_certificates'],
-            #             company=instance
-            #         )
-            #         payer_cert_list.append(payer_certificate)
-            #     instance.payer_certificates = payer_cert_list
-            #
-            # instance.save()
+            if certificates_data:
+                for certificate_data in certificates_data:
+                    certificate_id = certificate_data.get('id', None)
+                    image_data = certificate_data.get('pass_doc', None)
+                    if certificate_id:
+                        is_url_field = valid_url_extension(image_data)
+                        if is_url_field is not True:
+                            Certificate.objects.filter(id=certificate_id).delete()
+                    else:
+                        if type(image_data) == ContentFile:
+                            Certificate.objects.create(company=instance, cert_doc=image_data)
+
+            if tax_payers_data:
+                for tax_data in tax_payers_data:
+                    tax_id = tax_data.get('id', None)
+                    image_data = tax_data.get('pass_doc', None)
+                    if tax_id:
+                        is_url_field = valid_url_extension(image_data)
+                        if is_url_field is not True:
+                            TaxPayer.objects.filter(id=tax_id).delete()
+                    else:
+                        if type(image_data) == ContentFile:
+                            TaxPayer.objects.create(company=instance, tax_doc=image_data)
+
+            if registers_data:
+                for register_data in registers_data:
+                    register_id = register_data.get('id', None)
+                    image_data = register_data.get('pass_doc', None)
+                    if register_id:
+                        is_url_field = valid_url_extension(image_data)
+                        if is_url_field is not True:
+                            PayerRegister.objects.filter(id=register_id).delete()
+                    else:
+                        if type(image_data) == ContentFile:
+                            PayerRegister.objects.create(company=instance, payer_reg_doc=image_data)
+
+            if payer_certificates_data:
+                for payer_certificate_data in payer_certificates_data:
+                    payer_certificate_id = payer_certificate_data.get('id', None)
+                    image_data = payer_certificate_data.get('pass_doc', None)
+                    if payer_certificate_id:
+                        is_url_field = valid_url_extension(image_data)
+                        if is_url_field is not True:
+                            PayerCertificate.objects.filter(id=payer_certificate_id).delete()
+                    else:
+                        if type(image_data) == ContentFile:
+                            PayerCertificate.objects.create(company=instance, payer_cert_doc=image_data)
         return instance
 
 

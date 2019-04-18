@@ -18,12 +18,13 @@ def valid_url_extension(url, extension_list=VALID_IMAGE_EXTENSIONS):
 class CustomBase64Field(Base64ImageField):
 
     def to_internal_value(self, data):
-        print(ImageField)
-        print(type(data))
-        print(type(data) == str)
-        print(data)
+        # print(ImageField)
+        # print(valid_url_extension(data))
+        # print(type(data) == str)
+        # print(data)
         try:
+            print(Base64FieldMixin.to_internal_value(self, data))
             return Base64FieldMixin.to_internal_value(self, data)
         except ValidationError:
-            return
+            return data
 
