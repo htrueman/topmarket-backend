@@ -220,6 +220,14 @@ class UserProfileSerializer(RequireTogetherFields, UserSerializerMixin, serializ
             'username',
             'email_notifications',
             'phone_notifications',
+            'role',
+            'user_pocket',
+            'date_joined',
+        )
+        read_only_fields = (
+            'role',
+            'user_pocket',
+            'date_joined',
         )
 
     REQUIRED_TOGETHER = ('password', 'confirm_password',)
