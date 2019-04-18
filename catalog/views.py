@@ -163,7 +163,7 @@ class ProductImportViewSet(viewsets.ModelViewSet):
     queryset = ProductUploadHistory.objects.all()
     serializer_class = ProductUploadHistorySerializer
     http_method_names = ('post', )
-    permission_classes = (IsPartner, )
+    permission_classes = (IsContractor, )
 
     def perform_create(self, serializer):
         input_file = self.request.FILES['xls_file']
