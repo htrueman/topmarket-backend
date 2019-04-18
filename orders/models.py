@@ -83,7 +83,7 @@ class OrderDelivery(models.Model):
 
 class OrderItemPhoto(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
-    product_id = models.PositiveIntegerField()  # TODO: research if matches marketplace product id
+    product_id = models.PositiveIntegerField()
     url = models.URLField()
 
     def __str__(self):

@@ -19,4 +19,3 @@ class ProductFilter(filters.FilterSet):
             'min_price',
             'max_price'
         ]
-
