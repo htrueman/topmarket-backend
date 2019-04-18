@@ -167,9 +167,12 @@ class ProductImportViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         input_file = self.request.FILES['xls_file']
+        print(input_file.content_type)
         if input_file.content_type in (
-                'application/vnd.ms-excel',
-                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', ):
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'application/octet-stream'
+        ):
             serializer.save(
                 user=self.request.user,
                 xls_file=input_file,
@@ -183,4 +186,4 @@ class ProductImportViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         status_response = self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
-        return Response(status=status_response, headers=headers)
+        return Response(status=status_response, headers=headers, data=serializer.data)

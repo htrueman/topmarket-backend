@@ -18,8 +18,7 @@ def load_products_from_xls(**kwargs):
     file_path = prod_hist.xls_file.path
     with open(file_path, 'rb') as f:
         dataset.load(f.read(), 'xls')
-        dataset['category'][0] = 1
-        print(dataset['category'][0])
+        print(dataset)
         result = product_resource.import_data(
             dataset=dataset,
             dry_run=True,
@@ -40,5 +39,4 @@ def load_products_from_xls(**kwargs):
                 prod_hist.save()
         else:
             prod_hist.errors = _('. '.join(itertools.chain.from_iterable([x.error.messages for x in result.invalid_rows])))
-            print(prod_hist.errors)
             prod_hist.save()
