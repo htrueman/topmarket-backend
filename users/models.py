@@ -1,10 +1,10 @@
-from django.conf import settings
+
 from django.utils.translation import ugettext as _
 from django.db import models
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 
-from users.constants import DOMEN, CALL_BACK, USER_ROLE
+from users.constants import USER_ROLE
 from .managers import CustomUserManager
 
 
@@ -448,45 +448,3 @@ class CompanyPitch(models.Model):
     )
 
 
-# Мой магазин
-
-class MyStore(models.Model):
-
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
-
-    domain_subdomain = models.CharField(max_length=2, choices=DOMEN, blank=True, null=True, verbose_name=_('Домен/поддомен'))
-    domain_name = models.URLField(max_length=200, null=True, blank=True, verbose_name=_('Имя домена'))
-    call_back = models.CharField(max_length=3, choices=CALL_BACK, null=True, blank=True, verbose_name=_('Функция Сall-back'))
-    facebook = models.URLField(max_length=200, null=True, blank=True, verbose_name=_('Facebook'))
-    instagram = models.URLField(max_length=200, null=True, blank=True, verbose_name=_('Instagram'))
-    linkedin = models.URLField(max_length=200, null=True, blank=True, verbose_name=_('Linkedin'))
-    top_sales = models.BooleanField(default=False, verbose_name='Топ продаж')
-    no_items = models.BooleanField(default=False, verbose_name='Без товара')
-    logo = models.ImageField(upload_to='users/company_logo', null=True, blank=True, verbose_name=_('Логотип'))
-
-    @property
-    def get_url(self):
-        if self.domain_subdomain:
-            return 'https://{}/'.format(self.domain_name)
-
-
-class HeaderPhoneNumber(models.Model):
-
-    store = models.ForeignKey('MyStore', on_delete=models.CASCADE, related_name='header_phones', null=True, blank=True)
-    number = models.CharField(max_length=20, null=True, blank=True, verbose_name=_('Номер телефона для хедера'))
-
-
-class FooterPhoneNumber(models.Model):
-
-    store = models.ForeignKey('MyStore', on_delete=models.CASCADE, related_name='footer_phones', null=True, blank=True)
-    number = models.CharField(max_length=20, null=True, blank=True, verbose_name=_('Номер телефона для футера'))
-
-
-class Navigation(models.Model):
-    store = models.ForeignKey('MyStore', on_delete=models.CASCADE, related_name='navigations', null=True, blank=True)
-    navigation = models.CharField(max_length=200, null=True, blank=True, verbose_name=_('Раздел навигации'))
-
-
-class StoreSliderImage(models.Model):
-    store = models.ForeignKey(MyStore, on_delete=models.CASCADE, related_name='slider_images')
-    image = models.ImageField(upload_to='users/company/store/slider', verbose_name='Картинка для слайдера')

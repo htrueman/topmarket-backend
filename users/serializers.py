@@ -14,8 +14,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from .mixins import UserSerializerMixin, RequireTogetherFields
 from .tokens import account_activation_token, password_reset_token
 from .models import UserNotificationEmail, UserNotificationPhone, Company, ActivityAreas, ServiceIndustry, CompanyType, \
-    CompanyPitch, Passport, UkraineStatistic, Certificate, TaxPayer, PayerRegister, PayerCertificate, HeaderPhoneNumber,\
-    Navigation, MyStore, StoreSliderImage, FooterPhoneNumber
+    CompanyPitch, Passport, UkraineStatistic, Certificate, TaxPayer, PayerRegister, PayerCertificate
 
 import random
 import string
@@ -523,124 +522,8 @@ class DocumentSerializer(serializers.ModelSerializer):
             return instance
 
 
-# Мой магазин
-class HeaderPhoneNumberSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = HeaderPhoneNumber
-        fields = ('number', )
 
 
-class FooterPhoneNumberSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = FooterPhoneNumber
-        fields = ('number', )
-
-
-class NavigationSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Navigation
-        fields = ('navigation', )
-
-
-class SliderImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = StoreSliderImage
-        fields = (
-            'image',
-        )
-
-
-class MyStoreSerializer(serializers.ModelSerializer):
-    header_phones_number = HeaderPhoneNumberSerializer(many=True, source='header_phones', required=False)
-    footer_phones_number = FooterPhoneNumberSerializer(many=True, source='footer_phones', required=False)
-    navigation = NavigationSerializer(many=True, source='navigation_set', required=False)
-    slider_images = SliderImageSerializer(many=True, source='storesliderimage_set', required=False)
-    logo_decoded = Base64ImageField(source='logo', required=False)
-
-    class Meta:
-        model = MyStore
-        fields = (
-            'domain_subdomain',
-            'domain_name',
-            'call_back',
-            'facebook',
-            'instagram',
-            'linkedin',
-            'top_sales',
-            'no_items',
-            'logo_decoded',
-            'phones_number',
-            'navigation',
-            'slider_images',
-        )
-
-    def create(self, validated_data):
-        header_phones_number_data = validated_data.pop('header_phones', None)
-        footer_phones_number_data = validated_data.pop('footer_phones', None)
-        navigations_data = validated_data.pop('navigation_set', None)
-
-        my_store = MyStore.objects.create(**validated_data)
-
-        with transaction.atomic():
-            if header_phones_number_data:
-                HeaderPhoneNumber.objects.bulk_create([
-                    HeaderPhoneNumber(
-                        store=my_store,
-                        **phone
-                    ) for phone in header_phones_number_data
-                ])
-            if footer_phones_number_data:
-                FooterPhoneNumber.objects.bulk_create([
-                    FooterPhoneNumber(
-                        store=my_store,
-                        **phone
-                    ) for phone in footer_phones_number_data
-                ])
-
-            if navigations_data:
-                Navigation.objects.bulk_create([
-                    Navigation(
-                        store=my_store,
-                        **navigation_data
-                    ) for navigation_data in navigations_data
-                ])
-        return my_store
-
-    def update(self, instance, validated_data):
-        phones_number_data = validated_data.pop('phonenumber_set', None)
-        navigations_data = validated_data.pop('navigation_set', None)
-
-        serializers.raise_errors_on_nested_writes('update', self, validated_data)
-        with transaction.atomic():
-            for attr, value in validated_data.items():
-                setattr(instance, attr, value)
-
-            if phones_number_data:
-                phone_list = []
-                for phone_number_data in phones_number_data:
-                    HeaderPhoneNumber.objects.filter(store=instance).delete()
-                    phone, _ = HeaderPhoneNumber.objects.get_or_create(
-                        number=phone_number_data['phones'],
-                        store=instance
-                    )
-                    phone_list.append(phone)
-                instance.numbers = phone_list
-
-            if navigations_data:
-                navigation_list = []
-                for navigation_data in navigations_data:
-                    navigation, _ = Navigation.objects.get_or_create(
-                        navigation=navigation_data['navigations'],
-                        store=instance
-                    )
-                    navigation_list.append(navigation)
-                instance.navigations = navigation_list
-
-            instance.save()
-        return instance
 
 
 

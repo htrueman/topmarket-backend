@@ -14,7 +14,8 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import parsers
 
-from users.models import Company, MyStore
+from users.models import Company
+from my_store.models import MyStore
 
 
 class ClientAccessPermission(permissions.BasePermission):

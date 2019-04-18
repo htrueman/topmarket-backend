@@ -56,7 +56,6 @@ urlpatterns += [
          name='company_type_update_destroy_view'),
     path('company/documents/', views.DocumentSerializerRUView.as_view(), name='documents'),
     path('company/pitch/', views.CompanyPitchRUView.as_view(), name='pitch'),
-    path('my_store/', views.MyStoreRUView.as_view(), name='my-store'),
     path('manager_create/', views.ManagerCreateView.as_view()),
     path('password_reset/', views.PasswordResetView.as_view()),
     # path('password_reset_confirm/', views.PasswordResetConfirmView.as_view()),

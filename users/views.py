@@ -5,9 +5,9 @@ from users.permissions import IsOwner, IsPartner
 from users.tokens import account_activation_token, password_reset_token
 from .serializers import UserSerializer, PasswordResetSerializer, PasswordResetConfirm, \
     UserProfileSerializer, PasswordChangeSerializer, CompanyUpdateSerializer, DocumentSerializer, \
-    CompanyPitchSerializer, MyStoreSerializer, ManagerSerializer, ActivityAreasSerializer, ServiceIndustrySerializer, \
+    CompanyPitchSerializer, ManagerSerializer, ActivityAreasSerializer, ServiceIndustrySerializer, \
     CompanyTypeSerializer, CompanyRetrieveSerializer
-from .models import Company, CompanyPitch, MyStore, ActivityAreas, ServiceIndustry, CompanyType
+from .models import Company, CompanyPitch, ActivityAreas, ServiceIndustry, CompanyType
 from rest_framework.generics import CreateAPIView, get_object_or_404, UpdateAPIView, RetrieveUpdateAPIView, ListAPIView
 from rest_framework import permissions, status, mixins, generics
 from rest_framework.views import APIView
@@ -153,16 +153,6 @@ class CompanyPitchRUView(generics.RetrieveUpdateAPIView):
         company = get_object_or_404(Company, user=self.request.user)
         obj, created = CompanyPitch.objects.get_or_create(company=company)
         print(obj)
-        return obj
-
-
-class MyStoreRUView(generics.RetrieveUpdateAPIView):
-    queryset = MyStore.objects.all()
-    serializer_class = MyStoreSerializer
-    permission_classes = [IsOwner, ]
-
-    def get_object(self):
-        obj, created = MyStore.objects.get_or_create(user=self.request.user)
         return obj
 
 

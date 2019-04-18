@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'news',
     'marketplace',
     'catalog',
+    'my_store'
 ]
 
 MIDDLEWARE = [
