@@ -187,4 +187,13 @@ class ProductUploadHistorySerializer(serializers.ModelSerializer):
         model = ProductUploadHistory
         fields = (
             'xls_file',
+            'created',
+            'is_uploaded',
+            'errors',
         )
+        read_only_fields = (
+            'created',
+            'is_uploaded',
+            'errors',
+        )
+

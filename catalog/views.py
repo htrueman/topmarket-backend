@@ -60,6 +60,23 @@ class ProductContractorViewSet(viewsets.ModelViewSet):
             contractor_product=None,
         )
 
+    @action(detail=False, methods=['get'], serializer_class=CategorySerializer)
+    def contractor_categories(self):
+        queryset = Product.products_by_contractors.filter(
+
+        )
+
+    @action(detail=False, methods=['get'], serializer_class=ProductUploadHistorySerializer, filterset_class=None)
+    def upload_history(self, request, *args, **kwargs):
+        queryset = ProductUploadHistory.objects.filter(
+            user=self.request.user
+        )
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(
+            status=status.HTTP_200_OK,
+            data=serializer.data
+        )
+
 
 class ProductPartnerViewSet(viewsets.ModelViewSet):
     """
@@ -137,6 +154,8 @@ class ProductPartnerViewSet(viewsets.ModelViewSet):
         )
 
 
+
+
 class YMLHandlerViewSet(viewsets.ModelViewSet):
     serializer_class = YMLHandlerSerializer
     permission_classes = (IsPartner, )
@@ -187,3 +206,4 @@ class ProductImportViewSet(viewsets.ModelViewSet):
         status_response = self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(status=status_response, headers=headers, data=serializer.data)
+

@@ -18,7 +18,6 @@ def load_products_from_xls(**kwargs):
     file_path = prod_hist.xls_file.path
     with open(file_path, 'rb') as f:
         dataset.load(f.read(), 'xls')
-        print(dataset)
         result = product_resource.import_data(
             dataset=dataset,
             dry_run=True,
