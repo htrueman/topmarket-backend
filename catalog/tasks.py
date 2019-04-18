@@ -5,7 +5,7 @@ from catalog.resources import ProductResource
 from tablib import Dataset
 from catalog.models import ProductUploadHistory
 import itertools
-
+from django.utils.translation import ugettext as _
 logger = get_task_logger(__name__)
 
 
@@ -18,6 +18,8 @@ def load_products_from_xls(**kwargs):
     file_path = prod_hist.xls_file.path
     with open(file_path, 'rb') as f:
         dataset.load(f.read(), 'xls')
+        dataset['category'][0] = 1
+        print(dataset['category'][0])
         result = product_resource.import_data(
             dataset=dataset,
             dry_run=True,
@@ -34,8 +36,9 @@ def load_products_from_xls(**kwargs):
                     collect_failed_rows=True
                 )
                 prod_hist.is_uploaded = True
-                prod_hist.errors = 'No errors'
+                prod_hist.errors = _('No errors')
                 prod_hist.save()
         else:
-            prod_hist.errors = '. '.join(itertools.chain.from_iterable([x.error.messages for x in result.invalid_rows]))
+            prod_hist.errors = _('. '.join(itertools.chain.from_iterable([x.error.messages for x in result.invalid_rows])))
+            print(prod_hist.errors)
             prod_hist.save()

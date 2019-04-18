@@ -198,8 +198,6 @@ class UserNotificationPhoneSerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer(RequireTogetherFields, UserSerializerMixin, serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, required=False)
-    confirm_password = serializers.CharField(write_only=True, required=False)
     avatar_image = Base64ImageField(source='avatar', required=False)
     email_notifications = UserNotificationEmailSerializer(many=False, required=False)
     phone_notifications = UserNotificationPhoneSerializer(many=False, required=False)
@@ -209,8 +207,6 @@ class UserProfileSerializer(RequireTogetherFields, UserSerializerMixin, serializ
         fields = (
             'id',
             'email',
-            'password',
-            'confirm_password',
             'first_name',
             'last_name',
             'patronymic',
@@ -233,11 +229,8 @@ class UserProfileSerializer(RequireTogetherFields, UserSerializerMixin, serializ
     REQUIRED_TOGETHER = ('password', 'confirm_password',)
 
     def update(self, instance, validated_data):
-        password = validated_data.pop('password', None)
         email_notifications = validated_data.pop('email_notifications', None)
         phone_notifications = validated_data.pop('phone_notifications', None)
-        if password:
-            instance.set_password(password)
         if email_notifications:
             notification, _ = UserNotificationEmail.objects.get_or_create(
                 user=self.context['request'].user,
