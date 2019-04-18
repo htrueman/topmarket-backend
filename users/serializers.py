@@ -1,5 +1,5 @@
 from django.db import transaction
-from drf_extra_fields.fields import Base64ImageField
+from drf_extra_fields.fields import Base64ImageField, HybridImageField
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
@@ -10,13 +10,13 @@ from django.conf import settings
 from django.utils.encoding import force_bytes, force_text
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-
+from django.core.files.base import ContentFile
 from .mixins import UserSerializerMixin, RequireTogetherFields
 from .tokens import account_activation_token, password_reset_token
 from .models import UserNotificationEmail, UserNotificationPhone, Company, ActivityAreas, ServiceIndustry, CompanyType, \
     CompanyPitch, Passport, UkraineStatistic, Certificate, TaxPayer, PayerRegister, PayerCertificate, HeaderPhoneNumber,\
     Navigation, MyStore, StoreSliderImage, FooterPhoneNumber
-
+from .utils import CustomBase64Field
 import random
 import string
 
@@ -267,9 +267,21 @@ class CompanyTypeSerializer(serializers.ModelSerializer):
 
 
 class PassportSerializer(serializers.ModelSerializer):
+    id = serializers.ModelField(
+        model_field=Passport()._meta.get_field('id'),
+        required=False,
+    )
+    pass_doc_decoded = CustomBase64Field(
+        source='pass_doc',
+        required=False,
+        use_url=True
+    )
+
+    # def to_internal_value(self, data):
+
     class Meta:
         model = Passport
-        fields = ('pass_doc',)
+        fields = ('id', 'pass_doc_decoded',)
 
 
 class UkraineStatisticSerializer(serializers.ModelSerializer):
@@ -398,7 +410,7 @@ class CompanyUpdateSerializer(serializers.ModelSerializer):
 
 
 class DocumentSerializer(serializers.ModelSerializer):
-    passport = PassportSerializer(many=True, source='passport_set', required=False)
+    passport = PassportSerializer(many=True, source='passports', required=False)
     uk_statistic = UkraineStatisticSerializer(many=True, source='ukrainestatistic_set', required=False)
     certificate = CertificateSerializer(many=True, source='certificate_set', required=False)
     tax_payer = TaxPayerSerializer(many=True, source='taxpayer_set', required=False)
@@ -416,111 +428,82 @@ class DocumentSerializer(serializers.ModelSerializer):
             'payer_certificate',
         )
 
-    def create(self, validated_data):
-
-            passport_data = validated_data.pop('passport_set', None)
-            uk_data = validated_data.pop('ukrainestatistic_set', None)
-            certificate_data = validated_data.pop('certificate_set', None)
-            tax_payer_data = validated_data.pop('taxpayer_set', None)
-            register_data = validated_data.pop('payerregister_set', None)
-            payer_certificate = validated_data.pop('payercertificate_set', None)
-
-            company = Company.objects.create(**validated_data)
-
-            with transaction.atomic():
-                if passport_data:
-                    for passport in passport_data:
-                        Passport.objects.create(company=company, **passport)
-                if uk_data:
-                    for uk_stat in uk_data:
-                        UkraineStatistic.objects.create(company=company, **uk_stat)
-                if certificate_data:
-                    for certificate in certificate_data:
-                        Certificate.objects.create(company=company, **certificate)
-                if tax_payer_data:
-                    for tax in tax_payer_data:
-                        TaxPayer.objects.create(company=company, **tax)
-                if register_data:
-                    for register in register_data:
-                        PayerRegister.objects.create(company=company, **register)
-                if payer_certificate:
-                    for payer_cert in payer_certificate:
-                        PayerCertificate.objects.create(company=company, **payer_cert)
-            return company
-
     def update(self, instance, validated_data):
-            passports_data = validated_data.pop('passport_set', None)
-            uks_data = validated_data.pop('ukrainestatistic_set', None)
-            certificates_data = validated_data.pop('certificates_set', None)
-            tax_payers_data = validated_data.pop('taxpayer_set', None)
-            registers_data = validated_data.pop('payerregister_set', None)
-            payer_certificates_data = validated_data.pop('payercertificate_set', None)
+        passports_data = validated_data.pop('passports', None)
+        # uks_data = validated_data.pop('ukrainestatistic_set', None)
+        # certificates_data = validated_data.pop('certificates_set', None)
+        # tax_payers_data = validated_data.pop('taxpayer_set', None)
+        # registers_data = validated_data.pop('payerregister_set', None)
+        # payer_certificates_data = validated_data.pop('payercertificate_set', None)
 
-            serializers.raise_errors_on_nested_writes('update', self, validated_data)
-            with transaction.atomic():
-                for attr, value in validated_data.items():
-                    setattr(instance, attr, value)
+        serializers.raise_errors_on_nested_writes('update', self, validated_data)
+        with transaction.atomic():
+            for attr, value in validated_data.items():
+                setattr(instance, attr, value)
 
-                if passports_data:
-                    passport_list = []
-                    for passport_data in passports_data:
-                        passport, _ = Passport.objects.get_or_create(
-                            pass_doc=passport_data['passports'],
-                            company=instance
-                        )
-                        passport_list.append(passport)
-                    instance.passports = passport_list
+            if passports_data:
+                print(passports_data)
+                # print(isinstance(passports_data[1].get('pass_doc', None), ContentFile))
 
-                if uks_data:
-                    uk_list = []
-                    for uk_data in uks_data:
-                        uk, _ = UkraineStatistic.objects.get_or_create(
-                            uk_doc=uk_data['ukraine_statistics'],
-                            company=instance
-                        )
-                        uk_list.append(uk)
-                    instance.ukraine_statistics = uk_list
-
-                if certificates_data:
-                    cert_list = []
-                    for certificate_data in certificates_data:
-                        certificate, _ = Certificate.objects.get_or_create(
-                            cert_doc=certificate_data['certificates'],
-                            company=instance
-                        )
-                        cert_list.append(certificate)
-                    instance.certificates = cert_list
-
-                if tax_payers_data:
-                    tax_payer_list = []
-                    for tax_payer_data in tax_payers_data:
-                        tax_payer, _ = TaxPayer.objects.get_or_create(
-                            tax_doc=tax_payer_data['tax_payers'],
-                            company=instance
-                        )
-                        tax_payer_list.append(tax_payer)
-                    instance.tax_payers = tax_payer_list
-                if registers_data:
-                    register_list = []
-                    for register_data in registers_data:
-                        register, _ = PayerRegister.objects.get_or_create(
-                            payer_reg_doc=register_data['payer_registers'],
-                            company=instance
-                        )
-                        register_list.append(register)
-                    instance.payer_registers = register_list
-                if payer_certificates_data:
-                    payer_cert_list = []
-                    for payer_certificate_data in payer_certificates_data:
-                        payer_certificate, _ = PayerCertificate.objects.get_or_create(
-                            payer_cert_doc=payer_certificate_data['payer_certificates'],
-                            company=instance
-                        )
-                        payer_cert_list.append(payer_certificate)
-                    instance.payer_certificates = payer_cert_list
-
-                instance.save();
-            return instance
+                # passport_list = []
+            #     for passport_data in passports_data:
+            #         passport, _ = Passport.objects.get_or_create(
+            #             pass_doc=passport_data['passports'],
+            #             company=instance
+            #         )
+            #         passport_list.append(passport)
+            #     instance.passports = passport_list
+            #
+            # if uks_data:
+            #     uk_list = []
+            #     for uk_data in uks_data:
+            #         uk, _ = UkraineStatistic.objects.get_or_create(
+            #             uk_doc=uk_data['ukraine_statistics'],
+            #             company=instance
+            #         )
+            #         uk_list.append(uk)
+            #     instance.ukraine_statistics = uk_list
+            #
+            # if certificates_data:
+            #     cert_list = []
+            #     for certificate_data in certificates_data:
+            #         certificate, _ = Certificate.objects.get_or_create(
+            #             cert_doc=certificate_data['certificates'],
+            #             company=instance
+            #         )
+            #         cert_list.append(certificate)
+            #     instance.certificates = cert_list
+            #
+            # if tax_payers_data:
+            #     tax_payer_list = []
+            #     for tax_payer_data in tax_payers_data:
+            #         tax_payer, _ = TaxPayer.objects.get_or_create(
+            #             tax_doc=tax_payer_data['tax_payers'],
+            #             company=instance
+            #         )
+            #         tax_payer_list.append(tax_payer)
+            #     instance.tax_payers = tax_payer_list
+            # if registers_data:
+            #     register_list = []
+            #     for register_data in registers_data:
+            #         register, _ = PayerRegister.objects.get_or_create(
+            #             payer_reg_doc=register_data['payer_registers'],
+            #             company=instance
+            #         )
+            #         register_list.append(register)
+            #     instance.payer_registers = register_list
+            # if payer_certificates_data:
+            #     payer_cert_list = []
+            #     for payer_certificate_data in payer_certificates_data:
+            #         payer_certificate, _ = PayerCertificate.objects.get_or_create(
+            #             payer_cert_doc=payer_certificate_data['payer_certificates'],
+            #             company=instance
+            #         )
+            #         payer_cert_list.append(payer_certificate)
+            #     instance.payer_certificates = payer_cert_list
+            #
+            # instance.save()
+        return instance
 
 
 # Мой магазин
@@ -572,7 +555,8 @@ class MyStoreSerializer(serializers.ModelSerializer):
             'top_sales',
             'no_items',
             'logo_decoded',
-            'phones_number',
+            'header_phones_number',
+            'footer_phones_number',
             'navigation',
             'slider_images',
         )
