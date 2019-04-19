@@ -29,6 +29,18 @@ class RecursiveField(serializers.BaseSerializer):
         return instance
 
 
+class CategoryListSerializer(serializers.ModelSerializer):
+    is_have_children = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Category
+        fields = (
+            'id',
+            'name',
+            'is_have_children',
+        )
+
+
 class CategorySerializer(serializers.ModelSerializer):
     name = serializers.CharField(required=False)
     subcategories = RecursiveField(

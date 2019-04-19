@@ -2,7 +2,7 @@ from rest_framework import generics, viewsets, permissions, status
 from django.db import transaction
 from django.db import IntegrityError
 from catalog.serializers import CategorySerializer, ProductSerializer, YMLHandlerSerializer, \
-    ProductUploadHistorySerializer, ProductListIdSerializer
+    ProductUploadHistorySerializer, ProductListIdSerializer, CategoryListSerializer
 from catalog.models import Category, Product, ProductImage, ProductImageURL, YMLTemplate, ProductUploadHistory
 from users.permissions import IsPartner, IsContractor
 from rest_framework.decorators import action
@@ -26,21 +26,33 @@ class ClientAccessPermission(permissions.BasePermission):
                 and MyStore.objects.filter(user=request.user).exists())
 
 
-class CategoryListView(generics.ListAPIView):
-    """
-    Список категорий
-    """
-    permission_classes = (permissions.AllowAny, )
+class CategoryViewSet(viewsets.ModelViewSet):
+    permission_classes = (permissions.IsAuthenticated, )
     serializer_class = CategorySerializer
+    http_method_names = ['get', ]
     queryset = Category.objects.root_nodes()
+    pagination_class = None
 
+    @action(detail=False, methods=['get'], serializer_class=CategoryListSerializer)
+    def first_level(self, request, *args, **kwargs):
+        queryset = Category.objects.filter(
+            level=0
+        )
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(
+            status=status.HTTP_200_OK,
+            data=serializer.data
+        )
 
-class CategoryRetrieveView(generics.RetrieveAPIView):
-    """
-    Описание категории
-    """
-    serializer_class = CategorySerializer
-    queryset = Category.objects.all()
+    @action(detail=True, methods=['get'], serializer_class=CategoryListSerializer)
+    def children(self, request, *args, **kwargs):
+        category = get_object_or_404(Category, pk=kwargs.get('pk'))
+        queryset = category.get_children()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(
+            status=status.HTTP_200_OK,
+            data=serializer.data
+        )
 
 
 class ProductContractorViewSet(viewsets.ModelViewSet):
@@ -53,6 +65,7 @@ class ProductContractorViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'put', 'patch', 'delete', ]
     filter_backends = (filters.DjangoFilterBackend, )
     filterset_class = ProductFilter
+    # pagination_class =
 
     def get_queryset(self):
         return Product.objects.filter(
@@ -64,7 +77,7 @@ class ProductContractorViewSet(viewsets.ModelViewSet):
     def contractor_categories(self, request, *args, **kwargs):
         queryset = Category.objects.filter(
             product__in=self.get_queryset()
-        ).get_ancestors(include_self=True)
+        ).get_ancestors()
         serializer = self.serializer_class(queryset, many=True)
         return Response(
             status=status.HTTP_200_OK,
@@ -157,8 +170,6 @@ class ProductPartnerViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
             data=serializer.data
         )
-
-
 
 
 class YMLHandlerViewSet(viewsets.ModelViewSet):

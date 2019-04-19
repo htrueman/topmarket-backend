@@ -40,6 +40,12 @@ class Category(MPTTModel):
     def get_category_level(self):
         return self.get_level()
 
+    @property
+    def is_have_children(self):
+        if self.get_descendant_count() > 0:
+            return True
+        return False
+
     def __str__(self):
         return '{}'.format(self.name)
 
