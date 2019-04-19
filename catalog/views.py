@@ -67,9 +67,8 @@ class ProductContractorViewSet(viewsets.ModelViewSet):
     filterset_class = ProductFilter
 
     def get_queryset(self):
-        return Product.objects.filter(
-            user=self.request.user,
-            contractor_product__isnull=True,
+        return Product.products_by_contractors.filter(
+            user=self.request.user
         )
 
     @action(detail=False, methods=['get'], serializer_class=CategorySerializer)
