@@ -3,6 +3,8 @@ from django.conf import settings
 from django.utils.translation import ugettext as _
 
 # Мой магазин
+from multiselectfield import MultiSelectField
+
 from users.constants import DOMEN, CALL_BACK
 
 
@@ -40,7 +42,7 @@ class FooterPhoneNumber(models.Model):
 
 class Navigation(models.Model):
     store = models.OneToOneField('MyStore', on_delete=models.CASCADE, related_name='navigations', null=True, blank=True)
-    navigation = models.CharField(max_length=200, null=True, blank=True, verbose_name=_('Раздел навигации'))
+    navigation = MultiSelectField(choices='', max_choices=5, null=True, blank=True, verbose_name=_('Раздел навигации'))
 
 
 class StoreSliderURL(models.Model):

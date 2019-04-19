@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django_filters',
     'import_export',
     'corsheaders',
+    'multiselectfield',
 
     # apps
     'users',

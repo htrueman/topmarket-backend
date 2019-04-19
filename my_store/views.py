@@ -2,12 +2,15 @@ from django.shortcuts import render
 
 # Create your views here.
 import requests
-from rest_framework import generics
 
+from rest_framework import generics
+from rest_framework.response import Response
 from my_store.models import MyStore, LogoWithPhones, SocialNetwork, HowToUse, Contacts, AboutUs
 from users.permissions import IsOwner
 from .serializers import HowToUseSerializer, ContactsSerializer, AboutUsSerializer, MyStoreDomainSerializer, \
-    MyStoreInfoHeaderFooterSerializer, MyStoreSliderImagesSerializer, SocialNetworkSerializer
+    MyStoreInfoHeaderFooterSerializer, MyStoreSliderImagesSerializer, SocialNetworkSerializer, LogoWithPhonesSerializer
+from django.db import transaction
+from rest_framework import status
 
 HOST = 'http://127.0.0.1:8080/'
 
@@ -22,13 +25,29 @@ class MyStoreDomainRUView(generics.RetrieveUpdateAPIView):
         return obj
 
     def update(self, request, *args, **kwargs):
-        result = super().update(request, *args, **kwargs)
-        serializer = self.serializer_class()
-        requests.post(
-            url=HOST + 'v1/domain/',
-            data=serializer.data
-        )
-        return result
+        transaction.set_autocommit(False)
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        try:
+            requests.put(
+                url=HOST + 'api/shop/domain/',
+                data=serializer.data
+            )
+            transaction.commit()
+            return Response(
+                data=serializer.data,
+                status=status.HTTP_200_OK
+            )
+        except Exception:
+            transaction.rollback()
+            return Response(
+                status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
+        finally:
+            transaction.set_autocommit(True)
 
 
 class MyStoreHeaderFooterRUView(generics.RetrieveUpdateAPIView):
@@ -41,10 +60,29 @@ class MyStoreHeaderFooterRUView(generics.RetrieveUpdateAPIView):
         return obj
 
     def update(self, request, *args, **kwargs):
-        result = super().update(request, *args, **kwargs)
-        serializer = self.serializer_class()
-        print(serializer.data)
-        return result
+        transaction.set_autocommit(False)
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        try:
+            requests.put(
+                url=HOST + 'api/shop/header_footer_info/',
+                data=serializer.data
+            )
+            transaction.commit()
+            return Response(
+                data=serializer.data,
+                status=status.HTTP_200_OK
+            )
+        except Exception:
+            transaction.rollback()
+            return Response(
+                status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
+        finally:
+            transaction.set_autocommit(True)
 
 
 class MyStoreSliderRUView(generics.RetrieveUpdateAPIView):
@@ -57,15 +95,34 @@ class MyStoreSliderRUView(generics.RetrieveUpdateAPIView):
         return obj
 
     def update(self, request, *args, **kwargs):
-        result = super().update(request, *args, **kwargs)
-        serializer = self.serializer_class()
-        print(serializer.data)
-        return result
+        transaction.set_autocommit(False)
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        try:
+            requests.put(
+                url=HOST + 'api/shop/slider/',
+                data=serializer.data
+            )
+            transaction.commit()
+            return Response(
+                data=serializer.data,
+                status=status.HTTP_200_OK
+            )
+        except Exception:
+            transaction.rollback()
+            return Response(
+                status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
+        finally:
+            transaction.set_autocommit(True)
 
 
 class LogoWithPhonesRUView(generics.RetrieveUpdateAPIView):
     queryset = LogoWithPhones.objects.all()
-    serializer_class = LogoWithPhones
+    serializer_class = LogoWithPhonesSerializer
     permission_classes = [IsOwner, ]
 
     def get_object(self):
@@ -73,10 +130,29 @@ class LogoWithPhonesRUView(generics.RetrieveUpdateAPIView):
         return obj
 
     def update(self, request, *args, **kwargs):
-        result = super().update(request, *args, **kwargs)
-        serializer = self.serializer_class()
-        print(serializer.data)
-        return result
+        transaction.set_autocommit(False)
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        try:
+            requests.put(
+                url=HOST + 'api/shop/logo_with_phones/',
+                data=serializer.data
+            )
+            transaction.commit()
+            return Response(
+                data=serializer.data,
+                status=status.HTTP_200_OK
+            )
+        except Exception:
+            transaction.rollback()
+            return Response(
+                status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
+        finally:
+            transaction.set_autocommit(True)
 
 
 class SocialNetworkRUView(generics.RetrieveUpdateAPIView):
@@ -89,14 +165,29 @@ class SocialNetworkRUView(generics.RetrieveUpdateAPIView):
         return obj
 
     def update(self, request, *args, **kwargs):
-        result = super().update(request, *args, **kwargs)
-        serializer = self.serializer_class(data=request.data)
-        print(serializer.data)
-        requests.put(
-            url=HOST + 'api/shop/networks/',
-            data=serializer.data
-        )
-        return result
+        transaction.set_autocommit(False)
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        try:
+            requests.put(
+                url=HOST + 'api/shop/networks/',
+                data=serializer.data
+            )
+            transaction.commit()
+            return Response(
+                data=serializer.data,
+                status=status.HTTP_200_OK
+            )
+        except Exception:
+            transaction.rollback()
+            return Response(
+                status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
+        finally:
+            transaction.set_autocommit(True)
 
 
 class HowToUseRUView(generics.RetrieveUpdateAPIView):
@@ -109,10 +200,29 @@ class HowToUseRUView(generics.RetrieveUpdateAPIView):
         return obj
 
     def update(self, request, *args, **kwargs):
-        result = super().update(request, *args, **kwargs)
-        serializer = self.serializer_class()
-        print(serializer.data)
-        return result
+        transaction.set_autocommit(False)
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        try:
+            requests.put(
+                url=HOST + 'api/shop/how_to_use/',
+                data=serializer.data
+            )
+            transaction.commit()
+            return Response(
+                data=serializer.data,
+                status=status.HTTP_200_OK
+            )
+        except Exception:
+            transaction.rollback()
+            return Response(
+                status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
+        finally:
+            transaction.set_autocommit(True)
 
 
 class ContactsRUView(generics.RetrieveUpdateAPIView):
@@ -125,10 +235,29 @@ class ContactsRUView(generics.RetrieveUpdateAPIView):
         return obj
 
     def update(self, request, *args, **kwargs):
-        result = super().update(request, *args, **kwargs)
-        serializer = self.serializer_class()
-        print(serializer.data)
-        return result
+        transaction.set_autocommit(False)
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        try:
+            requests.put(
+                url=HOST + 'api/shop/contacts/',
+                data=serializer.data
+            )
+            transaction.commit()
+            return Response(
+                data=serializer.data,
+                status=status.HTTP_200_OK
+            )
+        except Exception:
+            transaction.rollback()
+            return Response(
+                status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
+        finally:
+            transaction.set_autocommit(True)
 
 
 class AboutUsRUView(generics.RetrieveUpdateAPIView):
@@ -141,7 +270,28 @@ class AboutUsRUView(generics.RetrieveUpdateAPIView):
         return obj
 
     def update(self, request, *args, **kwargs):
-        result = super().update(request, *args, **kwargs)
-        serializer = self.serializer_class()
-        requests.post
-        return result
+        transaction.set_autocommit(False)
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        try:
+            requests.put(
+                        url=HOST + 'api/shop/about_us/',
+                        data=serializer.data
+                    )
+            transaction.commit()
+            return Response(
+                data=serializer.data,
+                status=status.HTTP_200_OK
+            )
+        except Exception:
+            transaction.rollback()
+            return Response(
+                status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
+        finally:
+            transaction.set_autocommit(True)
+
+
