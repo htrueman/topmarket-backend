@@ -193,7 +193,8 @@ class Product(TimeStampedModel):
 class ProductImageURL(models.Model):
     product = models.ForeignKey(
         Product,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='product_image_urls'
     )
     url = models.URLField(
         verbose_name=_('Ссылка на изображение товара'),
@@ -203,7 +204,8 @@ class ProductImageURL(models.Model):
 class ProductImage(models.Model):
     product = models.ForeignKey(
         Product,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='product_images'
     )
     image = models.ImageField(
         upload_to='catalog/products/images',

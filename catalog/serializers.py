@@ -4,10 +4,12 @@ from django.core.exceptions import ObjectDoesNotExist
 from drf_extra_fields.fields import Base64ImageField
 from django.core.files.base import ContentFile
 from django.shortcuts import render_to_response
+from django.db import transaction
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from django.utils.translation import gettext as _
 from catalog.models import Category, Product, ProductImage, ProductImageURL, YMLTemplate, ProductUploadHistory
+from users.utils import CustomBase64Field, valid_url_extension
 
 
 class RecursiveField(serializers.BaseSerializer):
@@ -68,7 +70,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class ProductImageSerializer(serializers.ModelSerializer):
-    image_decoded = Base64ImageField(source='image', required=False)
+    image_decoded = CustomBase64Field(source='image', required=False)
 
     class Meta:
         model = ProductImage
@@ -101,8 +103,8 @@ class ProductListIdSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    cover_images = ProductImageSerializer(many=True, source='productimage_set', required=False)
-    image_urls = ProductImageURLSerializer(many=True, source='productimageurl_set', required=False)
+    cover_images = ProductImageSerializer(many=True, source='product_images', required=False)
+    image_urls = ProductImageURLSerializer(many=True, source='product_image_urls', required=False)
 
     class Meta:
         model = Product
@@ -121,21 +123,51 @@ class ProductSerializer(serializers.ModelSerializer):
         )
 
     def create(self, validated_data):
-        cover_images_data = validated_data.pop('productimage_set', None)
-        image_url = validated_data.pop('productimageurl_set', None)
+        cover_images_data = validated_data.pop('product_images', None)
+        image_urls = validated_data.pop('product_image_urls', None)
         # print(self.validated_data)
-        product = Product.objects.create(**validated_data, user=self.context['request'].user)
-        if cover_images_data:
-            ProductImage.objects.bulk_create([
-                ProductImage(product=product, **image_data)
-                for image_data in cover_images_data
-            ])
-        if image_url:
-            ProductImageURL.objects.bulk_create([
-                ProductImageURL(product=product, **url_data)
-                for url_data in image_url
-            ])
-        return product
+        with transaction.atomic():
+            product = Product.objects.create(**validated_data, user=self.context['request'].user)
+            if cover_images_data:
+                ProductImage.objects.bulk_create([
+                    ProductImage(product=product, **image_data)
+                    for image_data in cover_images_data
+                ])
+            if image_urls:
+                ProductImageURL.objects.bulk_create([
+                    ProductImageURL(product=product, **url_data)
+                    for url_data in image_urls
+                ])
+            return product
+
+    def update(self, instance, validated_data):
+        print(validated_data)
+        cover_images_data = validated_data.pop('product_images', None)
+        image_urls = validated_data.pop('product_image_urls', None)
+
+        with transaction.atomic():
+            for attr, value in validated_data.items():
+                setattr(instance, attr, value)
+
+            if cover_images_data:
+                for cover_data in cover_images_data:
+                    cover_id = cover_data.get('id', None)
+                    image_data = cover_data.get('')
+                    if cover_id:
+                        is_url_field = valid_url_extension(image_data)
+                        if is_url_field is not True:
+                            ProductImage.objects.filter(id=cover_id).delete()
+                    else:
+                        if type(image_data) == ContentFile:
+                            ProductImage.objects.create(company=instance, image=image_data)
+            if image_urls:
+                instance.product_image_urls.all().delete()
+                ProductImageURL.objects.bulk_create([
+                    ProductImageURL(product=instance, **image_url)
+                    for image_url in image_urls
+                ])
+            instance.save()
+            return instance
 
 
 class YMLHandlerSerializer(serializers.ModelSerializer):

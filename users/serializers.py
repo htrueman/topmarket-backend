@@ -413,11 +413,11 @@ class CompanyUpdateSerializer(serializers.ModelSerializer):
 
 class DocumentSerializer(serializers.ModelSerializer):
     passport = PassportSerializer(many=True, source='passports', required=False)
-    uk_statistic = UkraineStatisticSerializer(many=True, source='ukrainestatistic_set', required=False)
-    certificate = CertificateSerializer(many=True, source='certificate_set', required=False)
-    tax_payer = TaxPayerSerializer(many=True, source='taxpayer_set', required=False)
-    payer_register = PayerRegisterSerializer(many=True, source='payerregister_set', required=False)
-    payer_certificate = PayerCertificateSerializer(many=True, source='payercertificate_set', required=False)
+    uk_statistic = UkraineStatisticSerializer(many=True, source='ukraine_statistics', required=False)
+    certificate = CertificateSerializer(many=True, source='certificates', required=False)
+    tax_payer = TaxPayerSerializer(many=True, source='tax_payers', required=False)
+    payer_register = PayerRegisterSerializer(many=True, source='payer_registers', required=False)
+    payer_certificate = PayerCertificateSerializer(many=True, source='payer_certificates', required=False)
 
     class Meta:
         model = Company

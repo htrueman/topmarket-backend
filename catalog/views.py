@@ -65,12 +65,11 @@ class ProductContractorViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'put', 'patch', 'delete', ]
     filter_backends = (filters.DjangoFilterBackend, )
     filterset_class = ProductFilter
-    # pagination_class =
 
     def get_queryset(self):
         return Product.objects.filter(
             user=self.request.user,
-            contractor_product=None,
+            contractor_product__isnull=True,
         )
 
     @action(detail=False, methods=['get'], serializer_class=CategorySerializer)
@@ -102,11 +101,16 @@ class ProductPartnerViewSet(viewsets.ModelViewSet):
     """
     parser_classes = (MultiPartParser, CamelCaseJSONParser, )
     permission_classes = (IsPartner, )
-    queryset = Product.objects.all()
     serializer_class = ProductSerializer
     http_method_names = ['get', 'post', 'put', 'patch', 'delete', ]
     filter_backends = (filters.DjangoFilterBackend, )
     filterset_class = ProductFilter
+
+    def get_queryset(self):
+        return Product.objects.filter(
+            user=self.request.user,
+            contractor_product__isnull=False,
+        )
 
     @action(detail=False, methods=['post'], serializer_class=ProductListIdSerializer)
     def copy_to_my_products(self, request, **kwargs):
@@ -160,10 +164,14 @@ class ProductPartnerViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED,
         )
 
-    @action(detail=True, methods=['get'])
+    @action(detail=False, methods=['get'])
     def products_by_contractors(self, request, *args, **kwargs):
+        partner_products = Product.products_by_partners.filter(
+            user=self.request.user
+        ).values_list('id', flat=True)
+
         queryset = Product.products_by_contractors.exclude(
-            user=request.user
+            id__in=partner_products
         )
         serializer = self.serializer_class(queryset, many=True)
         return Response(
