@@ -39,6 +39,7 @@ class CategoryListSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'name',
+            'parent',
             'is_have_children',
         )
 

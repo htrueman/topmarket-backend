@@ -13,7 +13,7 @@ from rest_framework.parsers import MultiPartParser
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import parsers
-
+from django.core.files.base import ContentFile
 from users.models import Company, MyStore
 
 
@@ -75,7 +75,7 @@ class ProductContractorViewSet(viewsets.ModelViewSet):
     def contractor_categories(self, request, *args, **kwargs):
         queryset = Category.objects.filter(
             product__in=self.get_queryset()
-        ).get_ancestors()
+        ).get_ancestors(include_self=False)
         serializer = self.serializer_class(queryset, many=True)
         return Response(
             status=status.HTTP_200_OK,
@@ -93,6 +93,14 @@ class ProductContractorViewSet(viewsets.ModelViewSet):
             data=serializer.data
         )
 
+    @action(detail=False, methods=['post'], serializer_class=ProductListIdSerializer)
+    def delete_list_of_products(self, request, *args, **kwargs):
+        product_list_id = request.data.get('product_list_ids', None)
+        self.get_queryset().filter(id__in=product_list_id).delete()
+        return Response(
+            status=status.HTTP_200_OK,
+        )
+
 
 class ProductPartnerViewSet(viewsets.ModelViewSet):
     """
@@ -106,9 +114,8 @@ class ProductPartnerViewSet(viewsets.ModelViewSet):
     filterset_class = ProductFilter
 
     def get_queryset(self):
-        return Product.objects.filter(
+        return Product.products_by_partners.filter(
             user=self.request.user,
-            contractor_product__isnull=False,
         )
 
     @action(detail=False, methods=['post'], serializer_class=ProductListIdSerializer)
@@ -116,49 +123,35 @@ class ProductPartnerViewSet(viewsets.ModelViewSet):
         prod_list_id = request.data['product_list_ids']
         with transaction.atomic():
             for prod_id in prod_list_id:
-                contractor_prod = get_object_or_404(Product, pk=prod_id)
-                partner_prod = Product(
-                    category=contractor_prod.category,
-                    user=request.user,
-                    product_type=contractor_prod.product_type,
-                    brand=contractor_prod.brand,
-                    name=contractor_prod.name,
-                    variety_type=contractor_prod.variety_type,
-                    vendor_code=contractor_prod.vendor_code,
-                    warranty_duration=contractor_prod.warranty_duration,
-                    vendor_country=contractor_prod.vendor_country,
-                    box_size=contractor_prod.box_size,
-                    count=contractor_prod.count,
-                    description=contractor_prod.description,
-                    extra_description=contractor_prod.extra_description,
-                    age_group=contractor_prod.age_group,
-                    material=contractor_prod.material,
-                    price=contractor_prod.price,
-                    contractor_product=contractor_prod,
-                )
+                new_partner_product = get_object_or_404(Product, pk=prod_id)
+                new_partner_product.id = None
+                new_partner_product.contractor_product_id = prod_id
                 try:
-                    partner_prod.save()
+                    new_partner_product.save()
                 except IntegrityError as e:
                     if 'unique constraint' in e.args[0]:
                         return Response(
                             status=status.HTTP_409_CONFLICT,
                         )
-
-                contractor_imgs = contractor_prod.productimage_set.all()
-
+                contractor_prod = Product.objects.get(pk=prod_id)
+                contractor_imgs = contractor_prod.product_images.all()
                 if contractor_imgs:
-                    ProductImage.objects.bulk_create([
-                        ProductImage(product_id=prod_id, **img)
-                        for img in contractor_imgs
-                    ])
+                    for img in contractor_imgs:
+                        img.id = None
+                        img.product_id = new_partner_product.id
+                        picture_copy = ContentFile(img.image.read())
+                        new_picture_name = str(new_partner_product.name) + '-' + img.image.name.split('/')[-1]
+                        img.image.save(new_picture_name, picture_copy)
+                        img.save()
 
-                contractor_urls = contractor_prod.productimageurl_set.all()
+                contractor_urls = contractor_prod.product_image_urls.all()
 
                 if contractor_urls:
-                    ProductImageURL.objects.bulk_create([
-                        ProductImageURL(product_id=prod_id, **url)
-                        for url in contractor_urls
-                    ])
+                    for url in contractor_urls:
+                        url.id = None
+                        url.product_id = new_partner_product.id
+                        url.save()
+
         return Response(
             status=status.HTTP_201_CREATED,
         )
@@ -176,6 +169,15 @@ class ProductPartnerViewSet(viewsets.ModelViewSet):
         return Response(
             status=status.HTTP_200_OK,
             data=serializer.data
+        )
+
+    @action(detail=False, methods=['post'], serializer_class=ProductListIdSerializer)
+    def delete_list_of_products(self, request, *args, **kwargs):
+        product_list_id = request.data.get('product_list_ids', None)
+        print(self.get_queryset())
+        self.get_queryset().filter(id__in=product_list_id).delete()
+        return Response(
+            status=status.HTTP_200_OK,
         )
 
 
