@@ -71,7 +71,7 @@ class ProductContractorViewSet(viewsets.ModelViewSet):
             user=self.request.user
         )
 
-    @action(detail=False, methods=['get'], serializer_class=CategorySerializer)
+    @action(detail=False, methods=['get'])
     def contractor_categories(self, request, *args, **kwargs):
         queryset = Category.objects.filter(
             product__in=self.get_queryset()

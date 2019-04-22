@@ -227,8 +227,6 @@ class UserProfileSerializer(RequireTogetherFields, UserSerializerMixin, serializ
             'date_joined',
         )
 
-    REQUIRED_TOGETHER = ('password', 'confirm_password',)
-
     def update(self, instance, validated_data):
         email_notifications = validated_data.pop('email_notifications', None)
         phone_notifications = validated_data.pop('phone_notifications', None)
