@@ -71,11 +71,12 @@ class ProductContractorViewSet(viewsets.ModelViewSet):
             user=self.request.user
         )
 
-    @action(detail=False, methods=['get'])
+    @action(detail=False, methods=['get'], serializer_class=CategorySerializer)
     def contractor_categories(self, request, *args, **kwargs):
         queryset = Category.objects.filter(
             product__in=self.get_queryset()
         ).get_ancestors(include_self=False)
+        
         serializer = self.serializer_class(queryset, many=True)
         return Response(
             status=status.HTTP_200_OK,
@@ -160,7 +161,6 @@ class ProductPartnerViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def products_by_contractors(self, request, *args, **kwargs):
         partner_products = self.get_queryset().values_list('contractor_product__id', flat=True)
-        print(partner_products)
         queryset = Product.products_by_contractors.exclude(
             id__in=partner_products
         )

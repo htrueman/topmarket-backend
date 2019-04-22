@@ -329,9 +329,6 @@ class CompanyPitchSerializer(serializers.ModelSerializer):
 
 
 class CompanyRetrieveSerializer(serializers.ModelSerializer):
-    activity_area = ActivityAreasSerializer(many=False, read_only=True)
-    service_industry = ServiceIndustrySerializer(many=False, read_only=True)
-    company_type = CompanyTypeSerializer(many=False, read_only=True)
 
     class Meta:
         model = Company
