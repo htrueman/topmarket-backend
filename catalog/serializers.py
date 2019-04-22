@@ -10,7 +10,7 @@ from rest_framework.exceptions import ValidationError
 from django.utils.translation import gettext as _
 from catalog.models import Category, Product, ProductImage, ProductImageURL, YMLTemplate, ProductUploadHistory
 from users.utils import CustomBase64Field, valid_url_extension
-
+from rest_framework_recursive.fields import RecursiveField as RecField
 
 class RecursiveField(serializers.BaseSerializer):
 
@@ -50,6 +50,10 @@ class CategorySerializer(serializers.ModelSerializer):
         source='children',
         many=True, required=False,
     )
+    # subcategories = serializers.ListField(
+    #     child=RecField(),
+    #     source='children',
+    # )
 
     class Meta:
         model = Category
