@@ -125,6 +125,7 @@ class ProductPartnerViewSet(viewsets.ModelViewSet):
             for prod_id in prod_list_id:
                 new_partner_product = get_object_or_404(Product, pk=prod_id)
                 new_partner_product.id = None
+                new_partner_product.user = self.request.user
                 new_partner_product.contractor_product_id = prod_id
                 try:
                     new_partner_product.save()
@@ -140,7 +141,7 @@ class ProductPartnerViewSet(viewsets.ModelViewSet):
                         img.id = None
                         img.product_id = new_partner_product.id
                         picture_copy = ContentFile(img.image.read())
-                        new_picture_name = str(new_partner_product.name) + '-' + img.image.name.split('/')[-1]
+                        new_picture_name = str(new_partner_product.name) + str(new_partner_product.id) + '-' + img.image.name.split('/')[-1]
                         img.image.save(new_picture_name, picture_copy)
                         img.save()
 
@@ -158,10 +159,8 @@ class ProductPartnerViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def products_by_contractors(self, request, *args, **kwargs):
-        partner_products = Product.products_by_partners.filter(
-            user=self.request.user
-        ).values_list('id', flat=True)
-
+        partner_products = self.get_queryset().values_list('contractor_product__id', flat=True)
+        print(partner_products)
         queryset = Product.products_by_contractors.exclude(
             id__in=partner_products
         )

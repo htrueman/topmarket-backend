@@ -10,7 +10,7 @@ class BasePocket(BasePermission):
 class FullPocket(BasePermission):
 
     def has_permission(self, request, view):
-        return request.user.user_pocket == 'FULL' or request.user.is_staff
+        return request.user.is_authenticated and (request.user.user_pocket == 'FULL' or request.user.is_staff)
 
 
 class NoPocket(BasePermission):
@@ -23,14 +23,14 @@ class NoPocket(BasePermission):
 
 class IsContractor(BasePermission):
     def has_permission(self, request, view):
-        if request.user.role == 'CONTRACTOR' or request.user.is_staff:
+        if request.user.is_authenticated and (request.user.role == 'CONTRACTOR' or request.user.is_staff):
             return True
         return False
 
 
 class IsPartner(BasePermission):
     def has_permission(self, request, view):
-        if request.user.role == 'PARTNER' or request.user.is_staff:
+        if request.user.is_authenticated and (request.user.role == 'PARTNER' or request.user.is_staff):
             return True
         return False
 
