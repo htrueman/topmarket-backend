@@ -1,11 +1,10 @@
 from django.urls import path, re_path
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import routers, status
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-
+from users.serializers import TokenObtainPairCustomSerializer
 from users import views
 from rest_framework_simplejwt import views as jwt_views
-
+from .views import TokenObtainPairCustomView
 
 app_name = 'users'
 
@@ -29,8 +28,8 @@ router.register('profile', views.UserProfileViewSet, base_name='User')
 decorated_login_view = \
    swagger_auto_schema(
       method='post',
-      responses={status.HTTP_200_OK: TokenObtainPairSerializer}
-   )(jwt_views.TokenObtainPairView.as_view())
+      responses={status.HTTP_200_OK: TokenObtainPairCustomSerializer}
+   )(TokenObtainPairCustomView.as_view())
 
 urlpatterns = router.urls
 

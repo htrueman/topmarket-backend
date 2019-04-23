@@ -15,8 +15,19 @@ from rest_framework.response import Response
 from django.utils.encoding import force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .serializers import TokenObtainPairCustomSerializer
+
 
 User = get_user_model()
+
+
+class TokenObtainPairCustomView(TokenObtainPairView):
+    """
+    Takes a set of user credentials and returns an access and refresh JSON web
+    token pair to prove the authentication of those credentials.
+    """
+    serializer_class = TokenObtainPairCustomSerializer
 
 
 class CreateUserView(CreateAPIView):
