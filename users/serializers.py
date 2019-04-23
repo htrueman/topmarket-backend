@@ -19,8 +19,35 @@ from .models import UserNotificationEmail, UserNotificationPhone, Company, Activ
 from .utils import CustomBase64Field, valid_url_extension
 import random
 import string
-
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.contrib.auth import authenticate
 User = get_user_model()
+
+
+class TokenObtainPairCustomSerializer(TokenObtainPairSerializer):
+
+    def validate(self, attrs):
+        self.user = authenticate(**{
+            self.username_field: attrs[self.username_field],
+            'password': attrs['password'],
+        })
+
+        data = {}
+        if self.user is None:
+            raise serializers.ValidationError(
+                _('Неправильный логин или пароль.'),
+            )
+        elif not self.user.is_active:
+            raise serializers.ValidationError(
+                _('Аккаунт не активирован.')
+            )
+
+        refresh = self.get_token(self.user)
+
+        data['refresh'] = str(refresh)
+        data['access'] = str(refresh.access_token)
+
+        return data
 
 
 class UserSerializer(UserSerializerMixin, serializers.ModelSerializer):

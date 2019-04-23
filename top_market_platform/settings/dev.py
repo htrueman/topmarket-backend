@@ -3,7 +3,7 @@ from .base import *
 
 DEBUG = True
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 EMAIL_HOST = 'smtp.sendgrid.net'
 EMAIL_HOST_PASSWORD = "1q2w3e4r5t6y"
