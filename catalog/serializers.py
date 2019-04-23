@@ -12,6 +12,7 @@ from catalog.models import Category, Product, ProductImage, ProductImageURL, YML
 from users.utils import CustomBase64Field, valid_url_extension
 from rest_framework_recursive.fields import RecursiveField as RecField
 
+
 class RecursiveField(serializers.BaseSerializer):
 
     def to_representation(self, instance):
@@ -50,10 +51,6 @@ class CategorySerializer(serializers.ModelSerializer):
         source='children',
         many=True, required=False,
     )
-    # subcategories = serializers.ListField(
-    #     child=RecField(),
-    #     source='children',
-    # )
 
     class Meta:
         model = Category
