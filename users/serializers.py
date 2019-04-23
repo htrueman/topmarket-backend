@@ -86,7 +86,8 @@ class UserSerializer(UserSerializerMixin, serializers.ModelSerializer):
             'subject': mail_subject,
             'html_content': message
         }
-        send_email_task.delay(**data)
+        # send_email_task.delay(**data)
+        send_email_task(**data)
         return user
 
 
@@ -124,7 +125,8 @@ class ManagerSerializer(serializers.ModelSerializer):
             'subject': mail_subject,
             'html_content': message
         }
-        send_email_task.delay(**data)
+        # send_email_task.delay(**data)
+        send_email_task(**data)
         return user
 
     @staticmethod
@@ -153,7 +155,8 @@ class PasswordResetSerializer(serializers.Serializer):
                 'subject': mail_subject,
                 'html_content': message
             }
-            send_email_task.delay(**data)
+            # send_email_task.delay(**data)
+            send_email_task(**data)
             return password
         else:
             errors = dict()
