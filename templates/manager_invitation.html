@@ -1,6 +1,8 @@
 {% autoescape off %}
-Hello,
-    Your password is:  {{ password }}
-Please click on the link to accept invitation,
+Привет,
+    Данные для входа на ТопМакерт,
+    Email: {{ email }}
+    Пароль:  {{ password }}
+    Для активации аккаунта перейдите по ссылке:
 {{ domain }}{% url 'users:activate' version='v1' uidb64=uid token=token %}
 {% endautoescape %}

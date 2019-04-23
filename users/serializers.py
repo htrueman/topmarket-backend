@@ -5,7 +5,6 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 import django.contrib.auth.password_validation as validators
 from django.core import exceptions
-from django.core.mail import send_mail
 from django.conf import settings
 from django.utils.encoding import force_bytes, force_text
 from django.template.loader import render_to_string
@@ -82,8 +81,6 @@ class UserSerializer(UserSerializerMixin, serializers.ModelSerializer):
             'html_content': message
         }
         send_email_task.delay(**data)
-        # send_mail(mail_subject, message, settings.DEFAULT_FROM_EMAIL, [email,], )
-
         return user
 
 
@@ -113,8 +110,15 @@ class ManagerSerializer(serializers.ModelSerializer):
             'uid': urlsafe_base64_encode(force_bytes(user.pk)).decode(),
             'token': account_activation_token.make_token(user),
             'password': password,
+            'email': email
+
         })
-        send_mail(mail_subject, message, settings.DEFAULT_FROM_EMAIL, [email,])
+        data = {
+            'to_emails': [email, ],
+            'subject': mail_subject,
+            'html_content': message
+        }
+        send_email_task.delay(**data)
         return user
 
     @staticmethod
@@ -138,7 +142,12 @@ class PasswordResetSerializer(serializers.Serializer):
                 'user': user,
                 'password': password
             })
-            send_mail(mail_subject, message, settings.DEFAULT_FROM_EMAIL, (email,))
+            data = {
+                'to_emails': [email, ],
+                'subject': mail_subject,
+                'html_content': message
+            }
+            send_email_task.delay(**data)
             return password
         else:
             errors = dict()
