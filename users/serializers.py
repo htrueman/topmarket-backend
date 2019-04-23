@@ -34,15 +34,21 @@ class TokenObtainPairCustomSerializer(TokenObtainPairSerializer):
             self.username_field: attrs[self.username_field],
             'password': attrs['password'],
         })
-
+        print(self.user)
+        is_not_activated = User.objects.filter(
+            email=attrs[self.username_field],
+            is_active=False
+        ).exists()
         data = {}
+
+        if is_not_activated:
+            raise serializers.ValidationError(
+                _('Аккаунт не активирован.')
+            )
+
         if self.user is None:
             raise serializers.ValidationError(
                 _('Неправильный логин или пароль.'),
-            )
-        elif not self.user.is_active:
-            raise serializers.ValidationError(
-                _('Аккаунт не активирован.')
             )
 
         refresh = self.get_token(self.user)
