@@ -1,5 +1,6 @@
 {% autoescape off %}
 Добрый день,
     Для подтверждения регистрации перейдите по ссылке:
+    https://{{domain}}/confirm_email?token={{ uid }}{{ token }}/  <br>
 https://api.{{ domain }}{% url 'users:activate' version='v1' uidb64=uid token=token %}
 {% endautoescape %}
