@@ -23,6 +23,8 @@ import random
 import string
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import authenticate
+from .tasks import send_email_task
+
 User = get_user_model()
 
 
@@ -68,13 +70,19 @@ class UserSerializer(UserSerializerMixin, serializers.ModelSerializer):
         )
         user.set_password(validated_data['password'])
         user.save()
-        mail_subject = 'Activate your account.'
+        mail_subject = _('Активация аккаунта.')
         message = render_to_string('account_activation_email.html', {
             'domain': settings.HOST_NAME,
             'uid': urlsafe_base64_encode(force_bytes(user.pk)).decode(),
             'token': account_activation_token.make_token(user),
         })
-        send_mail(mail_subject, message, settings.DEFAULT_FROM_EMAIL, [email,], )
+        data = {
+            'to_emails': [email, ],
+            'subject': mail_subject,
+            'html_content': message
+        }
+        send_email_task.delay(**data)
+        # send_mail(mail_subject, message, settings.DEFAULT_FROM_EMAIL, [email,], )
 
         return user
 
