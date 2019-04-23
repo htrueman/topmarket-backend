@@ -72,7 +72,7 @@ class UserSerializer(UserSerializerMixin, serializers.ModelSerializer):
             'uid': urlsafe_base64_encode(force_bytes(user.pk)).decode(),
             'token': account_activation_token.make_token(user),
         })
-        send_mail(mail_subject, message, settings.DEFAULT_FROM_EMAIL, [email,])
+        send_mail(mail_subject, message, settings.DEFAULT_FROM_EMAIL, [email,], )
 
         return user
 
