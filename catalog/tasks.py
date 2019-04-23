@@ -4,20 +4,19 @@ from celery.utils.log import get_task_logger
 from catalog.resources import ProductResource
 from tablib import Dataset
 from catalog.models import ProductUploadHistory
-import itertools
 from django.utils.translation import ugettext as _
 logger = get_task_logger(__name__)
 
 
 @shared_task
 def load_products_from_xls(**kwargs):
-    product_resource = ProductResource()
     dataset = Dataset()
     kwargs.get('instance_id')
     prod_hist = ProductUploadHistory.objects.get(id=int(kwargs.get('instance_id')))
     file_path = prod_hist.xls_file.path
     with open(file_path, 'rb') as f:
         dataset.load(f.read(), 'xls')
+        product_resource = ProductResource()
         result = product_resource.import_data(
             dataset=dataset,
             dry_run=True,
@@ -37,5 +36,9 @@ def load_products_from_xls(**kwargs):
                 prod_hist.errors = _('No errors')
                 prod_hist.save()
         else:
-            prod_hist.errors = _('. '.join(itertools.chain.from_iterable([x.error.messages for x in result.invalid_rows])))
+            error = ''
+            for i, row in result.row_errors():
+                for err in row:
+                    error += '{} {}\n'.format(i, err.error)
+            prod_hist.errors = error
             prod_hist.save()

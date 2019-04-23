@@ -235,6 +235,7 @@ class ProductUploadHistorySerializer(serializers.ModelSerializer):
             'created',
             'is_uploaded',
             'errors',
+            'file_type',
         )
         read_only_fields = (
             'created',
@@ -242,3 +243,11 @@ class ProductUploadHistorySerializer(serializers.ModelSerializer):
             'errors',
         )
 
+    def validate_xls_file(self, val):
+        if val.content_type not in (
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'application/octet-stream'
+        ):
+            raise ValidationError(_('Unsupported Media Type'))
+        return val

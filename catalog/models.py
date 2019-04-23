@@ -233,6 +233,10 @@ class ProductUploadHistory(models.Model):
         upload_to='catalog/product/uploads',
         verbose_name=_('XLS файл')
     )
+    file_type = models.CharField(
+        max_length=7,
+        choices=constants.ProductUploadFileTypes.PRODUCT_UPLOAD_FILE_TYPES
+    )
 
     def __str__(self):
         return '{}'.format(self.user)
