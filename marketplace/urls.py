@@ -13,5 +13,5 @@ urlpatterns = router.urls
 urlpatterns += [
     path('base/', KnowledgeBaseListCreateView.as_view(), name='base-list-create'),
     path('base/<int:pk>/', KnowledgeBaseRUDView.as_view(), name='base-rud'),
-
+    path('base/contact_us/', ContactUsCreateView.as_view(), name='contact_us'),
 ]
