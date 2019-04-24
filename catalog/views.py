@@ -16,6 +16,9 @@ from rest_framework import parsers
 from django.core.files.base import ContentFile
 from users.models import Company, MyStore
 from rest_framework.pagination import PageNumberPagination
+from django.core.cache import cache
+from django.core.cache.backends.base import DEFAULT_TIMEOUT
+
 
 class ClientAccessPermission(permissions.BasePermission):
     message = 'Check if both Company and MyStore added to user.'
@@ -53,6 +56,24 @@ class CategoryViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
             data=serializer.data
         )
+
+    def list(self, request, *args, **kwargs):
+
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        if 'categories_data' in cache:
+            data = cache.get('categories_data')
+            return Response(data)
+        else:
+            data = serializer.data
+            cache.set('categories_data', data, DEFAULT_TIMEOUT)
+            return Response(data)
 
 
 class ProductContractorViewSet(viewsets.ModelViewSet):
