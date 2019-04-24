@@ -10,8 +10,10 @@ from catalog.resources import ProductResource
 from tablib import Dataset
 from .models import ProductUploadHistory, Product, ProductImageURL
 from django.utils.translation import ugettext as _
-
+from rest_framework.exceptions import ValidationError
 from catalog.utils import get_rozetka_auth_token
+import xlrd
+import time
 
 logger = get_task_logger(__name__)
 
@@ -52,37 +54,47 @@ def load_products_from_xls(**kwargs):
                 prod_hist.errors = error
                 prod_hist.save()
     elif prod_hist.file_type == ProductUploadFileTypes.ROZETKA:
+        workbook = xlrd.open_workbook(file_path)
+        sheet = workbook.sheet_by_index(0)
+        if sheet.cell_value(rowx=0, colx=0) == 'ID товара в розетке':
+            product_id_list = sheet.col_slice(0, start_rowx=1)
+            list_with_zero = map(lambda x: int(x.value), product_id_list)
+            result_tuple = tuple(filter(lambda x: x if x > 0 else None, list_with_zero))
+        else:
+            raise ValidationError(_('Invalid headers in file'))
+
         token_rozetka = get_rozetka_auth_token(prod_hist.user)
-
         if token_rozetka:
-            curl_get_orders_key = 'curl -X GET https://api.seller.rozetka.com.ua/items/58898602' \
-                                  '?expand=sell_status,sold,status,description,description_ua,' \
-                                  'details,parent_category,status_available,group_item ' \
-                                  '-H \'Authorization: Bearer {token_rozetka}\' ' \
-                                  '-H \'cache-control: no-cache\'' \
-                .format(token_rozetka=token_rozetka)
-            output = subprocess.check_output(curl_get_orders_key, stderr=subprocess.PIPE, shell=True)
-            data = json.loads(output)
-            if data['success']:
-                product = data['content']
-                # Массажер для чистки лица + POBLING + Sonic Pore Cleansing Brush + Golden
-                full_name = product.get('name') if product.get('name') else product.get('name_ua')
+            for product_id in result_tuple:
+                curl_get_orders_key = 'curl -X GET https://api.seller.rozetka.com.ua/items/{product_id}' \
+                                      '?expand=sell_status,sold,status,description,description_ua,' \
+                                      'details,parent_category,status_available,group_item ' \
+                                      '-H \'Authorization: Bearer {token_rozetka}\' ' \
+                                      '-H \'cache-control: no-cache\'' \
+                    .format(token_rozetka=token_rozetka, product_id=product_id)
+                output = subprocess.check_output(curl_get_orders_key, stderr=subprocess.PIPE, shell=True)
+                data = json.loads(output)
+                if data['success']:
+                    product = data['content']
+                    # Массажер для чистки лица + POBLING + Sonic Pore Cleansing Brush + Golden
+                    full_name = product.get('name') if product.get('name') else product.get('name_ua')
 
-                product_instance, created = Product.objects.update_or_create(
-                    rozetka_id=product['id'],
-                    user=prod_hist.user,
-                    defaults={
-                        'name': product.get('name') if product.get('name') else product.get('name_ua'),
-                        'vendor_code': product['article'],
-                        'price': product['price'],
-                        'category_id': product['catalog_id'],
-                        'description': product.get('description')
-                        if product.get('description') else product.get('description_ua'),
-                    }
-                )
-
-                for photo in product['photo']:
-                    ProductImageURL.objects.update_or_create(
-                        product=product_instance,
-                        url=photo
+                    product_instance, created = Product.objects.update_or_create(
+                        rozetka_id=product['id'],
+                        user=prod_hist.user,
+                        defaults={
+                            'name': product.get('name') if product.get('name') else product.get('name_ua'),
+                            'vendor_code': product['article'],
+                            'price': product['price'],
+                            'category_id': product['catalog_id'],
+                            'description': product.get('description')
+                            if product.get('description') else product.get('description_ua'),
+                        }
                     )
+
+                    for photo in product['photo']:
+                        ProductImageURL.objects.update_or_create(
+                            product=product_instance,
+                            url=photo
+                        )
+                time.sleep(5)
