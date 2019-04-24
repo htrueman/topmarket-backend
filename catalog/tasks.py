@@ -1,7 +1,8 @@
 import json
 import subprocess
+from contextlib import suppress
 
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from celery import shared_task
 from celery.utils.log import get_task_logger
 
@@ -64,37 +65,39 @@ def load_products_from_xls(**kwargs):
             raise ValidationError(_('Invalid headers in file'))
 
         token_rozetka = get_rozetka_auth_token(prod_hist.user)
-        if token_rozetka:
-            for product_id in result_tuple:
-                curl_get_orders_key = 'curl -X GET https://api.seller.rozetka.com.ua/items/{product_id}' \
-                                      '?expand=sell_status,sold,status,description,description_ua,' \
-                                      'details,parent_category,status_available,group_item ' \
-                                      '-H \'Authorization: Bearer {token_rozetka}\' ' \
-                                      '-H \'cache-control: no-cache\'' \
-                    .format(token_rozetka=token_rozetka, product_id=product_id)
-                output = subprocess.check_output(curl_get_orders_key, stderr=subprocess.PIPE, shell=True)
-                data = json.loads(output)
-                if data['success']:
-                    product = data['content']
-                    # Массажер для чистки лица + POBLING + Sonic Pore Cleansing Brush + Golden
-                    full_name = product.get('name') if product.get('name') else product.get('name_ua')
+        with transaction.atomic():
+            if token_rozetka:
+                for product_id in result_tuple:
+                    curl_get_orders_key = 'curl -X GET https://api.seller.rozetka.com.ua/items/{product_id}' \
+                                          '?expand=sell_status,sold,status,description,description_ua,' \
+                                          'details,parent_category,status_available,group_item ' \
+                                          '-H \'Authorization: Bearer {token_rozetka}\' ' \
+                                          '-H \'cache-control: no-cache\'' \
+                        .format(token_rozetka=token_rozetka, product_id=product_id)
+                    output = subprocess.check_output(curl_get_orders_key, stderr=subprocess.PIPE, shell=True)
+                    data = json.loads(output)
+                    if data['success']:
+                        product = data['content']
+                        # Массажер для чистки лица + POBLING + Sonic Pore Cleansing Brush + Golden
+                        full_name = product.get('name') if product.get('name') else product.get('name_ua')
 
-                    product_instance, created = Product.objects.update_or_create(
-                        rozetka_id=product['id'],
-                        user=prod_hist.user,
-                        defaults={
-                            'name': product.get('name') if product.get('name') else product.get('name_ua'),
-                            'vendor_code': product['article'],
-                            'price': product['price'],
-                            'category_id': product['catalog_id'],
-                            'description': product.get('description')
-                            if product.get('description') else product.get('description_ua'),
-                        }
-                    )
+                        with suppress(IntegrityError):
+                            product_instance, created = Product.objects.update_or_create(
+                                rozetka_id=product['id'],
+                                user=prod_hist.user,
+                                defaults={
+                                    'name': product.get('name') if product.get('name') else product.get('name_ua'),
+                                    'vendor_code': product['article'],
+                                    'price': product['price'],
+                                    'category_id': product['catalog_id'],
+                                    'description': product.get('description')
+                                    if product.get('description') else product.get('description_ua'),
+                                }
+                            )
 
-                    for photo in product['photo']:
-                        ProductImageURL.objects.update_or_create(
-                            product=product_instance,
-                            url=photo
-                        )
-                time.sleep(5)
+                            for photo in product['photo']:
+                                ProductImageURL.objects.update_or_create(
+                                    product=product_instance,
+                                    url=photo
+                                )
+                    time.sleep(2)
