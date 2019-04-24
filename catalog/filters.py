@@ -9,6 +9,10 @@ class ProductFilter(filters.FilterSet):
         field_name='category',
         queryset=Category.objects.all()
     )
+    in_stock = filters.BooleanFilter(
+        method='filter_in_stock'
+    )
+    brand = filters.CharFilter(field_name='brand', lookup_expr='icontains')
 
     class Meta:
         model = Product
@@ -17,5 +21,14 @@ class ProductFilter(filters.FilterSet):
             'name',
             'vendor_code',
             'min_price',
-            'max_price'
+            'max_price',
+            'in_stock'
         ]
+
+    def filter_in_stock(self, queryset, name, value):
+        print(value)
+        if value:
+            return queryset.filter(count__gte=1)
+        if not value:
+            return queryset.filter(count=0)
+        return queryset
