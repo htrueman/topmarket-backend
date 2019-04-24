@@ -118,8 +118,7 @@ class ContactUsSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = self.context['request'].user
-        if user is None:
-            print(validated_data, )
+        if user.is_anonymous:
             instance = ContactUs.objects.create(**validated_data)
         else:
             instance = ContactUs.objects.create(
