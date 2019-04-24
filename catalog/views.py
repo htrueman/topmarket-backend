@@ -206,7 +206,4 @@ class ProductImportViewSet(viewsets.ModelViewSet):
     permission_classes = (IsContractor, )
 
     def perform_create(self, serializer):
-        upload_history = serializer.save(user=self.request.user)
-
-        if upload_history.file_type == ProductUploadFileTypes.ROZETKA:
-            pass
+        serializer.save(user=self.request.user)

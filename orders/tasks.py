@@ -1,12 +1,10 @@
-import base64
 import json
 import subprocess
 from subprocess import PIPE
-
 from django.contrib.auth import get_user_model
-from django.core.cache import cache
 
 from catalog.models import Product
+from catalog.utils import get_rozetka_auth_token
 from .models import Order, OrderUser, OrderDelivery, OrderItemPhoto, OrderSellerComment, OrderStatusHistoryItem
 from top_market_platform.celery import app
 from users.models import Company, MyStore
@@ -19,22 +17,7 @@ def checkout_orders():
     for user in User.objects.filter(role='PARTNER'):
         if (Company.objects.filter(user=user).exists()
                 and MyStore.objects.filter(user=user).exists()):
-            token_rozetka = cache.get('user_id_{}'.format(user.pk))
-            if not token_rozetka:
-                if user.rozetka_username and user.rozetka_password:
-                    curl_get_access_key = 'curl -X POST https://api.seller.rozetka.com.ua/sites ' \
-                                   '-H \'Content-Type: application/json\' ' \
-                                   '-H \'cache-control: no-cache\' ' \
-                                   '-d \'{{\"username\": \"{username}\", \"password\": \"{password}\"}}\'' \
-                        .format(username=user.rozetka_username,
-                                password=base64.b64encode(bytes(user.rozetka_password, 'utf-8')).decode('utf-8'))
-
-                    output = subprocess.check_output(curl_get_access_key, stderr=PIPE, shell=True)
-                    data = json.loads(output)
-
-                    if data['success']:
-                        token_rozetka = data['content']['acces_rozetkas_token']
-                        cache.set('user_id_{}'.format(user.pk), token_rozetka, 60 * 60 * 24)
+            token_rozetka = get_rozetka_auth_token(user)
             if token_rozetka:
                 curl_get_orders_key = 'curl -X GET https://api.seller.rozetka.com.ua/orders/search' \
                                       '?expand=user,delivery,order_status_history ' \
