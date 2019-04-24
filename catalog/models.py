@@ -174,6 +174,11 @@ class Product(TimeStampedModel):
         related_name='contractor_products',
     )
 
+    rozetka_id = models.IntegerField(
+        null=True,
+        blank=True
+    )
+
     # managers
     objects = models.Manager()
     products_by_contractors = ContractorProductManager()

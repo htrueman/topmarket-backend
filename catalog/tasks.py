@@ -4,12 +4,11 @@ import subprocess
 from django.db import transaction
 from celery import shared_task
 from celery.utils.log import get_task_logger
-from django.core.cache import cache
 
 from catalog.constants import ProductUploadFileTypes
 from catalog.resources import ProductResource
 from tablib import Dataset
-from catalog.models import ProductUploadHistory
+from .models import ProductUploadHistory, Product, ProductImageURL
 from django.utils.translation import ugettext as _
 
 from catalog.utils import get_rozetka_auth_token
@@ -65,4 +64,25 @@ def load_products_from_xls(**kwargs):
             output = subprocess.check_output(curl_get_orders_key, stderr=subprocess.PIPE, shell=True)
             data = json.loads(output)
             if data['success']:
-                pass
+                product = data['content']
+                # Массажер для чистки лица + POBLING + Sonic Pore Cleansing Brush + Golden
+                full_name = product.get('name') if product.get('name') else product.get('name_ua')
+
+                product_instance, created = Product.objects.update_or_create(
+                    rozetka_id=product['id'],
+                    user=prod_hist.user,
+                    defaults={
+                        'name': product.get('name') if product.get('name') else product.get('name_ua'),
+                        'vendor_code': product['article'],
+                        'price': product['price'],
+                        'category_id': product['catalog_id'],
+                        'description': product.get('description')
+                        if product.get('description') else product.get('description_ua'),
+                    }
+                )
+
+                for photo in product['photo']:
+                    ProductImageURL.objects.update_or_create(
+                        product=product_instance,
+                        url=photo
+                    )
