@@ -174,6 +174,11 @@ class Product(TimeStampedModel):
         related_name='contractor_products',
     )
 
+    rozetka_id = models.IntegerField(
+        null=True,
+        blank=True
+    )
+
     # managers
     objects = models.Manager()
     products_by_contractors = ContractorProductManager()
@@ -238,6 +243,10 @@ class ProductUploadHistory(models.Model):
     xls_file = models.FileField(
         upload_to='catalog/product/uploads',
         verbose_name=_('XLS файл')
+    )
+    file_type = models.CharField(
+        max_length=7,
+        choices=constants.ProductUploadFileTypes.PRODUCT_UPLOAD_FILE_TYPES
     )
 
     def __str__(self):

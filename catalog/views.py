@@ -1,6 +1,8 @@
 from rest_framework import generics, viewsets, permissions, status
 from django.db import transaction
 from django.db import IntegrityError
+
+from catalog.constants import ProductUploadFileTypes
 from catalog.serializers import CategorySerializer, ProductSerializer, YMLHandlerSerializer, \
     ProductUploadHistorySerializer, ProductListIdSerializer, CategoryListSerializer
 from catalog.models import Category, Product, ProductImage, ProductImageURL, YMLTemplate, ProductUploadHistory
@@ -219,12 +221,6 @@ class YMLHandlerViewSet(viewsets.ModelViewSet):
 
 
 class ProductImportViewSet(viewsets.ModelViewSet):
-    """
-    Wrong method in swagger.
-    Use postman.
-    For post method, u must set in body field "xls_field".
-    """
-
     parser_classes = (parsers.MultiPartParser, parsers.FormParser, )
     queryset = ProductUploadHistory.objects.all()
     serializer_class = ProductUploadHistorySerializer
@@ -232,25 +228,4 @@ class ProductImportViewSet(viewsets.ModelViewSet):
     permission_classes = (IsContractor, )
 
     def perform_create(self, serializer):
-        input_file = self.request.FILES['xls_file']
-        print(input_file.content_type)
-        if input_file.content_type in (
-            'application/vnd.ms-excel',
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'application/octet-stream'
-        ):
-            serializer.save(
-                user=self.request.user,
-                xls_file=input_file,
-            )
-            return status.HTTP_201_CREATED
-        else:
-            return status.HTTP_415_UNSUPPORTED_MEDIA_TYPE
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        status_response = self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(status=status_response, headers=headers, data=serializer.data)
-
+        serializer.save(user=self.request.user)
