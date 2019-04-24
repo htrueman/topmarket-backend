@@ -34,15 +34,21 @@ class TokenObtainPairCustomSerializer(TokenObtainPairSerializer):
             self.username_field: attrs[self.username_field],
             'password': attrs['password'],
         })
-
+        print(self.user)
+        is_not_activated = User.objects.filter(
+            email=attrs[self.username_field],
+            is_active=False
+        ).exists()
         data = {}
+
+        if is_not_activated:
+            raise serializers.ValidationError(
+                _('Аккаунт не активирован.')
+            )
+
         if self.user is None:
             raise serializers.ValidationError(
                 _('Неправильный логин или пароль.'),
-            )
-        elif not self.user.is_active:
-            raise serializers.ValidationError(
-                _('Аккаунт не активирован.')
             )
 
         refresh = self.get_token(self.user)
@@ -69,7 +75,7 @@ class UserSerializer(UserSerializerMixin, serializers.ModelSerializer):
         )
         user.set_password(validated_data['password'])
         user.save()
-        mail_subject = _('Активация аккаунта.')
+        mail_subject = 'Активация аккаунта.'
         message = render_to_string('account_activation_email.html', {
             'domain': settings.HOST_NAME,
             'uid': urlsafe_base64_encode(force_bytes(user.pk)).decode(),
@@ -80,7 +86,8 @@ class UserSerializer(UserSerializerMixin, serializers.ModelSerializer):
             'subject': mail_subject,
             'html_content': message
         }
-        send_email_task.delay(**data)
+        # send_email_task.delay(**data)
+        send_email_task(**data)
         return user
 
 
@@ -118,7 +125,8 @@ class ManagerSerializer(serializers.ModelSerializer):
             'subject': mail_subject,
             'html_content': message
         }
-        send_email_task.delay(**data)
+        # send_email_task.delay(**data)
+        send_email_task(**data)
         return user
 
     @staticmethod
@@ -147,7 +155,8 @@ class PasswordResetSerializer(serializers.Serializer):
                 'subject': mail_subject,
                 'html_content': message
             }
-            send_email_task.delay(**data)
+            # send_email_task.delay(**data)
+            send_email_task(**data)
             return password
         else:
             errors = dict()

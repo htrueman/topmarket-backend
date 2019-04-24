@@ -142,7 +142,6 @@ class ProductSerializer(serializers.ModelSerializer):
             return product
 
     def update(self, instance, validated_data):
-        print(validated_data)
         cover_images_data = validated_data.pop('product_images', None)
         image_urls = validated_data.pop('product_image_urls', None)
 

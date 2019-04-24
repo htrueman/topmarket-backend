@@ -15,6 +15,9 @@ from rest_framework.response import Response
 from rest_framework import parsers
 from django.core.files.base import ContentFile
 from users.models import Company, MyStore
+from rest_framework.pagination import PageNumberPagination
+from django.core.cache import cache
+from django.core.cache.backends.base import DEFAULT_TIMEOUT
 
 
 class ClientAccessPermission(permissions.BasePermission):
@@ -53,6 +56,24 @@ class CategoryViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
             data=serializer.data
         )
+
+    def list(self, request, *args, **kwargs):
+
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        if 'categories_data' in cache:
+            data = cache.get('categories_data')
+            return Response(data)
+        else:
+            data = serializer.data
+            cache.set('categories_data', data, DEFAULT_TIMEOUT)
+            return Response(data)
 
 
 class ProductContractorViewSet(viewsets.ModelViewSet):
@@ -114,8 +135,17 @@ class ProductPartnerViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'put', 'patch', 'delete', ]
     filter_backends = (filters.DjangoFilterBackend, )
     filterset_class = ProductFilter
+    pagination_class = PageNumberPagination
 
     def get_queryset(self):
+        if self.action == 'products_by_contractors':
+
+            partner_products = Product.products_by_partners.filter(
+                user=self.request.user,
+            ).values_list('contractor_product__id', flat=True)
+            return Product.products_by_contractors.exclude(
+                id__in=partner_products
+            )
         return Product.products_by_partners.filter(
             user=self.request.user,
         )
@@ -159,17 +189,9 @@ class ProductPartnerViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED,
         )
 
-    @action(detail=False, methods=['get'])
+    @action(detail=False, methods=['get'], pagination_class=PageNumberPagination, filterset_class=ProductFilter)
     def products_by_contractors(self, request, *args, **kwargs):
-        partner_products = self.get_queryset().values_list('contractor_product__id', flat=True)
-        queryset = Product.products_by_contractors.exclude(
-            id__in=partner_products
-        )
-        serializer = self.serializer_class(queryset, many=True)
-        return Response(
-            status=status.HTTP_200_OK,
-            data=serializer.data
-        )
+        return self.list(request, *args, **kwargs)
 
     @action(detail=False, methods=['post'], serializer_class=ProductListIdSerializer)
     def delete_list_of_products(self, request, *args, **kwargs):

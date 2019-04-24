@@ -182,6 +182,12 @@ class Product(TimeStampedModel):
     def __str__(self):
         return self.name
 
+    @property
+    def is_in_stock(self):
+        if self.count == 0:
+            return False
+        return True
+
     class Meta:
         verbose_name = _('Товар')
         verbose_name_plural = _('Товары')

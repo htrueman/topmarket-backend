@@ -1,10 +1,8 @@
-from django.db import transaction
 from drf_extra_fields.fields import Base64ImageField
-from drf_writable_nested import WritableNestedModelSerializer
 from rest_framework import serializers
 
 from .models import KnowledgeBase, TrainingModule, VideoLesson, ImageForLesson, ImageForTraining, VideoTraining, \
-    AdditionalService
+    AdditionalService, ContactUs
 
 
 class KnowledgeBaseSerializer(serializers.ModelSerializer):
@@ -106,3 +104,29 @@ class AdditionalServiceSerializer(serializers.ModelSerializer):
             'title',
             'text',
         )
+
+
+class ContactUsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContactUs
+        fields = (
+            'name',
+            'email',
+            'subject',
+            'text',
+        )
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        if user is None:
+            print(validated_data, )
+            instance = ContactUs.objects.create(**validated_data)
+        else:
+            instance = ContactUs.objects.create(
+                **validated_data,
+                user=user,
+                email=user.email,
+                name=user.get_full_name()
+            )
+        return instance
+

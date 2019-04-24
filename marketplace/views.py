@@ -4,10 +4,14 @@ from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework import permissions
 from django.contrib.auth import get_user_model
+from django.template.loader import render_to_string
+from django.conf import settings
 
-from .models import KnowledgeBase, VideoLesson, TrainingModule, VideoTraining, AdditionalService
+from .models import KnowledgeBase, VideoLesson, TrainingModule, VideoTraining, AdditionalService, ContactUs
 from .serializers import KnowledgeBaseSerializer, VideoLessonSerializer, TrainingModuleSerializer, \
-    VideoTrainingSerializer, AdditionalServiceSerializer
+    VideoTrainingSerializer, AdditionalServiceSerializer, ContactUsSerializer
+
+from users.tasks import send_email_task
 
 User = get_user_model()
 
@@ -75,3 +79,33 @@ class AdditionalServiceView(viewsets.ModelViewSet):
             return Response(status=status.HTTP_200_OK)
         except User.DoesNotExist:
             return Response(status=status.HTTP_403_FORBIDDEN)
+
+
+class ContactUsCreateView(generics.CreateAPIView):
+    permission_classes = [permissions.AllowAny, ]
+    queryset = ContactUs.objects.all()
+    serializer_class = ContactUsSerializer
+
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        return instance
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        instance = self.perform_create(serializer)
+        # send email
+        message = render_to_string('contact_us_email.html', {
+            'user_name': instance.name,
+            'email': instance.email,
+            'text': instance.text
+        })
+        data = {
+            'to_emails': [settings.DEFAULT_FROM_EMAIL, ],
+            'subject': instance.subject,
+            'html_content': message
+        }
+        # send_email_task.delay(**data)
+        send_email_task(**data)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)

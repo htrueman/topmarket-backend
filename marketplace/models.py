@@ -115,3 +115,34 @@ class AdditionalService(models.Model):
 
     class Meta:
         verbose_name_plural = 'Дополнительные услуги'
+
+
+class ContactUs(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
+    name = models.CharField(
+        max_length=256,
+        verbose_name=_('Имя'),
+        blank=True, null=True,
+    )
+    email = models.EmailField(
+        verbose_name=_('Електронная почта'),
+        blank=True, null=True
+    )
+    subject = models.CharField(
+        max_length=256,
+        verbose_name=_('Тема сообщения'),
+        blank=True, null=True
+    )
+    text = models.TextField(
+        verbose_name=_('Текст сообщения')
+    )
+
+    class Meta:
+        verbose_name = _('Свяжитесь с нами')
+        verbose_name_plural = _('Свяжитесь с нами')
+
+    def save(self, *args, **kwargs):
+        if self.user is not None:
+            self.email = self.user.email
+            self.name = self.user.get_full_name()
+        return super().save(*args, **kwargs)
