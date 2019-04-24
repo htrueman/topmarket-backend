@@ -13,3 +13,10 @@ EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = 'topmarketplatform@gmail.com'
 SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY')
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': '/var/tmp/django_cache',
+    }
+}
