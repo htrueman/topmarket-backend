@@ -72,7 +72,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
             return Response(data)
         else:
             data = serializer.data
-            cache.set('categories_data', data, DEFAULT_TIMEOUT)
+            cache.set('categories_data', data)
             return Response(data)
 
 
