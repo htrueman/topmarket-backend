@@ -55,11 +55,14 @@ def load_products_from_xls(**kwargs):
     elif prod_hist.file_type == ProductUploadFileTypes.ROZETKA:
         token_rozetka = get_rozetka_auth_token(prod_hist.user)
 
-        if not token_rozetka:
+        if token_rozetka:
             curl_get_orders_key = 'curl -X GET https://api.seller.rozetka.com.ua/items/58898602' \
-                                  '?expand=user,delivery,order_status_history ' \
+                                  '?expand=sell_status,sold,status,description,description_ua,' \
+                                  'details,parent_category,status_available,group_item ' \
                                   '-H \'Authorization: Bearer {token_rozetka}\' ' \
                                   '-H \'cache-control: no-cache\'' \
-                .format(token_rozetka=prod_hist.user)
+                .format(token_rozetka=token_rozetka)
             output = subprocess.check_output(curl_get_orders_key, stderr=subprocess.PIPE, shell=True)
             data = json.loads(output)
+            if data['success']:
+                pass

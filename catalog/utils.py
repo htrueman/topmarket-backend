@@ -24,6 +24,7 @@ def get_rozetka_auth_token(user):
 
             output = subprocess.check_output(curl_get_access_key, stderr=subprocess.PIPE, shell=True)
             data = json.loads(output)
+            print(data)
 
             if data['success']:
                 token_rozetka = data['content']['access_token']
