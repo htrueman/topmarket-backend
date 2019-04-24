@@ -11,8 +11,10 @@ from catalog.resources import ProductResource
 from tablib import Dataset
 from catalog.models import ProductUploadHistory
 from django.utils.translation import ugettext as _
-
+from rest_framework.exceptions import ValidationError
 from catalog.utils import get_rozetka_auth_token
+import xlrd
+
 
 logger = get_task_logger(__name__)
 
@@ -53,8 +55,17 @@ def load_products_from_xls(**kwargs):
                 prod_hist.errors = error
                 prod_hist.save()
     elif prod_hist.file_type == ProductUploadFileTypes.ROZETKA:
-        token_rozetka = get_rozetka_auth_token(prod_hist.user)
+        workbook = xlrd.open_workbook(file_path)
+        sheet = workbook.sheet_by_index(0)
+        result_tuple = ()
+        if sheet.cell_value(rowx=0, colx=0) == 'ID товара в розетке':
+            product_id_list = sheet.col_slice(0, start_rowx=1)
+            list_with_zero = map(lambda x: int(x.value), product_id_list)
+            result_tuple = tuple(filter(lambda x: x if x > 0 else None, list_with_zero))
+        else:
+            raise ValidationError(_('Invalid headers in file'))
 
+        token_rozetka = get_rozetka_auth_token(prod_hist.user)
         if token_rozetka:
             curl_get_orders_key = 'curl -X GET https://api.seller.rozetka.com.ua/items/58898602' \
                                   '?expand=sell_status,sold,status,description,description_ua,' \
