@@ -118,3 +118,6 @@ def load_products_from_xls(**kwargs):
                                     url=photo
                                 )
                     time.sleep(0.7)
+
+            prod_hist.is_uploaded = True
+            prod_hist.save()
