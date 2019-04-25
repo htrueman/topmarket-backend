@@ -1,7 +1,6 @@
 import datetime
 
 from django.core.exceptions import ObjectDoesNotExist
-from drf_extra_fields.fields import Base64ImageField
 from django.core.files.base import ContentFile
 from django.shortcuts import render_to_response
 from django.db import transaction
@@ -10,6 +9,49 @@ from rest_framework.exceptions import ValidationError
 from django.utils.translation import gettext as _
 from catalog.models import Category, Product, ProductImage, ProductImageURL, YMLTemplate, ProductUploadHistory
 from users.utils import CustomBase64Field, valid_url_extension
+
+
+class RecursiveFieldByQuerysetSerializer(serializers.BaseSerializer):
+    def to_representation(self, instance):
+        ParentSerializer = self.parent.parent.__class__
+
+        # if instance in self.get_queryset():
+        serializer = ParentSerializer(instance, context=self.context)
+
+        return serializer.data
+
+    def get_queryset(self):
+        products = Product.objects.filter(user=self.context['request'].user)
+        queryset = Category.objects.filter(
+            product__in=products
+        ).get_ancestors(include_self=True)
+        return queryset
+
+
+class CategoryContractorSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(required=False)
+    subcategories = RecursiveFieldByQuerysetSerializer(
+        source='children',
+        many=True, required=False,
+    )
+
+    class Meta:
+        model = Category
+        fields = (
+            'id',
+            'name',
+            'subcategories',
+        )
+
+    def validate(self, attrs):
+        name = attrs.get('name', None)
+        subcategories = attrs.get('children', None)
+
+        if not name and not subcategories:
+            raise serializers.ValidationError(
+                'Enter subcategory for association.'
+            )
+        return attrs
 
 
 class RecursiveField(serializers.BaseSerializer):
