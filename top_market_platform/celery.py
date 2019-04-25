@@ -12,6 +12,6 @@ app.autodiscover_tasks()
 app.conf.CELERYBEAT_SCHEDULE = {
     "set_status": {
         "task": "orders.tasks.checkout_orders",
-        "schedule": crontab(minute="*/30"),
+        "schedule": crontab(minute="*/1"),
     },
 }

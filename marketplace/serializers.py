@@ -88,7 +88,6 @@ class VideoTrainingSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         images_data = validated_data.pop('imagefortraining_set', None)
         video_training = VideoTraining.objects.create(**validated_data)
-        print(images_data)
         if images_data:
             ImageForTraining.objects.bulk_create([
                 ImageForTraining(video_training=video_training, **image_data)
