@@ -14,9 +14,9 @@ DEFAULT_FROM_EMAIL = 'no-reply@topmarket.club'
 SENDGRID_API_KEY = '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' # os.environ.get('SENDGRID_API_KEY')
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': '/var/tmp/django_cache',
-    }
-}
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+#         'LOCATION': '/var/tmp/django_cache',
+#     }
+# }
