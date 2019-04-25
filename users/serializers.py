@@ -46,7 +46,7 @@ class TokenObtainPairCustomSerializer(TokenObtainPairSerializer):
                 _('Аккаунт не активирован.')
             )
 
-        if self.user.is_anonymous:
+        if self.user is None:
             raise serializers.ValidationError(
                 _('Неправильный логин или пароль.'),
             )
