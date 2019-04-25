@@ -22,10 +22,6 @@ def upload_orders(user, token_rozetka, order_type=''):
         headers = {
             'Authorization': "Bearer {}".format(token_rozetka),
             'cache-control': "no-cache",
-            'Access-Control-Allow-Headers':
-                'X-Pagination-Current-Page,X-Pagination-Page-Count,X-Pagination-Per-Page,X-Pagination-Total-Count',
-            'Access-Control-Expose-Headers':
-                'X-Pagination-Current-Page,X-Pagination-Page-Count,X-Pagination-Per-Page,X-Pagination-Total-Count',
         }
         r = requests.Request("GET", url, headers=headers)
         prep = r.prepare()
@@ -33,8 +29,6 @@ def upload_orders(user, token_rozetka, order_type=''):
         resp = s.send(prep)
         r.encoding = 'utf-8'
         data = resp.json()
-
-        print(r.url)
 
         orders = data['content']['orders']
 
