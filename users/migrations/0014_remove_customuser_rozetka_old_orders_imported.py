@@ -10,8 +10,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='customuser',
-            name='rozetka_old_orders_imported',
-        ),
+        # migrations.RemoveField(
+        #     model_name='customuser',
+        #     name='rozetka_old_orders_imported',
+        # ),
     ]
