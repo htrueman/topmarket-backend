@@ -3,7 +3,8 @@ import subprocess
 from contextlib import suppress
 
 import requests
-from django.db import transaction, IntegrityError
+from django.db import transaction
+from django.db.utils import IntegrityError
 from celery import shared_task
 from celery.utils.log import get_task_logger
 
