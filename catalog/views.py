@@ -1,11 +1,10 @@
-from rest_framework import generics, viewsets, permissions, status
+from rest_framework import viewsets, permissions, status
 from django.db import transaction
 from django.db import IntegrityError
 
-from catalog.constants import ProductUploadFileTypes
 from catalog.serializers import CategorySerializer, ProductSerializer, YMLHandlerSerializer, \
-    ProductUploadHistorySerializer, ProductListIdSerializer, CategoryListSerializer
-from catalog.models import Category, Product, ProductImage, ProductImageURL, YMLTemplate, ProductUploadHistory
+    ProductUploadHistorySerializer, ProductListIdSerializer, CategoryListSerializer, CategoryContractorSerializer
+from catalog.models import Category, Product, YMLTemplate, ProductUploadHistory
 from users.permissions import IsPartner, IsContractor
 from rest_framework.decorators import action
 from django_filters import rest_framework as filters
@@ -19,7 +18,6 @@ from django.core.files.base import ContentFile
 from users.models import Company, MyStore
 from rest_framework.pagination import PageNumberPagination
 from django.core.cache import cache
-from django.core.cache.backends.base import DEFAULT_TIMEOUT
 
 
 class ClientAccessPermission(permissions.BasePermission):
@@ -94,14 +92,25 @@ class ProductContractorViewSet(viewsets.ModelViewSet):
             user=self.request.user
         )
 
-    @action(detail=False, methods=['get'], serializer_class=CategorySerializer)
+    # @staticmethod
+    # def generate_nested_tree(list_child_parent):
+    #     has_parent = set()
+    #     all_items = {}
+    #     for item in list_child_parent:
+    #         if item.parent not in all_items:
+    #             all_items[]
+    #     return
+
+    @action(detail=False, methods=['get'], serializer_class=CategoryContractorSerializer)
     def contractor_categories(self, request, *args, **kwargs):
         queryset = Category.objects.filter(
             product__in=self.get_queryset()
         ).get_ancestors(include_self=False)
-
-        print(queryset)
-        serializer = self.serializer_class(queryset, many=True)
+        serializer = CategoryContractorSerializer(
+            data=queryset, many=True,
+            context=self.get_serializer_context()
+        )
+        serializer.is_valid()
         return Response(
             status=status.HTTP_200_OK,
             data=serializer.data
@@ -198,7 +207,6 @@ class ProductPartnerViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['post'], serializer_class=ProductListIdSerializer)
     def delete_list_of_products(self, request, *args, **kwargs):
         product_list_id = request.data.get('product_list_ids', None)
-        print(self.get_queryset())
         self.get_queryset().filter(id__in=product_list_id).delete()
         return Response(
             status=status.HTTP_200_OK,

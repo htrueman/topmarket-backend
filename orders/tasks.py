@@ -15,6 +15,7 @@ User = get_user_model()
 @app.task
 def checkout_orders():
     for user in User.objects.filter(role='PARTNER'):
+        print(user)
         if (Company.objects.filter(user=user).exists()
                 and MyStore.objects.filter(user=user).exists()):
             token_rozetka = get_rozetka_auth_token(user)
@@ -29,6 +30,7 @@ def checkout_orders():
 
                 orders = data['content']['orders']
                 for order in orders:
+                    print(order)
                     seller_comment_created = order.pop('seller_comment_created')
                     order_instance, created = Order.objects.update_or_create(
                         id=order['id'],

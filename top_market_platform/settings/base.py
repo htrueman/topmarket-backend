@@ -210,9 +210,11 @@ CORS_ALLOW_CREDENTIALS = False
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/',
+        'LOCATION': 'redis://{HOST}:{PORT}/'.format(HOST=REDIS_HOST, PORT=REDIS_PORT),
+        'TIMEOUT': 604800,
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+
         }
     }
 }
