@@ -78,15 +78,15 @@ def load_products_from_xls(**kwargs):
                     # output = subprocess.check_output(curl_get_orders_key, stderr=subprocess.PIPE, shell=True)
                     # data = json.loads(output)
 
-                    url = "https://api.seller.rozetka.com.ua/items/{product_id}".format(product_id=product_id)
-                    querystring = {
-                        "expand": "sell_status,sold,status,description,"
-                                  "description_ua,details,parent_category,status_available,group_item"}
+                    url = "https://api.seller.rozetka.com.ua/items/{product_id}" \
+                          "?expand=sell_status,sold,status,description,description_ua" \
+                          ",details,parent_category,status_available,group_item"\
+                        .format(product_id=product_id)
                     headers = {
                         'Authorization': "Bearer {}".format(token_rozetka),
                         'cache-control': "no-cache"
                     }
-                    r = requests.Request("GET", url, headers=headers, params=querystring)
+                    r = requests.Request("GET", url, headers=headers)
                     prep = r.prepare()
                     s = requests.Session()
                     resp = s.send(prep)
@@ -119,5 +119,6 @@ def load_products_from_xls(**kwargs):
                                 )
                     time.sleep(0.7)
 
-            prod_hist.is_uploaded = True
-            prod_hist.save()
+                prod_hist.is_uploaded = True
+                prod_hist.save()
+        return token_rozetka
