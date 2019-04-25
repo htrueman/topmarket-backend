@@ -10,9 +10,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='customuser',
-            name='rozetka_old_orders_imported',
-            field=models.BooleanField(default=False),
-        ),
+
     ]
+
