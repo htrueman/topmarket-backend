@@ -1,7 +1,7 @@
 from rest_framework import viewsets, permissions, status
 from django.db import transaction
 from django.db import IntegrityError
-
+from catalog.utils import group_vals
 from catalog.serializers import CategorySerializer, ProductSerializer, YMLHandlerSerializer, \
     ProductUploadHistorySerializer, ProductListIdSerializer, CategoryListSerializer, CategoryContractorSerializer
 from catalog.models import Category, Product, YMLTemplate, ProductUploadHistory
@@ -92,28 +92,17 @@ class ProductContractorViewSet(viewsets.ModelViewSet):
             user=self.request.user
         )
 
-    # @staticmethod
-    # def generate_nested_tree(list_child_parent):
-    #     has_parent = set()
-    #     all_items = {}
-    #     for item in list_child_parent:
-    #         if item.parent not in all_items:
-    #             all_items[]
-    #     return
-
-    @action(detail=False, methods=['get'], serializer_class=CategoryContractorSerializer)
+    @action(detail=False, methods=['get'], serializer_class=CategoryListSerializer)
     def contractor_categories(self, request, *args, **kwargs):
         queryset = Category.objects.filter(
             product__in=self.get_queryset()
-        ).get_ancestors(include_self=False)
-        serializer = CategoryContractorSerializer(
-            data=queryset, many=True,
-            context=self.get_serializer_context()
-        )
-        serializer.is_valid()
+        ).get_ancestors(include_self=True)
+        serializer = self.serializer_class(queryset, many=True)
+
+        data = group_vals(serializer.data)
         return Response(
             status=status.HTTP_200_OK,
-            data=serializer.data
+            data=data
         )
 
     @action(detail=False, methods=['get'], serializer_class=ProductUploadHistorySerializer, filterset_class=None)
@@ -159,6 +148,18 @@ class ProductPartnerViewSet(viewsets.ModelViewSet):
             )
         return Product.products_by_partners.filter(
             user=self.request.user,
+        )
+
+    @action(detail=False, methods=['get'], serializer_class=CategoryListSerializer)
+    def partner_categories(self, request, *args, **kwargs):
+        queryset = Category.objects.filter(
+            product__in=self.get_queryset()
+        ).get_ancestors(include_self=True)
+        serializer = self.serializer_class(queryset, many=True)
+        data = group_vals(serializer.data)
+        return Response(
+            status=status.HTTP_200_OK,
+            data=data
         )
 
     @action(detail=False, methods=['post'], serializer_class=ProductListIdSerializer)
