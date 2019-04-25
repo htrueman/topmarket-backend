@@ -67,7 +67,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
             return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(queryset, many=True)
-        if 'categories_data' in cache:
+        if ('categories_data' in cache) and len(cache.get('categories_data')) > 0:
             data = cache.get('categories_data')
             return Response(data)
         else:
