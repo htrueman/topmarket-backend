@@ -19,7 +19,7 @@ class Order(models.Model):
     comment = models.TextField()
     user_phone = models.CharField(max_length=32)
     from_warehouse = models.PositiveSmallIntegerField()
-    ttn = models.CharField(max_length=32)
+    ttn = models.CharField(max_length=32, null=True)
     total_quantity = models.PositiveSmallIntegerField()
     can_copy = models.BooleanField()
     created_type = models.PositiveSmallIntegerField(choices=OrderCreateTypes.CREATE_TYPES)
@@ -45,9 +45,10 @@ class Order(models.Model):
 
 class OrderUser(models.Model):
     order = models.OneToOneField(Order, on_delete=models.CASCADE)
-    email = models.EmailField()
-    login = models.CharField(max_length=64)
+    email = models.EmailField(null=True)
+    login = models.CharField(max_length=64, null=True)
     contact_fio = models.CharField(max_length=256)
+    rozetka_id = models.PositiveIntegerField()
 
     def __str__(self):
         return '{}, {}'.format(self.order.id, self.email)
@@ -63,12 +64,12 @@ class OrderDelivery(models.Model):
     delivery_service_name = models.CharField(max_length=256)
     recipient_title = models.CharField(max_length=256)
     place_id = models.PositiveIntegerField(null=True, blank=True)
-    place_street = models.CharField(max_length=1024)
+    place_street = models.CharField(max_length=1024, null=True)
     place_number = models.CharField(max_length=32, null=True, blank=True)
-    place_house = models.CharField(max_length=32)
+    place_house = models.CharField(max_length=32, null=True)
     place_flat = models.CharField(null=True, blank=True, max_length=64)
     cost = models.CharField(null=True, blank=True, max_length=64)
-    city = models.CharField(max_length=256)
+    city = models.CharField(max_length=256, null=True)
     delivery_method_id = models.PositiveIntegerField()
     ref_id = models.UUIDField(null=True, blank=True)
     name_logo = models.CharField(max_length=32)

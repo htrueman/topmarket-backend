@@ -93,6 +93,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     rozetka_username = models.CharField(max_length=128, null=True, blank=True)
     rozetka_password = models.CharField(max_length=512, null=True, blank=True)
 
+    rozetka_old_orders_imported = models.BooleanField(default=False)
+
     USERNAME_FIELD = 'email'
     objects = CustomUserManager()
 
