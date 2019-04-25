@@ -1,7 +1,5 @@
-import json
-import subprocess
 import time
-from subprocess import PIPE
+import requests
 from django.contrib.auth import get_user_model
 
 from catalog.models import Product
@@ -14,17 +12,29 @@ from users.models import Company, MyStore
 User = get_user_model()
 
 
-def upload_orders(user, token_rozetka, extra_query=''):
+def upload_orders(user, token_rozetka, order_type=''):
     next_page = 1
     processing = True
     while processing:
-        curl_get_orders_key = 'curl -X GET \'https://api.seller.rozetka.com.ua/orders/search' \
-                              '?expand=user,delivery,order_status_history&page={page}{extra_query}\' ' \
-                              '-H \'Authorization: Bearer {token_rozetka}\' ' \
-                              '-H \'cache-control: no-cache\'' \
-            .format(token_rozetka=token_rozetka, page=next_page, extra_query=extra_query)
-        output = subprocess.check_output(curl_get_orders_key, stderr=PIPE, shell=True)
-        data = json.loads(output)
+        url = "https://api.seller.rozetka.com.ua/orders/search?expand=user,delivery,order_status_history&page={}".format(next_page)
+        if order_type:
+            url += '&type={}'.format(order_type)
+        headers = {
+            'Authorization': "Bearer {}".format(token_rozetka),
+            'cache-control': "no-cache",
+            'Access-Control-Allow-Headers':
+                'X-Pagination-Current-Page,X-Pagination-Page-Count,X-Pagination-Per-Page,X-Pagination-Total-Count',
+            'Access-Control-Expose-Headers':
+                'X-Pagination-Current-Page,X-Pagination-Page-Count,X-Pagination-Per-Page,X-Pagination-Total-Count',
+        }
+        r = requests.Request("GET", url, headers=headers)
+        prep = r.prepare()
+        s = requests.Session()
+        resp = s.send(prep)
+        r.encoding = 'utf-8'
+        data = resp.json()
+
+        print(r.url)
 
         orders = data['content']['orders']
 
@@ -110,8 +120,7 @@ def checkout_orders():
             if token_rozetka:
                 if not user.rozetka_old_orders_imported:
                     for order_type in dict(OrderStatusGroups.STATUS_GROUPS).keys():
-                        extra_query = '&type={}'.format(order_type)
-                        upload_orders(user, token_rozetka, extra_query=extra_query)
+                        upload_orders(user, token_rozetka, order_type=order_type)
                         time.sleep(0.3)
                     user.rozetka_old_orders_imported = True
                     user.save()
