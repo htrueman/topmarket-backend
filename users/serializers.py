@@ -275,6 +275,8 @@ class UserProfileSerializer(RequireTogetherFields, UserSerializerMixin, serializ
             'role',
             'user_pocket',
             'date_joined',
+            'rozetka_username',
+            'rozetka_password',
         )
         read_only_fields = (
             'role',
