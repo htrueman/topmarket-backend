@@ -87,7 +87,7 @@ class UserSerializer(UserSerializerMixin, serializers.ModelSerializer):
             'html_content': message
         }
         # send_email_task.delay(**data)
-        send_email_task(**data)
+        send_email_task.delay(**data)
         return user
 
 

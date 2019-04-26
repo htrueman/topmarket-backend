@@ -1,7 +1,10 @@
 from django.db import models
+from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
+from django.conf import settings
 
 from orders.constants import OrderCreateTypes, OrderStatusGroups, OrderStatuses
+from users.tasks import send_email_task
 
 
 class Order(models.Model):
@@ -37,6 +40,25 @@ class Order(models.Model):
             dict(OrderCreateTypes.CREATE_TYPES)[self.created_type],
             dict(OrderStatuses.ORDER_STATUSES)[self.status]
         )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__pk = self.pk
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if not self.__pk and self.status_group == OrderStatusGroups.IN_PROCESSING:
+            mail_subject = 'Новый заказ на rozetka.ua'
+            message = render_to_string('new_order_email.html', {
+                'domain': settings.HOST_NAME,
+                'order_id': self.id
+            })
+            data = {
+                'to_emails': [self.user.email, ],
+                'subject': mail_subject,
+                'html_content': message
+            }
+            send_email_task.delay(**data)
 
     class Meta:
         verbose_name = _('Заказ')
