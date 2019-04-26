@@ -15,6 +15,7 @@ class OrderFilter(filters.FilterSet):
     status = filters.ChoiceFilter(field_name="status", choices=OrderStatuses.ORDER_STATUSES)
     user_fio = filters.CharFilter(field_name="orderuser__contact_fio", lookup_expr='icontains')
     user_phone = filters.CharFilter(field_name="user_phone", lookup_expr='icontains')
+    status_group = filters.NumberFilter(field_name='status_group', lookup_expr='exact')
 
     class Meta:
         model = Order
@@ -24,6 +25,8 @@ class OrderFilter(filters.FilterSet):
             'max_date',
             'status',
             'user_fio',
+            'user_phone',
+            'status_group',
         )
 
 
