@@ -129,9 +129,12 @@ def load_products_from_xls(**kwargs):
                 prod_hist.imported_products_count = count
                 prod_hist.is_uploaded = True
                 prod_hist.save()
-
+            else:
+                prod_hist.errors = 'Неправильный логин и пароль с сервиса розетки.'
+                prod_hist.is_uploaded = True
+                prod_hist.save()
         except Exception:
-            prod_hist.errors = 'Не правильный формат файла. После импорта с розетки, пересохраните файл!'
+            prod_hist.errors = 'Неправильный формат файла. После импорта с розетки, пересохраните файл!'
             prod_hist.is_uploaded = True
             prod_hist.save()
 

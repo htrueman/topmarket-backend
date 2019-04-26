@@ -7,7 +7,6 @@ from catalog.utils import get_rozetka_auth_token
 from .constants import OrderStatusGroups
 from .models import Order, OrderUser, OrderDelivery, OrderItemPhoto, OrderSellerComment, OrderStatusHistoryItem
 from top_market_platform.celery import app
-from users.models import Company, MyStore
 
 User = get_user_model()
 

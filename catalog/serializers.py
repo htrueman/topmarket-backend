@@ -156,7 +156,6 @@ class ProductSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         cover_images_data = validated_data.pop('product_images', None)
         image_urls = validated_data.pop('product_image_urls', None)
-        # print(self.validated_data)
         with transaction.atomic():
             product = Product.objects.create(**validated_data, user=self.context['request'].user)
             if cover_images_data:
