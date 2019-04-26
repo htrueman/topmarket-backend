@@ -156,7 +156,7 @@ class ProductPartnerViewSet(viewsets.ModelViewSet):
         )
 
     def get_serializer_class(self):
-        if self.action in ('list', 'retrieve'):
+        if self.action in ('list', 'retrieve', 'products_by_contractors'):
             return ProductCategoryObjectSerializer
         return ProductSerializer
 
@@ -211,7 +211,7 @@ class ProductPartnerViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED,
         )
 
-    @action(detail=False, methods=['get'], pagination_class=PageNumberPagination, filterset_class=ProductFilter)
+    @action(detail=False, methods=['get'], pagination_class=PageNumberPagination, filterset_class=ProductFilter, serializer_class=ProductCategoryObjectSerializer)
     def products_by_contractors(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
