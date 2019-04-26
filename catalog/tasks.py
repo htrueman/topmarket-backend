@@ -7,6 +7,7 @@ from django.db import transaction
 from django.db.utils import IntegrityError
 from celery import shared_task
 from celery.utils.log import get_task_logger
+from import_export.results import RowResult
 
 from catalog.constants import ProductUploadFileTypes
 from catalog.resources import ProductResource
@@ -46,6 +47,8 @@ def load_products_from_xls(**kwargs):
                         use_transactions=True,
                         collect_failed_rows=True
                     )
+                    prod_hist.total_products_count = len(dataset)
+                    prod_hist.imported_products_count = result.totals.get(RowResult.IMPORT_TYPE_NEW)
                     prod_hist.is_uploaded = True
                     prod_hist.errors = _('No errors')
                     prod_hist.save()
@@ -69,6 +72,7 @@ def load_products_from_xls(**kwargs):
         token_rozetka = get_rozetka_auth_token(prod_hist.user)
         # with transaction.atomic():
         if token_rozetka:
+            count = 0
             for product_id in result_tuple:
                 # curl_get_orders_key = 'curl -X GET https://api.seller.rozetka.com.ua/items/{product_id}' \
                 #                       '?expand=sell_status,sold,status,description,description_ua,' \
@@ -111,6 +115,8 @@ def load_products_from_xls(**kwargs):
                                 if product.get('description') else product.get('description_ua'),
                             }
                         )
+                        if created:
+                            count += 1
 
                         for photo in product['photo']:
                             ProductImageURL.objects.update_or_create(
@@ -118,6 +124,7 @@ def load_products_from_xls(**kwargs):
                                 url=photo
                             )
                 # time.sleep(0.7)
+            prod_hist.total_products_count = len(result_tuple)
+            prod_hist.imported_products_count = count
             prod_hist.is_uploaded = True
             prod_hist.save()
-

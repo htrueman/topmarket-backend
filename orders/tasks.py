@@ -108,15 +108,16 @@ def upload_orders(user, token_rozetka, order_type=''):
 @app.task
 def checkout_orders():
     for user in User.objects.filter(role='PARTNER'):
-        if (Company.objects.filter(user=user).exists()
-                and MyStore.objects.filter(user=user).exists()):
-            token_rozetka = get_rozetka_auth_token(user)
-            if token_rozetka:
-                if not user.rozetka_old_orders_imported:
-                    for order_type in dict(OrderStatusGroups.STATUS_GROUPS).keys():
-                        upload_orders(user, token_rozetka, order_type=order_type)
-                        time.sleep(0.3)
-                    user.rozetka_old_orders_imported = True
-                    user.save()
-                else:
-                    upload_orders(user, token_rozetka)
+        # print(Company.objects.filter(user=user).exists(), MyStore.objects.filter(user=user).exists())
+        # if (Company.objects.filter(user=user).exists()
+        #         and MyStore.objects.filter(user=user).exists()):
+        token_rozetka = get_rozetka_auth_token(user)
+        if token_rozetka:
+            if not user.rozetka_old_orders_imported:
+                for order_type in dict(OrderStatusGroups.STATUS_GROUPS).keys():
+                    upload_orders(user, token_rozetka, order_type=order_type)
+                    time.sleep(0.3)
+                user.rozetka_old_orders_imported = True
+                user.save()
+            else:
+                upload_orders(user, token_rozetka)

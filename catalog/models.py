@@ -248,6 +248,8 @@ class ProductUploadHistory(models.Model):
         max_length=7,
         choices=constants.ProductUploadFileTypes.PRODUCT_UPLOAD_FILE_TYPES
     )
+    total_products_count = models.PositiveIntegerField(default=0)
+    imported_products_count = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return '{}'.format(self.user)

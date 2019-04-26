@@ -265,6 +265,8 @@ class ProductUploadHistorySerializer(serializers.ModelSerializer):
             'is_uploaded',
             'errors',
             'file_type',
+            'total_products_count',
+            'imported_products_count',
         )
         read_only_fields = (
             'created',
