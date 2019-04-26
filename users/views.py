@@ -137,7 +137,6 @@ class CompanyPitchRUView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         company = get_object_or_404(Company, user=self.request.user)
         obj, created = CompanyPitch.objects.get_or_create(company=company)
-        print(obj)
         return obj
 
 

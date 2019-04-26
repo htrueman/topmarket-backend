@@ -171,7 +171,7 @@ HOST_NAME = os.getenv('HOST_NAME')
 AUTH_USER_MODEL = 'users.CustomUser'
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=365),
     'ROTATE_REFRESH_TOKENS': True,
 }

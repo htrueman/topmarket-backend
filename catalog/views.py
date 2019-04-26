@@ -3,7 +3,7 @@ from django.db import transaction
 from django.db import IntegrityError
 from catalog.utils import group_vals
 from catalog.serializers import CategorySerializer, ProductSerializer, YMLHandlerSerializer, \
-    ProductUploadHistorySerializer, ProductListIdSerializer, CategoryListSerializer, CategoryContractorSerializer
+    ProductUploadHistorySerializer, ProductListIdSerializer, CategoryListSerializer, ProductCategoryObjectSerializer
 from catalog.models import Category, Product, YMLTemplate, ProductUploadHistory
 from users.permissions import IsPartner, IsContractor
 from rest_framework.decorators import action
@@ -92,6 +92,11 @@ class ProductContractorViewSet(viewsets.ModelViewSet):
             user=self.request.user
         )
 
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return ProductCategoryObjectSerializer
+        return ProductSerializer
+
     @action(detail=False, methods=['get'], serializer_class=CategoryListSerializer)
     def contractor_categories(self, request, *args, **kwargs):
         queryset = Category.objects.filter(
@@ -149,6 +154,11 @@ class ProductPartnerViewSet(viewsets.ModelViewSet):
         return Product.products_by_partners.filter(
             user=self.request.user,
         )
+
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return ProductCategoryObjectSerializer
+        return ProductSerializer
 
     @action(detail=False, methods=['get'], serializer_class=CategoryListSerializer)
     def partner_categories(self, request, *args, **kwargs):

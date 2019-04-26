@@ -11,49 +11,6 @@ from catalog.models import Category, Product, ProductImage, ProductImageURL, YML
 from users.utils import CustomBase64Field, valid_url_extension
 
 
-class RecursiveFieldByQuerysetSerializer(serializers.BaseSerializer):
-    def to_representation(self, instance):
-        ParentSerializer = self.parent.parent.__class__
-
-        # if instance in self.get_queryset():
-        serializer = ParentSerializer(instance, context=self.context)
-
-        return serializer.data
-
-    def get_queryset(self):
-        products = Product.objects.filter(user=self.context['request'].user)
-        queryset = Category.objects.filter(
-            product__in=products
-        ).get_ancestors(include_self=True)
-        return queryset
-
-
-class CategoryContractorSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(required=False)
-    subcategories = RecursiveFieldByQuerysetSerializer(
-        source='children',
-        many=True, required=False,
-    )
-
-    class Meta:
-        model = Category
-        fields = (
-            'id',
-            'name',
-            'subcategories',
-        )
-
-    def validate(self, attrs):
-        name = attrs.get('name', None)
-        subcategories = attrs.get('children', None)
-
-        if not name and not subcategories:
-            raise serializers.ValidationError(
-                'Enter subcategory for association.'
-            )
-        return attrs
-
-
 class RecursiveField(serializers.BaseSerializer):
 
     def to_representation(self, instance):
@@ -83,6 +40,15 @@ class CategoryListSerializer(serializers.ModelSerializer):
             'name',
             'parent',
             'is_have_children',
+        )
+
+
+class CategorySmallSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = (
+            'id',
+            'name',
         )
 
 
@@ -142,6 +108,28 @@ class ProductListIdSerializer(serializers.ModelSerializer):
         model = Product
         fields = (
             'product_list_ids',
+        )
+
+
+class ProductCategoryObjectSerializer(serializers.ModelSerializer):
+    cover_images = ProductImageSerializer(many=True, source='product_images', required=False)
+    image_urls = ProductImageURLSerializer(many=True, source='product_image_urls', required=False)
+    category = CategorySmallSerializer(many=False)
+
+    class Meta:
+        model = Product
+        fields = (
+            'id',
+            'category',
+            'name',
+            'vendor_code',
+            'contractor_product',
+            'brand',
+            'count',
+            'description',
+            'price',
+            'cover_images',
+            'image_urls',
         )
 
 
