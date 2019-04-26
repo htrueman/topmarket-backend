@@ -105,7 +105,7 @@ class ContactUsCreateView(generics.CreateAPIView):
             'subject': instance.subject,
             'html_content': message
         }
-        # send_email_task.delay(**data)
-        send_email_task(**data)
+        send_email_task.delay(**data)
+        # send_email_task(**data)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
