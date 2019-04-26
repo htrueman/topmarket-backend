@@ -93,8 +93,6 @@ def load_products_from_xls(**kwargs):
                 resp = s.send(prep)
                 r.encoding = 'utf-8'
                 data = resp.json()
-                from pprint import pprint
-                pprint(data)
                 if data['success']:
                     product = data['content']
                     # Массажер для чистки лица + POBLING + Sonic Pore Cleansing Brush + Golden
