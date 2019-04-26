@@ -13,6 +13,8 @@ class ProductFilter(filters.FilterSet):
         method='filter_in_stock'
     )
     brand = filters.CharFilter(field_name='brand', lookup_expr='icontains')
+    name = filters.CharFilter(field_name='name', lookup_expr='icontains')
+    vendor_code = filters.CharFilter(field_name='vendor_code', lookup_expr='icontains')
 
     class Meta:
         model = Product
