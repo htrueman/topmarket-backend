@@ -140,11 +140,13 @@ class PasswordResetSerializer(serializers.Serializer):
 
     def save(self, *args):
         email = self.validated_data['email']
+        print(email)
         user = User.objects.filter(email=email).first()
         password = self.generate_password(10)
         user.set_password(password)
         user.save()
         if user:
+            print(user)
             mail_subject = 'Reset your topmarket password.'
             message = render_to_string('password_reset_email.html', {
                 'user': user,

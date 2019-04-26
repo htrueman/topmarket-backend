@@ -47,6 +47,8 @@ class PasswordResetView(APIView):
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
+        serializer.is_valid()
+        serializer.save()
 
         if serializer.is_valid():
             return Response(serializer.data, status=status.HTTP_200_OK)
