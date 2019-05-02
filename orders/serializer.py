@@ -1,5 +1,7 @@
 from rest_framework import serializers
 
+from catalog.models import Product
+from catalog.serializers import ProductImageSerializer, ProductImageURLSerializer
 from .models import Order, OrderUser, OrderDelivery, OrderItemPhoto, OrderSellerComment, OrderStatusHistoryItem
 
 
@@ -60,10 +62,24 @@ class OrderStatusHistoryItemSerializer(serializers.ModelSerializer):
         )
 
 
+class OrderProductSerializer(serializers.ModelSerializer):
+    cover_images = ProductImageSerializer(many=True, source='product_images', required=False)
+    image_urls = ProductImageURLSerializer(many=True, source='product_image_urls', required=False)
+
+    class Meta:
+        model = Product
+        fields = (
+            'id',
+            'cover_images',
+            'image_urls'
+        )
+
+
 class OrderSerializer(serializers.ModelSerializer):
     user = OrderUserSerializer(source='orderuser')
     delivery = OrderDeliverySerializer(source='orderdelivery')
     item_photos = OrderItemPhotoSerializer(source='orderitemphoto_set', many=True)
+    item_products = OrderProductSerializer(source='products', many=True)
     seller_comments = OrderSellerCommentSerializer(source='ordersellercomment_set', many=True)
     status_history = OrderStatusHistoryItemSerializer(source='orderstatushistoryitem_set', many=True)
 

@@ -100,9 +100,6 @@ def load_products_from_xls(**kwargs):
                     data = resp.json()
                     if data['success']:
                         product = data['content']
-                        # Массажер для чистки лица + POBLING + Sonic Pore Cleansing Brush + Golden
-                        full_name = product.get('name') if product.get('name') else product.get('name_ua')
-
                         with suppress(Exception):
                             product_instance, created = Product.objects.update_or_create(
                                 rozetka_id=product['id'],

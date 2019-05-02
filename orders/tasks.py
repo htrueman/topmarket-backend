@@ -81,13 +81,14 @@ def upload_orders(user, token_rozetka, order_type=''):
             )
 
             for photo_dict in order['items_photos']:
-                OrderItemPhoto.objects.update_or_create(
-                    order=order_instance,
-                    product_id=photo_dict['id'],
-                    url=photo_dict['url']
-                )
                 if Product.objects.filter(id=photo_dict['id']).exists():
-                    order_instance.product.add(photo_dict['id'])
+                    order_instance.products.add(photo_dict['id'])
+                else:
+                    OrderItemPhoto.objects.update_or_create(
+                        order=order_instance,
+                        product_id=photo_dict['id'],
+                        url=photo_dict['url']
+                    )
 
             for seller_comment_dict in order['seller_comment']:
                 OrderSellerComment.objects.update_or_create(

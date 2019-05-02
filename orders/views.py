@@ -54,6 +54,6 @@ class OrderViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.data)
 
-    # @action(detail=True, methods=['POST'])
-    # def pass_to_contractor(self):
-    #     pass
+    @action(detail=True, methods=['POST'])
+    def pass_to_contractor(self):
+        pass
