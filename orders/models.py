@@ -31,6 +31,14 @@ class Order(models.Model):
     system_comment = models.TextField(blank=True)
 
     user = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE)
+    # partner_order = models.ForeignKey(
+    #     'self',
+    #     null=True,
+    #     blank=True,
+    #     on_delete=models.CASCADE,
+    #     verbose_name=_('Связь с партнером'),
+    #     related_name='partner_orders',
+    # )
 
     products = models.ManyToManyField('catalog.Product', blank=True)
 

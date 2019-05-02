@@ -1,4 +1,5 @@
 from rest_framework import viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters import rest_framework as filters
 
@@ -52,3 +53,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         serializer.save()
 
         return Response(serializer.data)
+
+    # @action(detail=True, methods=['POST'])
+    # def pass_to_contractor(self):
+    #     pass

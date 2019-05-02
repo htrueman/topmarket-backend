@@ -8,6 +8,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from django.utils.translation import gettext as _
 from catalog.models import Category, Product, ProductImage, ProductImageURL, YMLTemplate, ProductUploadHistory
+from users.models import Company, MyStore
 from users.utils import CustomBase64Field, valid_url_extension
 
 
@@ -229,7 +230,11 @@ class YMLHandlerSerializer(serializers.ModelSerializer):
         product_ids = validated_data.pop('product_ids')
         yml_template = super().create(validated_data)
         yml_template.products.add(*product_ids)
-        yml_template = self.render_yml_file(yml_template, validated_data['user'].mystore, yml_template.products.all())
+        yml_template = self.render_yml_file(
+            yml_template,
+            Company.objects.get(user=validated_data['user']),
+            yml_template.products.all()
+        )
         return yml_template
 
     def update(self, instance, validated_data):
@@ -237,17 +242,26 @@ class YMLHandlerSerializer(serializers.ModelSerializer):
         yml_template = super().update(instance, validated_data)
         yml_template.products.remove(*yml_template.products.all().values_list('pk', flat=True))
         yml_template.products.add(*product_ids)
-        yml_template = self.render_yml_file(yml_template, validated_data['user'].mystore, yml_template.products.all())
+        yml_template = self.render_yml_file(
+            yml_template,
+            Company.objects.get(user=validated_data['user']),
+            yml_template.products.all()
+        )
         return yml_template
 
     @staticmethod
-    def render_yml_file(yml_template, store, products):
+    def render_yml_file(yml_template, company, products):
         category_dict = products.values('category__pk', 'category__name')
+        base_url = 'https://smartlead.top/'
+        if MyStore.objects.filter(user=company.user).exists:
+            if company.user.mystore.get_url:
+                base_url = company.user.mystore.get_url
         context = {
             'categories': category_dict,
             'products': products,
             'current_datetime': datetime.datetime.now().strftime('%Y-%m-%d %H:%M'),
-            'store': store,
+            'company': company,
+            'base_url': base_url
         }
         content = render_to_response('rozetka.xml', context).content
         yml_template.template.save('rozetka.xml', ContentFile(content), save=True)

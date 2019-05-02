@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <yml_catalog date="{{ current_datetime }}">
     <shop>
-        <name>{{ store.company.name }}</name>
-        <company>{{ store.company.name }}</company>
-        <url>{{ store.get_url }}</url>
+        <name>{{ company.name }}</name>
+        <company>{{ company.name }}</company>
+        <url>{{ base_url }}</url>
         <currencies>
             <currency id="UAH" rate="1" />
         </currencies>
@@ -15,7 +15,7 @@
         <offers>
             {% for product in products %}
                 <offer available="{% if product.count > 0 %}true{% else %}false{% endif %}" id="{{ product.pk }}">
-                    <url>https://krutygolov.com.ua/tovar/3d-models/3d-crystal-puzzle-dog/</url>
+                    <url>{{ base_url }}admin/categories</url>
                     <price>{{ product.price }}</price>
                     <currencyId>UAH</currencyId>
                     <categoryId>{{ product.category.pk }}</categoryId>

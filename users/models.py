@@ -138,7 +138,7 @@ class UserNotificationPhone(models.Model):
 
 
 class Company(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name=_('Владецел компании'))
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, verbose_name=_('Владецел компании'))
 
     name = models.CharField(
         max_length=255,
