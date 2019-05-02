@@ -31,14 +31,14 @@ class Order(models.Model):
     system_comment = models.TextField(blank=True)
 
     user = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE)
-    partner_order = models.ForeignKey(
-        'self',
-        null=True,
-        blank=True,
-        on_delete=models.CASCADE,
-        verbose_name=_('Связь с партнером'),
-        related_name='partner_orders',
-    )
+    # partner_order = models.ForeignKey(
+    #     'self',
+    #     null=True,
+    #     blank=True,
+    #     on_delete=models.CASCADE,
+    #     verbose_name=_('Связь с партнером'),
+    #     related_name='partner_orders',
+    # )
 
     products = models.ManyToManyField('catalog.Product', blank=True)
 
@@ -71,6 +71,21 @@ class Order(models.Model):
     class Meta:
         verbose_name = _('Заказ')
         verbose_name_plural = _('Заказы')
+
+
+class ContractorOrder(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+
+    contractor = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE)
+    status = models.PositiveSmallIntegerField(choices=OrderStatuses.ORDER_STATUSES)
+    products = models.ManyToManyField('catalog.Product', blank=True)
+
+    class Meta:
+        verbose_name = _('Заказ')
+        verbose_name_plural = _('Заказы')
+
+    def __str__(self):
+        return '{}'.format(self.order)
 
 
 class OrderUser(models.Model):

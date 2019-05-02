@@ -7,6 +7,8 @@ from django.db import transaction
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from django.utils.translation import gettext as _
+
+from catalog.constants import YMLFileTypes
 from catalog.models import Category, Product, ProductImage, ProductImageURL, YMLTemplate, ProductUploadHistory
 from users.models import Company, MyStore
 from users.utils import CustomBase64Field, valid_url_extension
@@ -220,27 +222,9 @@ class YMLHandlerSerializer(serializers.ModelSerializer):
                 _('Продукты с этими id не существуют: ') + ', '.join([str(item) for item in non_existing_product_ids]))
         return val
 
-    def validate_user(self, user, yml_type):
-        if YMLTemplate.objects.filter(user=user, yml_type=yml_type).exists():
-            raise ValidationError({
-                'user': _('Для пользователя {} уже создан YML файл данного типа.'.format(user.email))})
-
     def create(self, validated_data):
-        self.validate_user(validated_data['user'], validated_data['yml_type'])
         product_ids = validated_data.pop('product_ids')
-        yml_template = super().create(validated_data)
-        yml_template.products.add(*product_ids)
-        yml_template = self.render_yml_file(
-            yml_template,
-            Company.objects.get(user=validated_data['user']),
-            yml_template.products.all()
-        )
-        return yml_template
-
-    def update(self, instance, validated_data):
-        product_ids = validated_data.pop('product_ids')
-        yml_template = super().update(instance, validated_data)
-        yml_template.products.remove(*yml_template.products.all().values_list('pk', flat=True))
+        yml_template, create = YMLTemplate.objects.get_or_create(yml_type=validated_data['yml_type'])
         yml_template.products.add(*product_ids)
         yml_template = self.render_yml_file(
             yml_template,

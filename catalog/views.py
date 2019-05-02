@@ -228,14 +228,12 @@ class YMLHandlerViewSet(viewsets.ModelViewSet):
     serializer_class = YMLHandlerSerializer
     permission_classes = (IsPartner, )
     lookup_field = 'yml_type'
+    http_method_names = ('get', 'post', 'delete',)
 
     def get_queryset(self):
         return YMLTemplate.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-
-    def perform_update(self, serializer):
         serializer.save(user=self.request.user)
 
 

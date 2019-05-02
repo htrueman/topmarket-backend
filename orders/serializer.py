@@ -2,7 +2,8 @@ from rest_framework import serializers
 
 from catalog.models import Product
 from catalog.serializers import ProductImageSerializer, ProductImageURLSerializer
-from .models import Order, OrderUser, OrderDelivery, OrderItemPhoto, OrderSellerComment, OrderStatusHistoryItem
+from .models import Order, OrderUser, OrderDelivery, OrderItemPhoto, OrderSellerComment, OrderStatusHistoryItem, \
+    ContractorOrder
 
 
 class OrderUserSerializer(serializers.ModelSerializer):
@@ -82,6 +83,10 @@ class OrderSerializer(serializers.ModelSerializer):
     item_products = OrderProductSerializer(source='products', many=True)
     seller_comments = OrderSellerCommentSerializer(source='ordersellercomment_set', many=True)
     status_history = OrderStatusHistoryItemSerializer(source='orderstatushistoryitem_set', many=True)
+    passed_to_contractor = serializers.SerializerMethodField(read_only=True)
+
+    def get_passed_to_contractor(self, obj):
+        return bool(obj.contractoroder_set.count())
 
     class Meta:
         model = Order
@@ -106,18 +111,43 @@ class OrderSerializer(serializers.ModelSerializer):
             'created_type',
             'products',
             'last_update',
+            'passed_to_contractor',
 
             'user',
             'delivery',
             'item_photos',
+            'item_products',
             'seller_comments',
             'status_history',
         )
 
 
-class OrderCommentSerializer(serializers.ModelSerializer):
+class OrderUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = (
             'system_comment',
+            'status',
+        )
+
+
+class ContractorOrderSerializer(serializers.ModelSerializer):
+    base_order = OrderSerializer(source='order')
+    item_products = OrderProductSerializer(source='products', many=True)
+
+    class Meta:
+        model = ContractorOrder
+        fields = (
+            'contractor',
+            'status',
+            'item_products',
+            'base_order',
+        )
+
+
+class ContractorOrderUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContractorOrder
+        fields = (
+            'status',
         )
