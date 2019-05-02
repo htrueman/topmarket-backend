@@ -115,11 +115,10 @@ class OrderSerializer(serializers.ModelSerializer):
             'products',
             'last_update',
             'passed_to_contractor',
+            'items',
 
             'user',
             'delivery',
-            'item_photos',
-            'item_products',
             'seller_comments',
             'status_history',
         )
