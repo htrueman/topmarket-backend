@@ -86,7 +86,7 @@ class OrderSerializer(serializers.ModelSerializer):
     passed_to_contractor = serializers.SerializerMethodField(read_only=True)
 
     def get_passed_to_contractor(self, obj):
-        return bool(obj.contractoroder_set.count())
+        return ContractorOrder.objects.filter(order=obj).exists()
 
     class Meta:
         model = Order
