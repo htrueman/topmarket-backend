@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from catalog.models import Product
 from catalog.serializers import ProductImageSerializer, ProductImageURLSerializer
-from .models import Order, OrderUser, OrderDelivery, OrderItemPhoto, OrderSellerComment, OrderStatusHistoryItem, \
+from .models import Order, OrderUser, OrderDelivery, OrderItem, OrderSellerComment, OrderStatusHistoryItem, \
     ContractorOrder
 
 
@@ -36,12 +36,16 @@ class OrderDeliverySerializer(serializers.ModelSerializer):
         )
 
 
-class OrderItemPhotoSerializer(serializers.ModelSerializer):
+class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:
-        model = OrderItemPhoto
+        model = OrderItem
         fields = (
             'product_id',
-            'url'
+            'image_url',
+            'quantity',
+            'name',
+            'price',
+            'system_product',
         )
 
 
@@ -79,8 +83,7 @@ class OrderProductSerializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     user = OrderUserSerializer(source='orderuser')
     delivery = OrderDeliverySerializer(source='orderdelivery')
-    item_photos = OrderItemPhotoSerializer(source='orderitemphoto_set', many=True)
-    item_products = OrderProductSerializer(source='products', many=True)
+    items = OrderItemSerializer(source='orderitem_set', many=True)
     seller_comments = OrderSellerCommentSerializer(source='ordersellercomment_set', many=True)
     status_history = OrderStatusHistoryItemSerializer(source='orderstatushistoryitem_set', many=True)
     passed_to_contractor = serializers.SerializerMethodField(read_only=True)

@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from catalog.models import Product
 from catalog.utils import get_rozetka_auth_token
 from .constants import OrderStatusGroups
-from .models import Order, OrderUser, OrderDelivery, OrderItemPhoto, OrderSellerComment, OrderStatusHistoryItem
+from .models import Order, OrderUser, OrderDelivery, OrderItem, OrderSellerComment, OrderStatusHistoryItem
 from top_market_platform.celery import app
 
 User = get_user_model()
@@ -15,7 +15,7 @@ def upload_orders(user, token_rozetka, order_type=''):
     next_page = 1
     processing = True
     while processing:
-        url = "https://api.seller.rozetka.com.ua/orders/search?expand=user,delivery,order_status_history&page={}".format(next_page)
+        url = "https://api.seller.rozetka.com.ua/orders/search?expand=user,delivery,order_status_history,purchases&page={}".format(next_page)
         if order_type:
             url += '&type={}'.format(order_type)
         headers = {
@@ -80,15 +80,18 @@ def upload_orders(user, token_rozetka, order_type=''):
                 defaults=order['delivery']
             )
 
-            for photo_dict in order['items_photos']:
-                if Product.objects.filter(id=photo_dict['id']).exists():
-                    order_instance.products.add(photo_dict['id'])
-                else:
-                    OrderItemPhoto.objects.update_or_create(
-                        order=order_instance,
-                        product_id=photo_dict['id'],
-                        url=photo_dict['url']
-                    )
+            for purchase in order['purchases']:
+                OrderItem.objects.update_or_create(
+                    order=order_instance,
+                    product_id=purchase['id'],
+                    defaults={
+                        'image_url': purchase['item']['photo_preview'],
+                        'quantity': purchase['quantity'],
+                        'name': purchase['item_name'],
+                        'system_product': Product.objects.filter(id=purchase['id']).first(),
+                        'price': purchase['price']
+                    }
+                )
 
             for seller_comment_dict in order['seller_comment']:
                 OrderSellerComment.objects.update_or_create(

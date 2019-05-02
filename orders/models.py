@@ -31,14 +31,6 @@ class Order(models.Model):
     system_comment = models.TextField(blank=True)
 
     user = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE)
-    # partner_order = models.ForeignKey(
-    #     'self',
-    #     null=True,
-    #     blank=True,
-    #     on_delete=models.CASCADE,
-    #     verbose_name=_('Связь с партнером'),
-    #     related_name='partner_orders',
-    # )
 
     products = models.ManyToManyField('catalog.Product', blank=True)
 
@@ -127,10 +119,16 @@ class OrderDelivery(models.Model):
         verbose_name_plural = _('Доставки')
 
 
-class OrderItemPhoto(models.Model):
+class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
+
     product_id = models.PositiveIntegerField()
-    url = models.URLField()
+    image_url = models.URLField()
+    quantity = models.PositiveSmallIntegerField()
+    name = models.CharField(max_length=512)
+    price = models.DecimalField(max_digits=12, decimal_places=2)
+
+    system_product = models.ForeignKey('catalog.Product', on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return 'ID заказа: {}, ID продукта: {}'.format(self.order.id, self.product_id)
