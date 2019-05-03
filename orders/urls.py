@@ -4,7 +4,7 @@ from . import views
 app_name = 'orders'
 
 router = DefaultRouter()
-router.register(r'', views.OrderViewSet, base_name='orders')
-router.register(r'contractor', views.ContractorOrderViewSet, base_name='contractor_orders')
+router.register(r'orders', views.OrderViewSet, base_name='orders')
+router.register(r'orders_contractor', views.ContractorOrderViewSet, base_name='orders_contractor')
 
 urlpatterns = router.urls

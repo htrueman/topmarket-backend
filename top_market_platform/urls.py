@@ -30,7 +30,7 @@ urlpatterns = [
     path('api/<version>/news/', include('news.urls')),
     path('api/<version>/marketplace/', include('marketplace.urls')),
     path('api/<version>/catalog/', include('catalog.urls')),
-    path('api/<version>/orders/', include('orders.urls')),
+    path('api/<version>/', include('orders.urls')),
 ] \
     + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) \
     + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
