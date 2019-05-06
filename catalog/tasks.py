@@ -106,7 +106,7 @@ def load_products_from_xls(**kwargs):
                                 user=prod_hist.user,
                                 defaults={
                                     'name': product.get('name') if product.get('name') else product.get('name_ua'),
-                                    'vendor_code': product['article'],
+                                    'vendor_code': int(product['article']),
                                     'price': product['price'],
                                     'category_id': product['catalog_id'],
                                     'description': product.get('description')

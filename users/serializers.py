@@ -111,7 +111,7 @@ class ManagerSerializer(serializers.ModelSerializer):
         password = self.generate_password(10)
         user.set_password(password)
         user.save()
-        mail_subject = 'Invitation to TOP MARKET PLACE'
+        mail_subject = 'Invitation to Smart Lead 2.0'
         message = render_to_string('manager_invitation.html', {
             'domain': settings.HOST_NAME,
             'uid': urlsafe_base64_encode(force_bytes(user.pk)).decode(),
@@ -145,7 +145,7 @@ class PasswordResetSerializer(serializers.Serializer):
         user.set_password(password)
         user.save()
         if user:
-            mail_subject = 'Reset your topmarket password.'
+            mail_subject = 'Reset your Smart Lead 2.0 password.'
             message = render_to_string('password_reset_email.html', {
                 'user': user,
                 'password': password
