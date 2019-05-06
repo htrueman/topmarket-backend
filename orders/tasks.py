@@ -39,7 +39,7 @@ def upload_orders(user, token_rozetka, order_type=''):
         for order in orders:
             seller_comment_created = order.pop('seller_comment_created')
             order_instance, created = Order.objects.update_or_create(
-                id=order['id'],
+                rozetka_id=order['id'],
                 user=user,
                 defaults={
                     'market_id': order['market_id'],

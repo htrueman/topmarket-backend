@@ -94,7 +94,7 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = (
-            'id',
+            'rozetka_id',
             'market_id',
             'created',
             'amount',

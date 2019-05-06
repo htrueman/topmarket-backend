@@ -8,7 +8,7 @@ from users.tasks import send_email_task
 
 
 class Order(models.Model):
-    id = models.PositiveIntegerField(primary_key=True)
+    rozetka_id = models.PositiveIntegerField()
     market_id = models.PositiveIntegerField()
     created = models.DateTimeField()
     amount = models.DecimalField(max_digits=12, decimal_places=2)
