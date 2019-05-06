@@ -4,9 +4,15 @@ from import_export import resources, fields, widgets
 
 class ProductResource(resources.ModelResource):
     category_id = fields.Field(
-        column_name='category',
+        column_name='category_id',
         attribute='category',
         widget=widgets.ForeignKeyWidget(Category, )
+    )
+
+    vendor_code = fields.Field(
+        column_name='vendor_code',
+        attribute='vendor_code',
+        widget=widgets.IntegerWidget()
     )
 
     class Meta:
@@ -32,6 +38,7 @@ class ProductResource(resources.ModelResource):
 
     def after_import_instance(self, instance, new, **kwargs):
         instance.user_id = kwargs.get('user_id')
+        # instance.vendor_code = str(instance.vendor_code)
         super().after_import_instance(instance, new, **kwargs)
 
 

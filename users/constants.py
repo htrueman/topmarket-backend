@@ -2,7 +2,7 @@ from django.utils.translation import ugettext as _
 
 DOMEN = (
     ('DM', _("Домен")),
-    ('SD', _('Поддомен'))
+    ('SDM', _('Поддомен'))
 )
 
 CALL_BACK = (
