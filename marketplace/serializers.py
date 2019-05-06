@@ -4,6 +4,11 @@ from django.contrib.auth import get_user_model
 from django.template.loader import render_to_string
 from django.shortcuts import get_object_or_404
 import pdfkit
+import base64
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail, Attachment
+
+from django.conf import settings
 
 from .models import KnowledgeBase, TrainingModule, VideoLesson, ImageForLesson, ImageForTraining, VideoTraining, \
     AdditionalService, ContactUs
@@ -157,6 +162,23 @@ class LiqPaySerializer(serializers.ModelSerializer):
             'subject': mail_subject,
             'html_content': message
         }
+
+        pdf = pdfkit.from_string('Подтверждение о покупке пакета', 'smart_lead_pocket_paid.pdf')
+        from_email = settings.DEFAULT_FROM_EMAIL
+        message = Mail(
+            from_email=from_email,
+            **data,
+        )
+        attachment = Attachment()
+        attachment.file_content = base64.b64encode(pdf.read())
+        attachment.file_name = 'smart_lead_pocket_paid.pdf'
+        message.add_attachment(attachment)
+
+        try:
+            sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
+            sg.send(message)
+        except Exception as e:
+            pass
 
         send_email_task.delay(**data)
         return super().update(instance, validated_data)

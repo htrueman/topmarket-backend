@@ -5,13 +5,15 @@ from rest_framework.generics import get_object_or_404
 from rest_framework import permissions
 from django.contrib.auth import get_user_model
 from django.template.loader import render_to_string
-from django.conf import settings
+
 
 from .models import KnowledgeBase, VideoLesson, TrainingModule, VideoTraining, AdditionalService, ContactUs
 from .serializers import KnowledgeBaseSerializer, VideoLessonSerializer, TrainingModuleSerializer, \
     VideoTrainingSerializer, AdditionalServiceSerializer, ContactUsSerializer, LiqPaySerializer
 
 from users.tasks import send_email_task
+
+import pdfkit
 
 User = get_user_model()
 
