@@ -1,17 +1,19 @@
 from rest_framework.response import Response
-from rest_framework import generics, filters, viewsets, status
+from rest_framework import generics, filters, viewsets, status, views
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework import permissions
 from django.contrib.auth import get_user_model
 from django.template.loader import render_to_string
-from django.conf import settings
+
 
 from .models import KnowledgeBase, VideoLesson, TrainingModule, VideoTraining, AdditionalService, ContactUs
 from .serializers import KnowledgeBaseSerializer, VideoLessonSerializer, TrainingModuleSerializer, \
-    VideoTrainingSerializer, AdditionalServiceSerializer, ContactUsSerializer
+    VideoTrainingSerializer, AdditionalServiceSerializer, ContactUsSerializer, LiqPaySerializer
 
 from users.tasks import send_email_task
+
+import pdfkit
 
 User = get_user_model()
 
@@ -98,10 +100,11 @@ class ContactUsCreateView(generics.CreateAPIView):
         message = render_to_string('contact_us_email.html', {
             'user_name': instance.name,
             'email': instance.email,
-            'text': instance.text
+            'text': instance.text,
+            'phone': instance.phone,
         })
         data = {
-            'to_emails': [settings.DEFAULT_FROM_EMAIL, ],
+            'to_emails': ['smartlead2018@gmail.com', ],
             'subject': instance.subject,
             'html_content': message
         }
@@ -109,3 +112,12 @@ class ContactUsCreateView(generics.CreateAPIView):
         # send_email_task(**data)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class LiqPayView(generics.UpdateAPIView):
+    serializer_class = LiqPaySerializer
+    queryset = User.objects.all()
+    permission_classes = (permissions.AllowAny, )
+
+    def get_object(self):
+        return self.request.user

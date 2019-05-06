@@ -28,7 +28,6 @@ class ProductFilter(filters.FilterSet):
         ]
 
     def filter_in_stock(self, queryset, name, value):
-        print(value)
         if value:
             return queryset.filter(count__gte=1)
         if not value:

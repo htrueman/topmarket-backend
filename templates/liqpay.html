@@ -1,0 +1,10 @@
+{% autoescape off %}
+Привет,
+    покупка пакета
+    {% if pocket == 'BASE' %}
+        "БАЗОВЫЙ"
+    {% elif pocket == 'FULL' %}
+        "ПОЛНЫЙ"
+    {% endif %}
+    прошла успешно!
+{% endautoescape %}

@@ -1,8 +1,21 @@
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
+from django.contrib.auth import get_user_model
+from django.template.loader import render_to_string
+from django.shortcuts import get_object_or_404
+import pdfkit
+import base64
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail, Attachment
+
+from django.conf import settings
 
 from .models import KnowledgeBase, TrainingModule, VideoLesson, ImageForLesson, ImageForTraining, VideoTraining, \
     AdditionalService, ContactUs
+from users.tasks import send_email_task
+
+
+User = get_user_model()
 
 
 class KnowledgeBaseSerializer(serializers.ModelSerializer):
@@ -111,6 +124,7 @@ class ContactUsSerializer(serializers.ModelSerializer):
         fields = (
             'name',
             'email',
+            'phone',
             'subject',
             'text',
         )
@@ -128,3 +142,41 @@ class ContactUsSerializer(serializers.ModelSerializer):
             )
         return instance
 
+
+class LiqPaySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'user_pocket',
+        )
+
+    def update(self, instance, validated_data):
+        user = self.context['request'].user
+        mail_subject = 'Покупка пакета'
+        message = render_to_string('liqpay.html', {
+            'pocket': validated_data['user_pocket'],
+        })
+
+        data = {
+            'to_emails': [user.email, ],
+            'subject': mail_subject,
+            'html_content': message
+        }
+
+        pdfkit.from_string('TEST', 'smart_lead_pocket_paid.pdf')
+        from_email = settings.DEFAULT_FROM_EMAIL
+        message = Mail(
+            from_email=from_email,
+            **data,
+        )
+        attachment = Attachment()
+        with open('smart_lead_pocket_paid.pdf', 'rb') as f:
+            attachment.file_content = base64.b64encode(f.read()).decode('utf-8')
+        attachment.file_name = 'smart_lead_pocket_paid.pdf'
+        message.add_attachment(attachment)
+
+        sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
+        sg.send(message)
+
+        # send_email_task.delay(**data)
+        return super().update(instance, validated_data)
