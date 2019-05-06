@@ -136,7 +136,7 @@ class ContactUs(models.Model):
         verbose_name=_('Текст сообщения'),
         null=True, blank=True
     )
-    phone = models.CharField(
+    phone_number = models.CharField(
         verbose_name=_('Телефон'),
         max_length=32
     )

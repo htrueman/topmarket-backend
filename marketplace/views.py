@@ -101,7 +101,7 @@ class ContactUsCreateView(generics.CreateAPIView):
             'user_name': instance.name,
             'email': instance.email,
             'text': instance.text,
-            'phone': instance.phone,
+            'phone': instance.phone_number,
         })
         data = {
             'to_emails': ['smartlead2018@gmail.com', ],

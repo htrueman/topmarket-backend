@@ -124,7 +124,7 @@ class ContactUsSerializer(serializers.ModelSerializer):
         fields = (
             'name',
             'email',
-            'phone',
+            'phone_number',
             'subject',
             'text',
         )
