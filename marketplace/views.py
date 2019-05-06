@@ -1,5 +1,5 @@
 from rest_framework.response import Response
-from rest_framework import generics, filters, viewsets, status
+from rest_framework import generics, filters, viewsets, status, views
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework import permissions
@@ -9,7 +9,7 @@ from django.conf import settings
 
 from .models import KnowledgeBase, VideoLesson, TrainingModule, VideoTraining, AdditionalService, ContactUs
 from .serializers import KnowledgeBaseSerializer, VideoLessonSerializer, TrainingModuleSerializer, \
-    VideoTrainingSerializer, AdditionalServiceSerializer, ContactUsSerializer
+    VideoTrainingSerializer, AdditionalServiceSerializer, ContactUsSerializer, LiqPaySerializer
 
 from users.tasks import send_email_task
 
@@ -109,3 +109,9 @@ class ContactUsCreateView(generics.CreateAPIView):
         # send_email_task(**data)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class LiqPayView(generics.UpdateAPIView):
+    serializer_class = LiqPaySerializer
+    queryset = User.objects.all()
+    permission_classes = (permissions.AllowAny, )
