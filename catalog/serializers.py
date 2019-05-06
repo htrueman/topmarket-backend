@@ -224,7 +224,10 @@ class YMLHandlerSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         product_ids = validated_data.pop('product_ids')
-        yml_template, create = YMLTemplate.objects.get_or_create(yml_type=validated_data['yml_type'])
+        yml_template, create = YMLTemplate.objects.get_or_create(
+            yml_type=validated_data['yml_type'],
+            user=validated_data['user']
+        )
         yml_template.products.add(*product_ids)
         yml_template = self.render_yml_file(
             yml_template,
