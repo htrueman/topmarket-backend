@@ -14,8 +14,8 @@ app.conf.CELERYBEAT_SCHEDULE = {
         "task": "orders.tasks.checkout_orders",
         "schedule": crontab(minute="*/10"),
     },
-    "load_categories": {
-        "task": "catalog.tasks.load_categories",
-        "schedule": crontab(minute="*/15")
-    }
+    # "load_categories": {
+    #     "task": "catalog.tasks.load_categories",
+    #     "schedule": crontab(minute="*/15")
+    # }
 }
