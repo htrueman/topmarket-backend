@@ -1,8 +1,16 @@
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
+from django.contrib.auth import get_user_model
+from django.template.loader import render_to_string
+from django.shortcuts import get_object_or_404
+import pdfkit
 
 from .models import KnowledgeBase, TrainingModule, VideoLesson, ImageForLesson, ImageForTraining, VideoTraining, \
     AdditionalService, ContactUs
+from users.tasks import send_email_task
+
+
+User = get_user_model()
 
 
 class KnowledgeBaseSerializer(serializers.ModelSerializer):
@@ -129,3 +137,26 @@ class ContactUsSerializer(serializers.ModelSerializer):
             )
         return instance
 
+
+class LiqPaySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'user_pocket',
+        )
+
+    def update(self, instance, validated_data):
+        user = self.context['request'].user
+        mail_subject = 'Покупка пакета'
+        message = render_to_string('liqpay.html', {
+            'pocket': validated_data['user_pocket'],
+        })
+
+        data = {
+            'to_emails': [user.email, ],
+            'subject': mail_subject,
+            'html_content': message
+        }
+
+        send_email_task.delay(**data)
+        return super().update(instance, validated_data)
