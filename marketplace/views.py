@@ -118,3 +118,6 @@ class LiqPayView(generics.UpdateAPIView):
     serializer_class = LiqPaySerializer
     queryset = User.objects.all()
     permission_classes = (permissions.AllowAny, )
+
+    def get_object(self):
+        return self.request.user

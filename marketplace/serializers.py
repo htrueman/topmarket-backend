@@ -163,22 +163,20 @@ class LiqPaySerializer(serializers.ModelSerializer):
             'html_content': message
         }
 
-        pdf = pdfkit.from_string('Подтверждение о покупке пакета', 'smart_lead_pocket_paid.pdf')
+        pdfkit.from_string('TEST', 'smart_lead_pocket_paid.pdf')
         from_email = settings.DEFAULT_FROM_EMAIL
         message = Mail(
             from_email=from_email,
             **data,
         )
         attachment = Attachment()
-        attachment.file_content = base64.b64encode(pdf.read())
+        with open('smart_lead_pocket_paid.pdf', 'rb') as f:
+            attachment.file_content = base64.b64encode(f.read()).decode('utf-8')
         attachment.file_name = 'smart_lead_pocket_paid.pdf'
         message.add_attachment(attachment)
 
-        try:
-            sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
-            sg.send(message)
-        except Exception as e:
-            pass
+        sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
+        sg.send(message)
 
-        send_email_task.delay(**data)
+        # send_email_task.delay(**data)
         return super().update(instance, validated_data)
