@@ -98,10 +98,11 @@ class ContactUsCreateView(generics.CreateAPIView):
         message = render_to_string('contact_us_email.html', {
             'user_name': instance.name,
             'email': instance.email,
-            'text': instance.text
+            'text': instance.text,
+            'phone': instance.phone,
         })
         data = {
-            'to_emails': [settings.DEFAULT_FROM_EMAIL, ],
+            'to_emails': ['smartlead2018@gmail.com', ],
             'subject': instance.subject,
             'html_content': message
         }

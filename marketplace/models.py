@@ -126,7 +126,6 @@ class ContactUs(models.Model):
     )
     email = models.EmailField(
         verbose_name=_('Електронная почта'),
-        blank=True, null=True
     )
     subject = models.CharField(
         max_length=256,
@@ -134,7 +133,11 @@ class ContactUs(models.Model):
         blank=True, null=True
     )
     text = models.TextField(
-        verbose_name=_('Текст сообщения')
+        verbose_name=_('Текст сообщения'),
+        null=True, blank=True
+    )
+    phone = models.CharField(
+        verbose_name=_('Телефон')
     )
 
     class Meta:

@@ -111,6 +111,7 @@ class ContactUsSerializer(serializers.ModelSerializer):
         fields = (
             'name',
             'email',
+            'phone',
             'subject',
             'text',
         )
