@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'marketplace',
     'catalog',
     'orders',
+    'bots',
 ]
 
 MIDDLEWARE = [
