@@ -1,8 +1,12 @@
 {% autoescape off %}
     Тех. поддержка.<br>
     Имя пользователя - {{ user_name }}<br>
+    {% if email %}
     Почта пользователя - {{ email }}<br>
+    {% endif %}
     Телефон - {{ phone }}
+    {% if text %}
     Текст: <br>
     <i>{{ text }}</i>
+    {% endif %}
 {% endautoescape %}

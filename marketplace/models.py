@@ -126,6 +126,8 @@ class ContactUs(models.Model):
     )
     email = models.EmailField(
         verbose_name=_('Електронная почта'),
+        blank=True,
+        null=True
     )
     subject = models.CharField(
         max_length=256,
