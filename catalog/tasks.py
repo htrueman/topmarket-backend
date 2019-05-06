@@ -136,13 +136,11 @@ def load_products_from_xls(**kwargs):
             prod_hist.save()
 
 
-
-
-# @app.task
-# def load_categories():
-#     with transaction.atomic():
-#         Category.load_categories()
-#         queryset = Category.objects.root_nodes()
-#         serializer = CategorySerializer(queryset)
-#         cache.set('categories', serializer.data)
+@app.task
+def load_categories():
+    with transaction.atomic():
+        Category.load_categories()
+        queryset = Category.objects.root_nodes()
+        serializer = CategorySerializer(queryset, many=True)
+        cache.set('categories_data', serializer.data)
 
