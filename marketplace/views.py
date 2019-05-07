@@ -93,6 +93,7 @@ class ContactUsCreateView(generics.CreateAPIView):
         return instance
 
     def create(self, request, *args, **kwargs):
+        print(request.data)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         instance = self.perform_create(serializer)
@@ -105,7 +106,7 @@ class ContactUsCreateView(generics.CreateAPIView):
         })
         data = {
             'to_emails': ['uchetsmartlead@gmail.com', ],
-            'subject': instance.subject,
+            'subject': instance.subject or "Без темы",
             'html_content': message
         }
         send_email_task.delay(**data)

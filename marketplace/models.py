@@ -140,7 +140,8 @@ class ContactUs(models.Model):
     )
     phone_number = models.CharField(
         verbose_name=_('Телефон'),
-        max_length=32
+        max_length=32,
+        null=True, blank=True,
     )
 
     class Meta:

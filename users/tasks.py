@@ -15,4 +15,4 @@ def send_email_task(*args, **kwargs):
         sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
         sg.send(message)
     except Exception as e:
-        pass
+        print(e.args)
