@@ -460,7 +460,7 @@ class MyStore(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
 
     domain_subdomain = models.CharField(max_length=3, choices=DOMEN, blank=True, null=True, verbose_name=_('Домен/поддомен'))
-    domain_name = models.URLField(max_length=200, null=True, blank=True, verbose_name=_('Имя домена'))
+    domain_name = models.CharField(max_length=200, null=True, blank=True, verbose_name=_('Имя домена'))
     call_back = models.CharField(max_length=3, choices=CALL_BACK, null=True, blank=True, verbose_name=_('Функция Сall-back'))
     facebook = models.URLField(max_length=200, null=True, blank=True, verbose_name=_('Facebook'))
     instagram = models.URLField(max_length=200, null=True, blank=True, verbose_name=_('Instagram'))
