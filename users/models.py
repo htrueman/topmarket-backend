@@ -107,6 +107,20 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def get_short_name(self):
         return '{}'.format(self.first_name)
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__pk = self.pk
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if not self.__pk:
+            Company.objects.get_or_create(user_id=self.pk)
+            MyStore.objects.get_or_create(user_id=self.pk)
+
+    class Meta:
+        verbose_name = _('Пользователь')
+        verbose_name_plural = _('Пользователи')
+
 
 class UserNotificationEmail(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='email_notifications')
@@ -121,8 +135,8 @@ class UserNotificationEmail(models.Model):
         return '{}'.format(self.user.get_full_name())
 
     class Meta:
-        verbose_name =_('Уведомление пользователя(email)')
-        verbose_name_plural =_('Увидемления пользователя(email)')
+        verbose_name = _('Уведомление пользователя(email)')
+        verbose_name_plural = _('Увидемления пользователя(email)')
 
 
 class UserNotificationPhone(models.Model):
@@ -133,8 +147,8 @@ class UserNotificationPhone(models.Model):
         return '{}'.format(self.user.get_full_name())
 
     class Meta:
-        verbose_name =_('Уведомление пользователя(тел)')
-        verbose_name_plural =_('Увидемления пользователя(тел)')
+        verbose_name = _('Уведомление пользователя(тел)')
+        verbose_name_plural = _('Увидемления пользователя(тел)')
 
 
 class Company(models.Model):
@@ -284,6 +298,13 @@ class Company(models.Model):
         on_delete=models.SET_NULL
     )
 
+    class Meta:
+        verbose_name = _('Компания партнера')
+        verbose_name_plural = _('Компании партнеров')
+
+    def __str__(self):
+        return '{} {}'.format(self.id, self.name)
+
 
 class ActivityAreas(models.Model):
 
@@ -294,6 +315,10 @@ class ActivityAreas(models.Model):
 
     def __str__(self):
         return '{}'.format(self.name)
+
+    class Meta:
+        verbose_name = _('Сфера деятельности')
+        verbose_name_plural = _('Сферы деятельности')
 
 
 class ServiceIndustry(models.Model):
@@ -306,6 +331,10 @@ class ServiceIndustry(models.Model):
     def __str__(self):
         return '{}'.format(self.name)
 
+    class Meta:
+        verbose_name = _('Сфера услуг')
+        verbose_name_plural = _('Сферы услуг')
+
 
 class CompanyType(models.Model):
 
@@ -313,6 +342,10 @@ class CompanyType(models.Model):
         max_length=1095,
         verbose_name=_('Тип компании')
     )
+
+    class Meta:
+        verbose_name = _('Тип компании')
+        verbose_name_plural = _('Типы компаний')
 
 
 # Документы
@@ -329,6 +362,10 @@ class Passport(models.Model):
         verbose_name=_('Паспорт')
     )
 
+    class Meta:
+        verbose_name = _('Паспорт')
+        verbose_name_plural = _('Паспорта')
+
 
 class UkraineStatistic(models.Model):
     company = models.ForeignKey(
@@ -343,6 +380,10 @@ class UkraineStatistic(models.Model):
         null=True, blank=True,
         verbose_name=_('Справка Государственного комитета статистики Украины')
     )
+
+    class Meta:
+        verbose_name = _('Статистика (комитет статистики Украины)')
+        verbose_name_plural = _('Статистика (комитет статистики Украины)')
 
 
 class Certificate(models.Model):
@@ -359,6 +400,10 @@ class Certificate(models.Model):
         verbose_name=_('Свидетельство о регистрации или выписка с ЕГРПОУ')
     )
 
+    class Meta:
+        verbose_name = _('Свидетельсво')
+        verbose_name_plural = _('Свидетельсва')
+
 
 class TaxPayer(models.Model):
     company = models.ForeignKey(
@@ -373,6 +418,10 @@ class TaxPayer(models.Model):
         null=True, blank=True,
         verbose_name=_('Справка 4 Учета плательщика налогов')
     )
+
+    class Meta:
+        verbose_name = _('Плательщик налогов')
+        verbose_name_plural = _('Плательщики налогов')
 
 
 class PayerRegister(models.Model):
@@ -389,6 +438,10 @@ class PayerRegister(models.Model):
         verbose_name=_('Выписка из реестра плательщиков НДС')
     )
 
+    class Meta:
+        verbose_name = _('Регистрация плательщика')
+        verbose_name_plural = _('Регистрации плательщиков')
+
 
 class PayerCertificate(models.Model):
     company = models.ForeignKey(
@@ -404,6 +457,10 @@ class PayerCertificate(models.Model):
         null=True, blank=True,
         verbose_name=_('Cвидетельство плательщика единого налога')
     )
+
+    class Meta:
+        verbose_name = _('Свидетельство плательщика ЕН')
+        verbose_name_plural = _('Свидетельства плательщиков ЕН')
 
 # Питч
 
@@ -452,6 +509,10 @@ class CompanyPitch(models.Model):
         verbose_name=_('Какой будет Ваша компания через 5 лет?')
     )
 
+    class Meta:
+        verbose_name = _('Питч компании')
+        verbose_name_plural = _('Питчи компаний')
+
 
 # Мой магазин
 
@@ -473,6 +534,13 @@ class MyStore(models.Model):
     def get_url(self):
         if self.domain_subdomain:
             return 'https://{}/'.format(self.domain_name)
+
+    class Meta:
+        verbose_name = _('Магазин партнера')
+        verbose_name_plural = _('Магазины партнеров')
+
+    def __str__(self):
+        return '{} {}'.format(self.id, self.user)
 
 
 class HeaderPhoneNumber(models.Model):

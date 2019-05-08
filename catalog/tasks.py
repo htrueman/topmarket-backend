@@ -143,4 +143,3 @@ def load_categories():
         queryset = Category.objects.root_nodes()
         serializer = CategorySerializer(queryset, many=True)
         cache.set('categories_data', serializer.data)
-

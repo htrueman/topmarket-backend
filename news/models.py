@@ -51,4 +51,6 @@ class Comment(TimeStampedModel):
     text = models.TextField(blank=True, null=True, verbose_name=_('Комментарий'))
     parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True)
 
-
+    class Meta:
+        verbose_name = _('Комментарий')
+        verbose_name_plural = _('Комментарии')

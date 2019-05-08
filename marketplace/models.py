@@ -39,6 +39,10 @@ class TrainingModule(models.Model):
         verbose_name=_('Цена круса')
     )
 
+    class Meta:
+        verbose_name = _('Обучающий модуль')
+        verbose_name_plural = _('Обучающие модули')
+
 
 class VideoLesson(models.Model):
 
@@ -59,6 +63,10 @@ class VideoLesson(models.Model):
         blank=True, null=True,
         verbose_name=_('Содержание')
     )
+
+    class Meta:
+        verbose_name = _('Видео урок')
+        verbose_name_plural = _('Видео уроки')
 
 
 class ImageForLesson(models.Model):
@@ -91,6 +99,10 @@ class VideoTraining(models.Model):
         blank=True, null=True,
         verbose_name=_('Содержание')
     )
+
+    class Meta:
+        verbose_name = _('Обучающее видео')
+        verbose_name_plural = _('Обучающие видео')
 
 
 class ImageForTraining(models.Model):

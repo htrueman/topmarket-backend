@@ -3,12 +3,38 @@ from .models import CustomUser, Company, MyStore, CompanyPitch, Passport, Activi
     HeaderPhoneNumber, FooterPhoneNumber, Navigation, StoreSliderImage
 
 admin.site.register(CustomUser)
-admin.site.register(Company)
-admin.site.register(CompanyPitch)
-admin.site.register(Passport)
 admin.site.register(ServiceIndustry)
 admin.site.register(ActivityAreas)
 admin.site.register(CompanyType)
+
+
+class CompanyPitchTabular(admin.TabularInline):
+    model = CompanyPitch
+    fields = (
+        'who_are_you',
+        'guru',
+        'for_whom',
+        'difference',
+        'good_partner',
+        'future',
+    )
+    extra = 0
+
+
+class PassportTabular(admin.TabularInline):
+    model = Passport
+    fields = (
+        'pass_doc',
+    )
+    extra = 0
+
+
+@admin.register(Company)
+class CustomUserAdmin(admin.ModelAdmin):
+    inlines = (
+        CompanyPitchTabular,
+        PassportTabular,
+    )
 
 
 class HeaderPhoneNumberTabular(admin.TabularInline):

@@ -61,8 +61,8 @@ class Order(models.Model):
             send_email_task.delay(**data)
 
     class Meta:
-        verbose_name = _('Заказ')
-        verbose_name_plural = _('Заказы')
+        verbose_name = _('Заказ партнера')
+        verbose_name_plural = _('Заказы партнеров')
 
 
 class ContractorOrder(models.Model):
@@ -73,8 +73,8 @@ class ContractorOrder(models.Model):
     products = models.ManyToManyField('catalog.Product', blank=True)
 
     class Meta:
-        verbose_name = _('Заказ')
-        verbose_name_plural = _('Заказы')
+        verbose_name = _('Заказ поставщика')
+        verbose_name_plural = _('Заказы поставщиков')
 
     def __str__(self):
         return '{}'.format(self.order)
