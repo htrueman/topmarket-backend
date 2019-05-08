@@ -4,6 +4,7 @@ billiard==3.6.0.0
 celery==4.3.0
 certifi==2019.3.9
 chardet==3.0.4
+consul-kv==0.7.3
 coreapi==2.3.3
 coreschema==0.0.4
 dataclasses==0.6
