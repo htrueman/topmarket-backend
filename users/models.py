@@ -9,11 +9,7 @@ from .managers import CustomUserManager
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
-    USER_POCKET = (
-        ('BASE', 'Base'),
-        ('FULL', 'Full'),
-        ('NO', 'No')
-    )
+
     manager = models.ForeignKey(
         'Company',
         on_delete=models.SET_NULL,
@@ -25,12 +21,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         choices=USER_ROLE,
 
     )
-    user_pocket = models.CharField(
-        max_length=10,
-        choices=USER_POCKET,
+    user_pocket = models.ForeignKey(
+        'marketplace.PocketPlan',
+        verbose_name=_('Пакет услуг'),
         null=True, blank=True,
-        default='BASE',
-        verbose_name=_('Пакет услуг')
+        on_delete=models.SET_NULL,
     )
 
     first_name = models.CharField(

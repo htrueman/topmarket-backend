@@ -1,0 +1,22 @@
+[
+  {
+    "model": "marketplace.pocketplan",
+    "pk": 1,
+    "fields": {
+      "name": "BASE",
+      "price": 1000,
+      "currency": "USD",
+      "description": "This is description about base pocket plan"
+    }
+  },
+  {
+    "model": "marketplace.pocketplan",
+    "pk": 2,
+    "fields": {
+      "name": "FULL",
+      "price": 2000,
+      "currency": "USD",
+      "description": "This is description about base pocket plan"
+    }
+  }
+]

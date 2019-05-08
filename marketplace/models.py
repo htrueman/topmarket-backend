@@ -1,11 +1,39 @@
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.translation import ugettext as _
 
-from django.contrib.auth import get_user_model
+
 
 User = get_user_model()
 
 # Create your models here.
+
+
+class PocketPlan(models.Model):
+    name = models.CharField(
+        max_length=255,
+        verbose_name=_('Название пакета'),
+        null=True, blank=True
+    )
+    price = models.DecimalField(
+        max_digits=10, decimal_places=2,
+        verbose_name=_('Цена пакета')
+    )
+    currency = models.CharField(
+        max_length=10,
+        default='UAH',
+        verbose_name=_('Валюта'),
+    )
+    description = models.TextField(
+        null=True, blank=True
+    )
+
+    class Meta:
+        verbose_name = _('Пакет услуг')
+        verbose_name_plural = _('Пакеты услуг')
+
+    def __str__(self):
+        return self.name
 
 
 class KnowledgeBase(models.Model):
@@ -102,6 +130,7 @@ class ImageForTraining(models.Model):
         null=True, blank=True,
         verbose_name=_('Изображение')
     )
+
 
 
 # Дополнительные услуги

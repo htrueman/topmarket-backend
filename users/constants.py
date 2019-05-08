@@ -14,3 +14,10 @@ USER_ROLE = (
     ('CONTRACTOR', _('Поставщик')),
     ('PARTNER', _('Партнер')),
 )
+
+
+USER_POCKET = (
+    ('BASE', 'Base'),
+    ('FULL', 'Full'),
+    ('NO', 'No')
+)
