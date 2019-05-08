@@ -636,8 +636,8 @@ class MyStoreSerializer(serializers.ModelSerializer):
             defaults=validated_data
         )
 
-        if my_store.domain_subdomain:
-            generate_store.delay(my_store.domain_subdomain)
+        if my_store.domain_subdomain and my_store.domain_name:
+            generate_store.delay(my_store.domain_name)
 
         if header_phones_number_data:
             HeaderPhoneNumber.objects.filter(store=my_store).delete()
