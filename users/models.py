@@ -113,7 +113,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        if not self.__pk:
+        if not self.__pk and self.role == 'PARTNER':
             Company.objects.get_or_create(user_id=self.pk)
             MyStore.objects.get_or_create(user_id=self.pk)
 
