@@ -1,3 +1,5 @@
+import pdb
+
 from django.db import transaction
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
@@ -624,66 +626,39 @@ class MyStoreSerializer(serializers.ModelSerializer):
             # 'slider_images',
         )
 
-    def create(self, validated_data):
-        header_phones_number_data = validated_data.pop('header_phones', None)
-        footer_phones_number_data = validated_data.pop('footer_phones', None)
-        navigations_data = validated_data.pop('navigations', None)
-
-        my_store = MyStore.objects.create(**validated_data)
-
-        with transaction.atomic():
-            if header_phones_number_data:
-                HeaderPhoneNumber.objects.bulk_create([
-                    HeaderPhoneNumber(
-                        store=my_store,
-                        **phone
-                    ) for phone in header_phones_number_data
-                ])
-            if footer_phones_number_data:
-                FooterPhoneNumber.objects.bulk_create([
-                    FooterPhoneNumber(
-                        store=my_store,
-                        **phone
-                    ) for phone in footer_phones_number_data
-                ])
-
-            if navigations_data:
-                Navigation.objects.bulk_create([
-                    Navigation(
-                        store=my_store,
-                        **navigation_data
-                    ) for navigation_data in navigations_data
-                ])
-        return my_store
-
     def update(self, instance, validated_data):
         header_phones_number_data = validated_data.pop('header_phones', None)
         footer_phones_number_data = validated_data.pop('footer_phones', None)
         navigations_data = validated_data.pop('navigations', None)
 
-        my_store = MyStore.objects.create(**validated_data)
+        my_store, _ = MyStore.objects.update_or_create(
+            user=self.context['request'].user,
+            defaults=validated_data
+        )
 
-        with transaction.atomic():
-            if header_phones_number_data:
-                HeaderPhoneNumber.objects.bulk_create([
-                    HeaderPhoneNumber(
-                        store=my_store,
-                        **phone
-                    ) for phone in header_phones_number_data
-                ])
-            if footer_phones_number_data:
-                FooterPhoneNumber.objects.bulk_create([
-                    FooterPhoneNumber(
-                        store=my_store,
-                        **phone
-                    ) for phone in footer_phones_number_data
-                ])
+        if header_phones_number_data:
+            HeaderPhoneNumber.objects.filter(store=my_store).delete()
+            HeaderPhoneNumber.objects.bulk_create([
+                HeaderPhoneNumber(
+                    store=my_store,
+                    **phone
+                ) for phone in header_phones_number_data
+            ])
+        if footer_phones_number_data:
+            FooterPhoneNumber.objects.filter(store=my_store).delete()
+            FooterPhoneNumber.objects.bulk_create([
+                FooterPhoneNumber(
+                    store=my_store,
+                    **phone
+                ) for phone in footer_phones_number_data
+            ])
 
-            if navigations_data:
-                Navigation.objects.bulk_create([
-                    Navigation(
-                        store=my_store,
-                        **navigation_data
-                    ) for navigation_data in navigations_data
-                ])
+        if navigations_data:
+            Navigation.objects.filter(store=my_store).delete()
+            Navigation.objects.bulk_create([
+                Navigation(
+                    store=my_store,
+                    **navigation_data
+                ) for navigation_data in navigations_data
+            ])
         return my_store
