@@ -29,14 +29,15 @@ def generate_store(sub_domain):
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
     consul = os.getenv('CONSUL', 'localhost')
+    front_srv = os.getenv('FRONT_SRV', 'http://gen')
     endpoint = f'http://{consul}:8500/v1'
-
+    sub_domain = sub_domain.lower()
     conn = Connection(endpoint=endpoint)
 
     record = {
         f'traefik/frontends/{sub_domain}/backend': 'gen',
         f'traefik/frontends/{sub_domain}/routes/root/rule': f'Host:{sub_domain}.smartlead.top',
-        'traefik/backends/gen/servers/server1/url': 'gen'
+        'traefik/backends/gen/servers/server1/url': f'{front_srv}'
     }
 
     try:
