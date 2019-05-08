@@ -660,7 +660,6 @@ class MyStoreSerializer(serializers.ModelSerializer):
         phones_number_data = validated_data.pop('phonenumber_set', None)
         navigations_data = validated_data.pop('navigation_set', None)
 
-        serializers.raise_errors_on_nested_writes('update', self, validated_data)
         with transaction.atomic():
             for attr, value in validated_data.items():
                 setattr(instance, attr, value)
