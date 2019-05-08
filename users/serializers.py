@@ -24,7 +24,7 @@ import random
 import string
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import authenticate
-from .tasks import send_email_task
+from .tasks import send_email_task, generate_store
 
 User = get_user_model()
 
@@ -635,6 +635,9 @@ class MyStoreSerializer(serializers.ModelSerializer):
             user=self.context['request'].user,
             defaults=validated_data
         )
+
+        if my_store.domain_subdomain:
+            generate_store.delay(my_store.domain_subdomain)
 
         if header_phones_number_data:
             HeaderPhoneNumber.objects.filter(store=my_store).delete()
