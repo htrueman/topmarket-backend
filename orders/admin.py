@@ -1,9 +1,27 @@
 from django.contrib import admin
 
 from .models import Order, OrderUser, OrderDelivery, OrderItem, OrderSellerComment, OrderStatusHistoryItem, \
-    ContractorOrder
+    ContractorOrder, NovaPoshtaDeliveryHistoryItem
 
-admin.site.register(ContractorOrder)
+
+class NovaPoshtaDeliveryHistoryItemTabular(admin.TabularInline):
+    model = NovaPoshtaDeliveryHistoryItem
+    fields = (
+        'status',
+        'status_code',
+    )
+    readonly_fields = (
+        'created',
+        'updated',
+    )
+    extra = 0
+
+
+@admin.register(ContractorOrder)
+class ContractorOrderAdmin(admin.ModelAdmin):
+    inlines = (
+        NovaPoshtaDeliveryHistoryItemTabular,
+    )
 
 
 class OrderUserTabular(admin.TabularInline):

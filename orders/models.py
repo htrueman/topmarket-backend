@@ -3,6 +3,7 @@ from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
 from django.conf import settings
 
+from news.models import TimeStampedModel
 from orders.constants import OrderCreateTypes, OrderStatusGroups, OrderStatuses
 from users.tasks import send_email_task
 
@@ -78,6 +79,16 @@ class ContractorOrder(models.Model):
 
     def __str__(self):
         return '{}'.format(self.order)
+
+
+class NovaPoshtaDeliveryHistoryItem(TimeStampedModel):
+    contractor_order = models.ForeignKey(ContractorOrder, on_delete=models.CASCADE)
+
+    status = models.CharField(max_length=512)
+    status_code = models.PositiveSmallIntegerField()
+
+    def __str__(self):
+        return '{}'.format(self.contractor_order)
 
 
 class OrderUser(models.Model):

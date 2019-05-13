@@ -3,7 +3,7 @@ from rest_framework import serializers
 from catalog.models import Product
 from catalog.serializers import ProductImageSerializer, ProductImageURLSerializer
 from .models import Order, OrderUser, OrderDelivery, OrderItem, OrderSellerComment, OrderStatusHistoryItem, \
-    ContractorOrder
+    ContractorOrder, NovaPoshtaDeliveryHistoryItem
 
 
 class OrderUserSerializer(serializers.ModelSerializer):
@@ -80,6 +80,31 @@ class OrderProductSerializer(serializers.ModelSerializer):
         )
 
 
+class ContractorNovaPoshtaDeliveryHistoryItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NovaPoshtaDeliveryHistoryItem
+        fields = (
+            'status',
+            'status_code',
+            'created',
+            'updated',
+        )
+
+
+class NovaPoshtaDeliveryHistoryItemSerializer(serializers.ModelSerializer):
+    nova_poshta_delivery_history = ContractorNovaPoshtaDeliveryHistoryItemSerializer(
+        source='novaposhtadeliveryhistoryitem_set',
+        many=True
+    )
+
+    class Meta:
+        model = ContractorOrder
+        fields = (
+            'id',
+            'nova_poshta_delivery_history',
+        )
+
+
 class OrderSerializer(serializers.ModelSerializer):
     user = OrderUserSerializer(source='orderuser')
     delivery = OrderDeliverySerializer(source='orderdelivery')
@@ -87,6 +112,10 @@ class OrderSerializer(serializers.ModelSerializer):
     seller_comments = OrderSellerCommentSerializer(source='ordersellercomment_set', many=True)
     status_history = OrderStatusHistoryItemSerializer(source='orderstatushistoryitem_set', many=True)
     passed_to_contractor = serializers.SerializerMethodField(read_only=True)
+    contractor_nova_poshta_delivery_history = NovaPoshtaDeliveryHistoryItemSerializer(
+        source='contractororder_set',
+        many=True
+    )
 
     def get_passed_to_contractor(self, obj):
         return ContractorOrder.objects.filter(order=obj).exists()
@@ -117,6 +146,7 @@ class OrderSerializer(serializers.ModelSerializer):
             'last_update',
             'passed_to_contractor',
             'items',
+            'contractor_nova_poshta_delivery_history',
 
             'user',
             'delivery',
@@ -137,6 +167,10 @@ class OrderUpdateSerializer(serializers.ModelSerializer):
 class ContractorOrderSerializer(serializers.ModelSerializer):
     base_order = OrderSerializer(source='order')
     item_products = OrderProductSerializer(source='products', many=True)
+    nova_poshta_delivery_history = ContractorNovaPoshtaDeliveryHistoryItemSerializer(
+        source='novaposhtadeliveryhistoryitem_set',
+        many=True
+    )
 
     class Meta:
         model = ContractorOrder
@@ -145,6 +179,7 @@ class ContractorOrderSerializer(serializers.ModelSerializer):
             'status',
             'item_products',
             'base_order',
+            'nova_poshta_delivery_history',
         )
 
 

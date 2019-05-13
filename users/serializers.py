@@ -279,6 +279,7 @@ class UserProfileSerializer(RequireTogetherFields, UserSerializerMixin, serializ
             'date_joined',
             'rozetka_username',
             'rozetka_password',
+            'nova_poshta_api_key',
         )
         read_only_fields = (
             'role',

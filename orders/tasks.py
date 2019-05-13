@@ -5,7 +5,8 @@ from django.contrib.auth import get_user_model
 from catalog.models import Product
 from catalog.utils import get_rozetka_auth_token
 from .constants import OrderStatusGroups
-from .models import Order, OrderUser, OrderDelivery, OrderItem, OrderSellerComment, OrderStatusHistoryItem
+from .models import Order, OrderUser, OrderDelivery, OrderItem, OrderSellerComment, OrderStatusHistoryItem, \
+    ContractorOrder, NovaPoshtaDeliveryHistoryItem
 from top_market_platform.celery import app
 
 User = get_user_model()
@@ -124,3 +125,46 @@ def checkout_orders():
                 user.save()
             else:
                 upload_orders(user, token_rozetka)
+
+
+@app.task
+def checkout_nova_poshta_delivery_status():
+    for user in User.objects.filter(role='PARTNER'):
+        if user.nova_poshta_api_key:
+            user_orders = ContractorOrder.objects.filter(contractor=user)
+            request_body = {
+                "apiKey": user.nova_poshta_api_key,
+                "modelName": "TrackingDocument",
+                "calledMethod": "getStatusDocuments",
+                "methodProperties": {
+                    "Documents": []
+                }
+            }
+            for user_order in user_orders:
+                if user_order.order.ttn:
+                    request_body['methodProperties']['Documents'].append({
+                        "DocumentNumber": user_order.order.ttn,
+                        "Phone": user_order.order.user_phone
+                    })
+
+            url = 'https://api.novaposhta.ua/v2.0/json/'
+            headers = {
+                'Content-Type': 'application/json'
+            }
+
+            r = requests.Request("POST", url, headers=headers, json=request_body)
+            prep = r.prepare()
+            s = requests.Session()
+            resp = s.send(prep)
+            r.encoding = 'utf-8'
+
+            res = resp.json()
+            if res['success']:
+                for data in res['data']:
+                    user_order = ContractorOrder.objects.filter(order__ttn=data['Number'], contractor=user).first()
+                    if user_order:
+                        NovaPoshtaDeliveryHistoryItem.objects.update_or_create(
+                            contractor_order=user_order,
+                            status=data['Status'],
+                            status_code=data['StatusCode']
+                        )

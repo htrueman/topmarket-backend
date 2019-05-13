@@ -14,8 +14,12 @@ app.conf.CELERYBEAT_SCHEDULE = {
         "task": "orders.tasks.checkout_orders",
         "schedule": crontab(minute="*/10"),
     },
-    # "load_categories": {
-    #     "task": "catalog.tasks.load_categories",
-    #     "schedule": crontab(minute="*/15")
-    # }
+    "checkout_nova_poshta_delivery_status": {
+        "task": "orders.tasks.checkout_nova_poshta_delivery_status",
+        "schedule": crontab(minute="*/10"),
+    },
+    "load_categories": {
+        "task": "catalog.tasks.load_categories",
+        "schedule": crontab(day_of_week="1", hour=0)
+    }
 }

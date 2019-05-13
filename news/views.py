@@ -2,7 +2,6 @@ from rest_framework import viewsets, filters, generics
 from rest_framework import permissions
 from django.shortcuts import get_object_or_404
 from news.mixin import LikedMixin
-from users.permissions import IsPartner, IsContractor
 from .serializers import *
 from .models import *
 

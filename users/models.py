@@ -95,6 +95,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     rozetka_old_orders_imported = models.BooleanField(default=False)
 
+    nova_poshta_api_key = models.CharField(max_length=64, null=True, blank=True)
+
     USERNAME_FIELD = 'email'
     objects = CustomUserManager()
 
