@@ -25,7 +25,6 @@ logger = get_task_logger(__name__)
 @shared_task
 def load_products_from_xls(**kwargs):
     dataset = Dataset()
-    kwargs.get('instance_id')
     prod_hist = ProductUploadHistory.objects.get(id=int(kwargs.get('instance_id')))
     file_path = prod_hist.xls_file.path
     if prod_hist.file_type == ProductUploadFileTypes.INNER:
@@ -75,15 +74,6 @@ def load_products_from_xls(**kwargs):
             if token_rozetka:
                 count = 0
                 for product_id in result_tuple:
-                    # curl_get_orders_key = 'curl -X GET https://api.seller.rozetka.com.ua/items/{product_id}' \
-                    #                       '?expand=sell_status,sold,status,description,description_ua,' \
-                    #                       'details,parent_category,status_available,group_item ' \
-                    #                       '-H \'Authorization: Bearer {token_rozetka}\' ' \
-                    #                       '-H \'cache-control: no-cache\'' \
-                    #     .format(token_rozetka=token_rozetka, product_id=product_id)
-                    # output = subprocess.check_output(curl_get_orders_key, stderr=subprocess.PIPE, shell=True)
-                    # data = json.loads(output)
-
                     url = "https://api.seller.rozetka.com.ua/items/{product_id}" \
                           "?expand=sell_status,sold,status,description,description_ua" \
                           ",details,parent_category,status_available,group_item" \
@@ -100,15 +90,17 @@ def load_products_from_xls(**kwargs):
                     data = resp.json()
                     if data['success']:
                         product = data['content']
-                        with suppress(Exception):
+                        try:
                             product_instance, created = Product.objects.update_or_create(
-                                rozetka_id=product['id'],
+                                rozetka_id=product.get('id'),
                                 user=prod_hist.user,
                                 defaults={
+                                    'rozetka_id': product.get('id'),
+                                    'user': prod_hist.user,
                                     'name': product.get('name') if product.get('name') else product.get('name_ua'),
-                                    'vendor_code': int(product['article']),
-                                    'price': product['price'],
-                                    'category_id': product['catalog_id'],
+                                    'vendor_code': int(product['article']) if product.get('article') else 0,
+                                    'price': product.get('price'),
+                                    'category_id': product.get('catalog_id'),
                                     'description': product.get('description')
                                     if product.get('description') else product.get('description_ua'),
                                 }
@@ -121,6 +113,8 @@ def load_products_from_xls(**kwargs):
                                     product=product_instance,
                                     url=photo
                                 )
+                        except Exception as e:
+                            prod_hist.errors = str(e)
                     # time.sleep(0.7)
                 prod_hist.total_products_count = len(result_tuple)
                 prod_hist.imported_products_count = count

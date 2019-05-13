@@ -144,6 +144,7 @@ class Product(TimeStampedModel):
     description = models.TextField(
         max_length=4095,
         verbose_name=_('Описание'),
+        null=True
     )  # html tags allowed
 
     # not required product specs
