@@ -8,7 +8,6 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from django.utils.translation import gettext as _
 
-from catalog.constants import YMLFileTypes
 from catalog.models import Category, Product, ProductImage, ProductImageURL, YMLTemplate, ProductUploadHistory
 from users.models import Company, MyStore
 from users.utils import CustomBase64Field, valid_url_extension

@@ -76,6 +76,10 @@ class CategoryViewSet(viewsets.ModelViewSet):
             return Response(data)
 
 
+class PagePagination(PageNumberPagination):
+    page_size_query_param = 'page_size'
+
+
 class ProductContractorViewSet(viewsets.ModelViewSet):
     """
     Продукты поставщика
@@ -86,6 +90,7 @@ class ProductContractorViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'put', 'patch', 'delete', ]
     filter_backends = (filters.DjangoFilterBackend, )
     filterset_class = ProductFilter
+    pagination_class = PagePagination
 
     def get_queryset(self):
         return Product.products_by_contractors.filter(
@@ -140,7 +145,7 @@ class ProductPartnerViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'put', 'patch', 'delete', ]
     filter_backends = (filters.DjangoFilterBackend, )
     filterset_class = ProductFilter
-    pagination_class = PageNumberPagination
+    pagination_class = PagePagination
 
     def get_queryset(self):
         if self.action == 'products_by_contractors':
