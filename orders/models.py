@@ -89,7 +89,7 @@ class ContractorOrder(models.Model):
     sender = models.UUIDField(null=True, blank=True)
     sender_address = models.UUIDField(null=True, blank=True)
     contact_sender = models.UUIDField(null=True, blank=True)
-    senders_phone = models.CharField(null=True, blank=True)
+    senders_phone = models.CharField(null=True, blank=True, max_length=64)
 
     city_recipient = models.UUIDField(null=True, blank=True)
     recipient = models.UUIDField(null=True, blank=True)

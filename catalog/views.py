@@ -216,7 +216,7 @@ class ProductPartnerViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED,
         )
 
-    @action(detail=False, methods=['get'], pagination_class=PageNumberPagination, filterset_class=ProductFilter, serializer_class=ProductCategoryObjectSerializer)
+    @action(detail=False, methods=['get'], filterset_class=ProductFilter, serializer_class=ProductCategoryObjectSerializer)
     def products_by_contractors(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
