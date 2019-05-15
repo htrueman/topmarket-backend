@@ -118,3 +118,13 @@ class OrderStatusGroups:
         (SUCCESSFUL, _('Успешные')),
         (UNSUCCESSFUL, _('Неуспешные')),
     )
+
+
+class CounterpartyProperties:
+    RECIPIENT = 'recipient'
+    SENDER = 'sender'
+
+    COUNTERPARTY_PROPERTIES = (
+        (RECIPIENT, _('Получатель')),
+        (SENDER, _('Отправитель')),
+    )
