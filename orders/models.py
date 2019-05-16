@@ -74,28 +74,40 @@ class ContractorOrder(models.Model):
     status = models.PositiveSmallIntegerField(choices=OrderStatuses.ORDER_STATUSES)
     products = models.ManyToManyField('catalog.Product', blank=True)
 
-    payer_type = models.CharField(null=True, blank=True, max_length=64, default='Recipient')  # Значение из справочника Тип плательщика
-    payment_method = models.CharField(null=True, blank=True, max_length=64, default='Cash')  # Значение из справочника Форма оплаты
+    payer_type = models.CharField(
+        null=True,
+        blank=True,
+        max_length=64,
+        default='Recipient'
+    )  # Значение из справочника Тип плательщика
+    payment_method = models.CharField(
+        null=True,
+        blank=True,
+        max_length=64,
+        default='Cash'
+    )  # Значение из справочника Форма оплаты
     date = models.DateField(null=True, blank=True)
     cargo_type = models.CharField(null=True, blank=True, max_length=64)  # Значение из справочника Тип груза
-    volume_general = models.DecimalField(null=True, blank=True, max_digits=10, decimal_places=2)
-    weight = models.DecimalField(null=True, blank=True, max_digits=10, decimal_places=2)
+    volume_general = models.DecimalField(null=True, blank=True, max_digits=10, decimal_places=3)
+    weight = models.DecimalField(null=True, blank=True, max_digits=10, decimal_places=3)
     service_type = models.CharField(null=True, blank=True, max_length=64)  # Значение из справочника Технология доставки
     seats_amount = models.PositiveSmallIntegerField(null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     cost = models.PositiveSmallIntegerField(null=True, blank=True)
 
-    city_sender = models.UUIDField(null=True, blank=True)
     sender = models.UUIDField(null=True, blank=True)
+    city_sender = models.UUIDField(null=True, blank=True)
     sender_address = models.UUIDField(null=True, blank=True)
     contact_sender = models.UUIDField(null=True, blank=True)
     senders_phone = models.CharField(null=True, blank=True, max_length=64)
 
-    city_recipient = models.UUIDField(null=True, blank=True)
     recipient = models.UUIDField(null=True, blank=True)
+    city_recipient = models.UUIDField(null=True, blank=True)
     recipient_address = models.UUIDField(null=True, blank=True)
     contact_recipient = models.UUIDField(null=True, blank=True)
     recipients_phone = models.CharField(null=True, blank=True, max_length=64)
+
+    ttn = models.CharField(null=True, blank=True, max_length=64)
 
     class Meta:
         verbose_name = _('Заказ поставщика')

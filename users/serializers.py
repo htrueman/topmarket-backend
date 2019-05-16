@@ -1,7 +1,7 @@
 import pdb
 
 from django.db import transaction
-from drf_extra_fields.fields import Base64ImageField
+from drf_extra_fields.fields import Base64ImageField, Base64FileField
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
@@ -346,33 +346,43 @@ class PassportSerializer(serializers.ModelSerializer):
 
 
 class UkraineStatisticSerializer(serializers.ModelSerializer):
+    uk_doc_decoded = Base64FileField(source='uk_doc')
+
     class Meta:
         model = UkraineStatistic
-        fields = ('id', 'uk_doc',)
+        fields = ('id', 'uk_doc_decoded',)
 
 
 class CertificateSerializer(serializers.ModelSerializer):
+    cert_doc_decoded = Base64FileField(source='cert_doc')
+
     class Meta:
         model = Certificate
-        fields = ('id', 'cert_doc',)
+        fields = ('id', 'cert_doc_decoded',)
 
 
 class TaxPayerSerializer(serializers.ModelSerializer):
+    tax_doc_decoded = Base64FileField(source='tax_doc')
+
     class Meta:
         model = TaxPayer
-        fields = ('id', 'tax_doc',)
+        fields = ('id', 'tax_doc_decoded',)
 
 
 class PayerRegisterSerializer(serializers.ModelSerializer):
+    payer_reg_doc_decoded = Base64FileField(source='tax_doc')
+
     class Meta:
         model = PayerRegister
-        fields = ('id', 'payer_reg_doc',)
+        fields = ('id', 'payer_reg_doc_decoded',)
 
 
 class PayerCertificateSerializer(serializers.ModelSerializer):
+    payer_cert_doc_decoded = Base64FileField(source='payer_cert_doc')
+
     class Meta:
         model = PayerCertificate
-        fields = ('id', 'payer_cert_doc',)
+        fields = ('id', 'payer_cert_doc_decoded',)
 
 
 class CompanyPitchSerializer(serializers.ModelSerializer):

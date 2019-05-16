@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from catalog.models import Product
 from catalog.serializers import ProductImageSerializer, ProductImageURLSerializer
+from orders.constants import NovaPoshtaCargoTypes, ServiceTypes
 from .models import Order, OrderUser, OrderDelivery, OrderItem, OrderSellerComment, OrderStatusHistoryItem, \
     ContractorOrder, NovaPoshtaDeliveryHistoryItem
 
@@ -189,3 +190,17 @@ class ContractorOrderUpdateSerializer(serializers.ModelSerializer):
         fields = (
             'status',
         )
+
+
+class GenerateTTNSerializer(serializers.Serializer):
+    weight = serializers.DecimalField(max_digits=12, decimal_places=3)
+    seats_amount = serializers.IntegerField(default=1)
+    description = serializers.CharField(max_length=2048)
+    cargo_type = serializers.ChoiceField(
+        choices=NovaPoshtaCargoTypes.NOVA_POSHTA_CARGO_TYPES,
+        default=NovaPoshtaCargoTypes.CARGO
+    )
+    service_type = serializers.ChoiceField(
+        choices=ServiceTypes.SERVICE_TYPES,
+        default=ServiceTypes.WAREHOUSE_WAREHOUSE
+    )

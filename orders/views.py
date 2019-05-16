@@ -1,6 +1,9 @@
+import datetime
 from collections import defaultdict
 
-from rest_framework import viewsets
+from django.contrib.auth.models import User
+from django.db.models import Sum
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters import rest_framework as filters
@@ -9,7 +12,7 @@ from orders.constants import OrderStatuses
 from users.permissions import IsPartner, IsContractor
 from .models import Order, ContractorOrder
 from .serializer import OrderSerializer, OrderUpdateSerializer, ContractorOrderSerializer, \
-    ContractorOrderUpdateSerializer
+    ContractorOrderUpdateSerializer, GenerateTTNSerializer
 
 
 class OrderFilter(filters.FilterSet):
@@ -95,13 +98,16 @@ class OrderViewSet(viewsets.ModelViewSet):
                 )
                 contractor_oder.status = order.status
                 contractor_oder.contractor_id = key
-                contractor_oder.products.add(*value)
+                contractor_oder.senders_phone = User.objects.get(id=key).phone
+                contractor_oder.recipients_phone = order.user_phone
                 contractor_oder.save()
             except ContractorOrder.DoesNotExist:
                 contractor_oder = ContractorOrder.objects.create(
                     order=order,
                     status=order.status,
-                    contractor_id=key
+                    contractor_id=key,
+                    senders_phone=User.objects.get(id=key).phone,
+                    recipients_phone=order.user_phone
                 )
             contractor_oder.products.add(*value)
             statuses.append(contractor_oder.status)
@@ -111,14 +117,33 @@ class OrderViewSet(viewsets.ModelViewSet):
 
 class ContractorOrderViewSet(viewsets.ModelViewSet):
     permission_classes = (IsContractor,)
-    http_method_names = ('get', 'patch',)
+    http_method_names = ('get', 'patch', 'post',)
     filter_backends = (filters.DjangoFilterBackend, )
     filterset_class = ContractorOrderFilter
 
     def get_serializer_class(self):
         if self.action == 'partial_update':
             return ContractorOrderUpdateSerializer
+        elif self.action == 'generate_ttn':
+            return GenerateTTNSerializer
         return ContractorOrderSerializer
 
     def get_queryset(self):
         return ContractorOrder.objects.filter(contractor=self.request.user)
+
+    @action(detail=True, methods=['POST', 'PATCH'])
+    def generate_ttn(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid()
+
+        order = self.get_object()
+        order.date = datetime.datetime.now()
+        order.cargo_type = serializer.data['cargo_type']
+        order.weight = serializer.data['weight']
+        order.service_type = serializer.data['service_type']
+        order.seats_amount = serializer.data['seats_amount']
+        order.description = serializer.data['description']
+        order.cost = order.products.all().aggregate(order_price=Sum('price'))['order_price']
+        order.save()
+
+        return Response({'ttn': ''}, status=status.HTTP_200_OK)

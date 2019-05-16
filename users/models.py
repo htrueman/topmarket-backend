@@ -377,7 +377,7 @@ class UkraineStatistic(models.Model):
         null=True, blank=True,
         verbose_name=_('Компания')
         )
-    uk_doc = models.ImageField(
+    uk_doc = models.FileField(
         upload_to='companies/documents/uk_statistics',
         null=True, blank=True,
         verbose_name=_('Справка Государственного комитета статистики Украины')
@@ -396,7 +396,7 @@ class Certificate(models.Model):
         null=True, blank=True,
         verbose_name=_('Компания')
         )
-    cert_doc = models.ImageField(
+    cert_doc = models.FileField(
         upload_to='companies/documents/certificates',
         null=True, blank=True,
         verbose_name=_('Свидетельство о регистрации или выписка с ЕГРПОУ')
@@ -415,7 +415,7 @@ class TaxPayer(models.Model):
         null=True, blank=True,
         verbose_name=_('Компания')
         )
-    tax_doc = models.ImageField(
+    tax_doc = models.FileField(
         upload_to='companies/documents/tax_payers',
         null=True, blank=True,
         verbose_name=_('Справка 4 Учета плательщика налогов')
@@ -434,7 +434,7 @@ class PayerRegister(models.Model):
         null=True, blank=True,
         verbose_name=_('Компания')
         )
-    payer_reg_doc = models.ImageField(
+    payer_reg_doc = models.FileField(
         upload_to='companies/documents/payer_registers',
         null=True, blank=True,
         verbose_name=_('Выписка из реестра плательщиков НДС')
@@ -454,7 +454,7 @@ class PayerCertificate(models.Model):
         verbose_name=_('Компания')
 
     )
-    payer_cert_doc = models.ImageField(
+    payer_cert_doc = models.FileField(
         upload_to='companies/documents/payer_certificates',
         null=True, blank=True,
         verbose_name=_('Cвидетельство плательщика единого налога')

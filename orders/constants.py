@@ -128,3 +128,33 @@ class CounterpartyProperties:
         (RECIPIENT, _('Получатель')),
         (SENDER, _('Отправитель')),
     )
+
+
+class NovaPoshtaCargoTypes:
+    PARCEL = 'parcel'
+    CARGO = 'cargo'
+    DOCUMENTS = 'documents'
+    TIRES_WHEELS = 'tires_wheels'
+    PALLET = 'pallet'
+
+    NOVA_POSHTA_CARGO_TYPES = (
+        (PARCEL, _('Посылка')),
+        (CARGO, _('Груз')),
+        (DOCUMENTS, _('Документы')),
+        (TIRES_WHEELS, _('Шины-диски')),
+        (PALLET, _('Палеты')),
+    )
+
+
+class ServiceTypes:
+    DOORS_DOORS = 'doors_doors'
+    DOORS_WAREHOUSE = 'doors_warehouse'
+    WAREHOUSE_WAREHOUSE = 'warehouse_warehouse'
+    WAREHOUSE_DOORS = 'warehouse_doors'
+
+    SERVICE_TYPES = (
+        (DOORS_DOORS, _("Дверь-Дверь")),
+        (DOORS_WAREHOUSE, _("Дверь-Склад")),
+        (WAREHOUSE_WAREHOUSE, _("Склад-Склад")),
+        (WAREHOUSE_DOORS, _("Склад-Дверь")),
+    )
