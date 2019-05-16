@@ -389,6 +389,7 @@ class CompanyPitchSerializer(serializers.ModelSerializer):
 
 
 class CompanyRetrieveSerializer(serializers.ModelSerializer):
+    logo_decoded = Base64ImageField(source='logo', required=False, allow_null=True)
 
     class Meta:
         model = Company
@@ -398,7 +399,7 @@ class CompanyRetrieveSerializer(serializers.ModelSerializer):
             'address',
             'url',
             'working_conditions',
-            'logo',
+            'logo_decoded',
             'web_site',
             'phone',
             'email',
