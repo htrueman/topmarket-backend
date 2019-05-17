@@ -165,3 +165,14 @@ class ContactUs(models.Model):
             self.email = self.user.email
             self.name = self.user.get_full_name()
         return super().save(*args, **kwargs)
+
+
+class PocketVideo(models.Model):
+    video = models.FileField(upload_to='marketplace/pocket_videos')
+
+    def __str__(self):
+        return '{}'.format(self.video)
+
+    class Meta:
+        verbose_name = 'Видео для пакетов'
+        verbose_name_plural = 'Видео для пакетов'

@@ -11,7 +11,7 @@ from sendgrid.helpers.mail import Mail, Attachment
 from django.conf import settings
 
 from .models import KnowledgeBase, TrainingModule, VideoLesson, ImageForLesson, ImageForTraining, VideoTraining, \
-    AdditionalService, ContactUs
+    AdditionalService, ContactUs, PocketVideo
 from users.tasks import send_email_task
 
 
@@ -180,3 +180,11 @@ class LiqPaySerializer(serializers.ModelSerializer):
 
         # send_email_task.delay(**data)
         return super().update(instance, validated_data)
+
+
+class GetPocketVideoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PocketVideo
+        fields = (
+            'video',
+        )

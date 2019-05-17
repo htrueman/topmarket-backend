@@ -7,9 +7,10 @@ from django.contrib.auth import get_user_model
 from django.template.loader import render_to_string
 
 
-from .models import KnowledgeBase, VideoLesson, TrainingModule, VideoTraining, AdditionalService, ContactUs
+from .models import KnowledgeBase, VideoLesson, TrainingModule, VideoTraining, AdditionalService, ContactUs, PocketVideo
 from .serializers import KnowledgeBaseSerializer, VideoLessonSerializer, TrainingModuleSerializer, \
-    VideoTrainingSerializer, AdditionalServiceSerializer, ContactUsSerializer, LiqPaySerializer
+    VideoTrainingSerializer, AdditionalServiceSerializer, ContactUsSerializer, LiqPaySerializer, \
+    GetPocketVideoSerializer
 
 from users.tasks import send_email_task
 
@@ -122,3 +123,11 @@ class LiqPayView(generics.UpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class GetPocketVideoView(generics.RetrieveAPIView):
+    queryset = PocketVideo.objects.all()
+    serializer_class = GetPocketVideoSerializer
+
+    def get_object(self):
+        return self.get_queryset().first()
