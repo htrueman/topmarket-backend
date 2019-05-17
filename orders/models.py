@@ -49,12 +49,21 @@ class Order(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        if not self.__pk and self.status_group == OrderStatusGroups.IN_PROCESSING:
-            mail_subject = 'Новый заказ на rozetka.ua'
-            message = render_to_string('new_order_email.html', {
-                'domain': settings.HOST_NAME,
-                'order_id': self.id
-            })
+        if not self.__pk and self.status_group in [OrderStatusGroups.IN_PROCESSING, OrderStatusGroups.UNSUCCESSFUL]:
+            mail_subject = ''
+            message = ''
+            if self.status_group == OrderStatusGroups.IN_PROCESSING:
+                mail_subject = 'Новый заказ на rozetka.ua'
+                message = render_to_string('new_order_email.html', {
+                    'domain': settings.HOST_NAME,
+                    'order_id': self.id
+                })
+            elif self.status_group == OrderStatusGroups.UNSUCCESSFUL:
+                mail_subject = 'Отмена заказа на rozetka.ua'
+                message = render_to_string('canceled_order_email.html', {
+                    'domain': settings.HOST_NAME,
+                    'order_id': self.id
+                })
             data = {
                 'to_emails': [self.user.email, ],
                 'subject': mail_subject,

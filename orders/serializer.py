@@ -189,7 +189,15 @@ class ContractorOrderUpdateSerializer(serializers.ModelSerializer):
         model = ContractorOrder
         fields = (
             'status',
+            'ttn',
         )
+
+    def update(self, instance, validated_data):
+        instance = super().update(instance, validated_data)
+        if not instance.order.ttn:
+            instance.order.ttn = instance.ttn
+            instance.order.save()
+        return instance
 
 
 class GenerateTTNSerializer(serializers.Serializer):

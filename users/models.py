@@ -90,6 +90,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     )
     avatar = models.ImageField(blank=True, null=True, upload_to='user_profiles/avatars')
 
+    verified = models.BooleanField(default=False)
+
     rozetka_username = models.CharField(max_length=128, null=True, blank=True)
     rozetka_password = models.CharField(max_length=512, null=True, blank=True)
 

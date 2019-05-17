@@ -153,7 +153,7 @@ class ProductPartnerViewSet(viewsets.ModelViewSet):
             partner_products = Product.products_by_partners.filter(
                 user=self.request.user,
             ).values_list('contractor_product__id', flat=True)
-            return Product.products_by_contractors.exclude(
+            return Product.products_by_contractors.exclude(validated=False).exclude(
                 id__in=partner_products
             )
         return Product.products_by_partners.filter(
