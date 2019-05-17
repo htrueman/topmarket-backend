@@ -286,7 +286,7 @@ class UserProfileSerializer(RequireTogetherFields, UserSerializerMixin, serializ
             'organization',
             'edpnou',
             'payer_evidence',
-            'vat',
+            'vat_payer_certificate',
             'bank_name',
             'mfi',
             'checking_account',

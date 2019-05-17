@@ -118,17 +118,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         blank=True,
         verbose_name=_('ЕДРПОУ')
     )
-    payer_evidence = models.CharField(
+    vat_payer_certificate = models.CharField(
         max_length=512,
         null=True,
         blank=True,
-        verbose_name=_('Свидетельства плательщика')
-    )
-    vat = models.CharField(
-        max_length=512,
-        null=True,
-        blank=True,
-        verbose_name=_('НДС')
+        verbose_name=_('Свидетельства плательщика НДС')
     )
     bank_name = models.CharField(
         max_length=512,
