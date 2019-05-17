@@ -142,6 +142,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         blank=True,
         verbose_name=_('Рассчетный счет')
     )
+    available_products_count = models.PositiveIntegerField(
+        default=200
+    )  # available products for contractor
 
     USERNAME_FIELD = 'email'
     objects = CustomUserManager()

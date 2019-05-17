@@ -36,28 +36,35 @@ def load_products_from_xls(**kwargs):
                 dry_run=True,
                 user_id=prod_hist.user.id,
             )
-
-            if not result.has_errors() and not result.has_validation_errors():
-                with transaction.atomic():
-                    product_resource.import_data(
-                        dataset=dataset,
-                        dry_run=False,
-                        user_id=prod_hist.user.id,
-                        use_transactions=True,
-                        collect_failed_rows=True
-                    )
-                    prod_hist.total_products_count = len(dataset)
-                    prod_hist.imported_products_count = result.totals.get(RowResult.IMPORT_TYPE_NEW)
-                    prod_hist.is_uploaded = True
-                    prod_hist.errors = _('No errors')
-                    prod_hist.save()
-            else:
-                error = ''
-                for i, row in result.row_errors():
-                    for err in row:
-                        error += '{} {}\n'.format(i, err.error)
-                prod_hist.errors = error
+            if len(dataset) > prod_hist.user.available_products_count:
+                prod_hist.errors = _('У вас доступно {} свободных мест для товаров, но файл содержит {} товаров.'
+                                     .format(prod_hist.user.available_products_count, len(dataset)))
+                prod_hist.is_uploaded = True
                 prod_hist.save()
+            else:
+                if not result.has_errors() and not result.has_validation_errors():
+                    with transaction.atomic():
+                        product_resource.import_data(
+                            dataset=dataset,
+                            dry_run=False,
+                            user_id=prod_hist.user.id,
+                            use_transactions=True,
+                            collect_failed_rows=True
+                        )
+                        prod_hist.total_products_count = len(dataset)
+                        prod_hist.user.available_products_count -= prod_hist.total_products_count
+                        prod_hist.user.save()
+                        prod_hist.imported_products_count = result.totals.get(RowResult.IMPORT_TYPE_NEW)
+                        prod_hist.is_uploaded = True
+                        prod_hist.errors = _('No errors')
+                        prod_hist.save()
+                else:
+                    error = ''
+                    for i, row in result.row_errors():
+                        for err in row:
+                            error += '{} {}\n'.format(i, err.error)
+                    prod_hist.errors = error
+                    prod_hist.save()
     elif prod_hist.file_type == ProductUploadFileTypes.ROZETKA:
         try:
             workbook = xlrd.open_workbook(file_path)
@@ -72,54 +79,62 @@ def load_products_from_xls(**kwargs):
             token_rozetka = get_rozetka_auth_token(prod_hist.user)
             # with transaction.atomic():
             if token_rozetka:
-                count = 0
-                for product_id in result_tuple:
-                    url = "https://api.seller.rozetka.com.ua/items/{product_id}" \
-                          "?expand=sell_status,sold,status,description,description_ua" \
-                          ",details,parent_category,status_available,group_item" \
-                        .format(product_id=product_id)
-                    headers = {
-                        'Authorization': "Bearer {}".format(token_rozetka),
-                        'cache-control': "no-cache"
-                    }
-                    r = requests.Request("GET", url, headers=headers)
-                    prep = r.prepare()
-                    s = requests.Session()
-                    resp = s.send(prep)
-                    r.encoding = 'utf-8'
-                    data = resp.json()
-                    if data['success']:
-                        product = data['content']
-                        try:
-                            product_instance, created = Product.objects.update_or_create(
-                                rozetka_id=product.get('id'),
-                                user=prod_hist.user,
-                                defaults={
-                                    'rozetka_id': product.get('id'),
-                                    'user': prod_hist.user,
-                                    'name': product.get('name') if product.get('name') else product.get('name_ua'),
-                                    'vendor_code': int(product['article']) if product.get('article') else 0,
-                                    'price': product.get('price'),
-                                    'category_id': product.get('catalog_id'),
-                                    'description': product.get('description')
-                                    if product.get('description') else product.get('description_ua'),
-                                }
-                            )
-                            if created:
-                                count += 1
-
-                            for photo in product['photo']:
-                                ProductImageURL.objects.update_or_create(
-                                    product=product_instance,
-                                    url=photo
+                if len(dataset) > prod_hist.user.available_products_count:
+                    prod_hist.errors = _('У вас доступно {} свободных мест для товаров, но файл содержит {} товаров.'
+                                         .format(prod_hist.user.available_products_count, len(dataset)))
+                    prod_hist.is_uploaded = True
+                    prod_hist.save()
+                else:
+                    count = 0
+                    for product_id in result_tuple:
+                        url = "https://api.seller.rozetka.com.ua/items/{product_id}" \
+                              "?expand=sell_status,sold,status,description,description_ua" \
+                              ",details,parent_category,status_available,group_item" \
+                            .format(product_id=product_id)
+                        headers = {
+                            'Authorization': "Bearer {}".format(token_rozetka),
+                            'cache-control': "no-cache"
+                        }
+                        r = requests.Request("GET", url, headers=headers)
+                        prep = r.prepare()
+                        s = requests.Session()
+                        resp = s.send(prep)
+                        r.encoding = 'utf-8'
+                        data = resp.json()
+                        if data['success']:
+                            product = data['content']
+                            try:
+                                product_instance, created = Product.objects.update_or_create(
+                                    rozetka_id=product.get('id'),
+                                    user=prod_hist.user,
+                                    defaults={
+                                        'rozetka_id': product.get('id'),
+                                        'user': prod_hist.user,
+                                        'name': product.get('name') if product.get('name') else product.get('name_ua'),
+                                        'vendor_code': int(product['article']) if product.get('article') else 0,
+                                        'price': product.get('price'),
+                                        'category_id': product.get('catalog_id'),
+                                        'description': product.get('description')
+                                        if product.get('description') else product.get('description_ua'),
+                                    }
                                 )
-                        except Exception as e:
-                            prod_hist.errors = str(e)
-                    # time.sleep(0.7)
-                prod_hist.total_products_count = len(result_tuple)
-                prod_hist.imported_products_count = count
-                prod_hist.is_uploaded = True
-                prod_hist.save()
+                                if created:
+                                    count += 1
+
+                                for photo in product['photo']:
+                                    ProductImageURL.objects.update_or_create(
+                                        product=product_instance,
+                                        url=photo
+                                    )
+                            except Exception as e:
+                                prod_hist.errors = str(e)
+                        # time.sleep(0.7)
+                    prod_hist.total_products_count = len(result_tuple)
+                    prod_hist.user.available_products_count -= prod_hist.total_products_count
+                    prod_hist.user.save()
+                    prod_hist.imported_products_count = count
+                    prod_hist.is_uploaded = True
+                    prod_hist.save()
             else:
                 prod_hist.errors = 'Неправильный логин и пароль с сервиса розетки.'
                 prod_hist.is_uploaded = True
