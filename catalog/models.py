@@ -139,7 +139,14 @@ class Product(TimeStampedModel):
     price = models.DecimalField(
         max_digits=10,
         decimal_places=2,
-        verbose_name=_('Цена товара'),
+        verbose_name=_('Розниная цена товара'),
+    )
+    recommended_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name=_('Рекомендованная цена товара'),
     )
     description = models.TextField(
         max_length=4095,

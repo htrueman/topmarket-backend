@@ -130,6 +130,7 @@ class ProductCategoryObjectSerializer(serializers.ModelSerializer):
             'count',
             'description',
             'price',
+            'recommended_price',
             'cover_images',
             'image_urls',
         )
@@ -151,6 +152,7 @@ class ProductSerializer(serializers.ModelSerializer):
             'count',
             'description',
             'price',
+            'recommended_price',
             'cover_images',
             'image_urls',
         )

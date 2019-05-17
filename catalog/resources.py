@@ -31,6 +31,7 @@ class ProductResource(resources.ModelResource):
             'count',
             'description',
             'price',
+            'recommended_price',
             'extra_description',
             'age_group',
             'material',
