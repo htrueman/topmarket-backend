@@ -22,7 +22,7 @@ class CustomBase64Field(Base64ImageField):
 
         try:
             return Base64FieldMixin.to_internal_value(self, data)
-        except (ValidationError, ValueError, ):
+        except (ValidationError, ValueError, ) as e:
             return data
 
 

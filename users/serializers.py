@@ -355,7 +355,7 @@ class PassportSerializer(serializers.ModelSerializer):
 
 
 class UkraineStatisticSerializer(serializers.ModelSerializer):
-    uk_doc_decoded = Base64FileField(source='uk_doc')
+    uk_doc_decoded = CustomBase64Field(source='uk_doc')
 
     class Meta:
         model = UkraineStatistic
@@ -363,7 +363,7 @@ class UkraineStatisticSerializer(serializers.ModelSerializer):
 
 
 class CertificateSerializer(serializers.ModelSerializer):
-    cert_doc_decoded = Base64FileField(source='cert_doc')
+    cert_doc_decoded = CustomBase64Field(source='cert_doc')
 
     class Meta:
         model = Certificate
@@ -371,7 +371,7 @@ class CertificateSerializer(serializers.ModelSerializer):
 
 
 class TaxPayerSerializer(serializers.ModelSerializer):
-    tax_doc_decoded = Base64FileField(source='tax_doc')
+    tax_doc_decoded = CustomBase64Field(source='tax_doc')
 
     class Meta:
         model = TaxPayer
@@ -379,7 +379,7 @@ class TaxPayerSerializer(serializers.ModelSerializer):
 
 
 class PayerRegisterSerializer(serializers.ModelSerializer):
-    payer_reg_doc_decoded = Base64FileField(source='tax_doc')
+    payer_reg_doc_decoded = CustomBase64Field(source='tax_doc')
 
     class Meta:
         model = PayerRegister
@@ -387,7 +387,7 @@ class PayerRegisterSerializer(serializers.ModelSerializer):
 
 
 class PayerCertificateSerializer(serializers.ModelSerializer):
-    payer_cert_doc_decoded = Base64FileField(source='payer_cert_doc')
+    payer_cert_doc_decoded = CustomBase64Field(source='payer_cert_doc')
 
     class Meta:
         model = PayerCertificate
@@ -533,7 +533,7 @@ class DocumentSerializer(serializers.ModelSerializer):
             if uks_data:
                 for uk_data in uks_data:
                     uk_id = uk_data.get('id', None)
-                    image_data = uk_data.get('pass_doc', None)
+                    image_data = uk_data.get('uk_doc', None)
                     if uk_id:
                         is_url_field = valid_url_extension(image_data)
                         if is_url_field is not True:
@@ -545,7 +545,7 @@ class DocumentSerializer(serializers.ModelSerializer):
             if certificates_data:
                 for certificate_data in certificates_data:
                     certificate_id = certificate_data.get('id', None)
-                    image_data = certificate_data.get('pass_doc', None)
+                    image_data = certificate_data.get('cert_doc', None)
                     if certificate_id:
                         is_url_field = valid_url_extension(image_data)
                         if is_url_field is not True:
@@ -557,7 +557,7 @@ class DocumentSerializer(serializers.ModelSerializer):
             if tax_payers_data:
                 for tax_data in tax_payers_data:
                     tax_id = tax_data.get('id', None)
-                    image_data = tax_data.get('pass_doc', None)
+                    image_data = tax_data.get('tax_doc', None)
                     if tax_id:
                         is_url_field = valid_url_extension(image_data)
                         if is_url_field is not True:
@@ -569,7 +569,7 @@ class DocumentSerializer(serializers.ModelSerializer):
             if registers_data:
                 for register_data in registers_data:
                     register_id = register_data.get('id', None)
-                    image_data = register_data.get('pass_doc', None)
+                    image_data = register_data.get('payer_reg_doc', None)
                     if register_id:
                         is_url_field = valid_url_extension(image_data)
                         if is_url_field is not True:
@@ -581,7 +581,7 @@ class DocumentSerializer(serializers.ModelSerializer):
             if payer_certificates_data:
                 for payer_certificate_data in payer_certificates_data:
                     payer_certificate_id = payer_certificate_data.get('id', None)
-                    image_data = payer_certificate_data.get('pass_doc', None)
+                    image_data = payer_certificate_data.get('payer_cert_doc', None)
                     if payer_certificate_id:
                         is_url_field = valid_url_extension(image_data)
                         if is_url_field is not True:
