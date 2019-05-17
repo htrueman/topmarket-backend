@@ -12,11 +12,13 @@ commands:
           name: Build and Push Image
           command: |
             PROJECT_BRANCH=$(echo $CIRCLE_BRANCH | awk -F "/" '{print $1}')
-            #if [ "${CIRCLE_BRANCH}" == "master" ] || [ "${PROJECT_BRANCH}" == "dev" ];
-            TAG=$PROJECT_BRANCH-$CIRCLE_BUILD_NUM
-            docker build -t gofriends/$CIRCLE_PROJECT_REPONAME:latest .
-            docker tag gofriends/$CIRCLE_PROJECT_REPONAME:latest gofriends/$CIRCLE_PROJECT_REPONAME:$TAG
-            docker push gofriends/$CIRCLE_PROJECT_REPONAME
+            if [ "${CIRCLE_BRANCH}" == "master" ] || [ "${CIRCLE_BRANCH}" == "dev" ];
+            then
+              TAG=$PROJECT_BRANCH-$CIRCLE_BUILD_NUM
+              docker build -t gofriends/$CIRCLE_PROJECT_REPONAME:$CIRCLE_BRANCH .
+              docker tag gofriends/$CIRCLE_PROJECT_REPONAME:$CIRCLE_BRANCH gofriends/$CIRCLE_PROJECT_REPONAME:$TAG
+              docker push gofriends/$CIRCLE_PROJECT_REPONAME
+            fi;
 
 jobs:
   build:
@@ -37,4 +39,5 @@ workflows:
           filters:
             branches:
               only:
+                - master
                 - dev
