@@ -280,6 +280,16 @@ class UserProfileSerializer(RequireTogetherFields, UserSerializerMixin, serializ
             'rozetka_username',
             'rozetka_password',
             'nova_poshta_api_key',
+
+            # Поля для ФОП
+            'organizational_legal_form_of_the_company',
+            'organization',
+            'edpnou',
+            'payer_evidence',
+            'vat',
+            'bank_name',
+            'mfi',
+            'checking_account',
         )
         read_only_fields = (
             'role',

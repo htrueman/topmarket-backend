@@ -99,6 +99,56 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     nova_poshta_api_key = models.CharField(max_length=64, null=True, blank=True)
 
+    # Поля для ФОП
+    organizational_legal_form_of_the_company = models.CharField(
+        max_length=512,
+        null=True,
+        blank=True,
+        verbose_name=_('Организационно-правовая форма предприятия')
+    )
+    organization = models.CharField(
+        max_length=512,
+        null=True,
+        blank=True,
+        verbose_name=_('Организация')
+    )
+    edpnou = models.CharField(
+        max_length=512,
+        null=True,
+        blank=True,
+        verbose_name=_('ЕДРПОУ')
+    )
+    payer_evidence = models.CharField(
+        max_length=512,
+        null=True,
+        blank=True,
+        verbose_name=_('Свидетельства плательщика')
+    )
+    vat = models.CharField(
+        max_length=512,
+        null=True,
+        blank=True,
+        verbose_name=_('НДС')
+    )
+    bank_name = models.CharField(
+        max_length=512,
+        null=True,
+        blank=True,
+        verbose_name=_('Название банка')
+    )
+    mfi = models.CharField(
+        max_length=512,
+        null=True,
+        blank=True,
+        verbose_name=_('МФО')
+    )
+    checking_account = models.CharField(
+        max_length=512,
+        null=True,
+        blank=True,
+        verbose_name=_('Рассчетный счет')
+    )
+
     USERNAME_FIELD = 'email'
     objects = CustomUserManager()
 
