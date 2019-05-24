@@ -25,7 +25,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         choices=USER_ROLE,
 
     )
-    user_pocket = models.CharField(
+    user_pocket_id = models.CharField(
         max_length=10,
         choices=USER_POCKET,
         null=True, blank=True,

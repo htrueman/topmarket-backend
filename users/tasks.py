@@ -1,4 +1,6 @@
 from celery import shared_task
+from django.contrib.auth import get_user_model
+from django.template.loader import render_to_string
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 from django.conf import settings
@@ -8,7 +10,9 @@ import os
 import sys
 
 from top_market_platform.celery import app
+from users.models import CustomUser
 
+User = get_user_model()
 
 @shared_task
 def send_email_task(*args, **kwargs):
@@ -45,3 +49,17 @@ def generate_store(sub_domain):
         logging.info('Reccord added {}'.format(record))
     except Exception as e:
         raise e
+
+
+def send_user_email():
+
+    users = CustomUser.objects.all().filter(id__gte=10)
+    message = render_to_string('send_email_enter_phone.html')
+
+    data = {
+        'to_emails': list(users.values_list('email', flat=True)),
+        'subject': "Регистрация на платформе “Smartlead 2.0”",
+        'html_content': message,
+    }
+
+    send_email_task(**data)
