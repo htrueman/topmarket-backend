@@ -135,6 +135,11 @@ class ProductContractorViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
+    def destroy(self, request, *args, **kwargs):
+        self.request.user.available_products_count -= 1
+        self.request.user.save()
+        return super().destroy(request, *args, **kwargs)
+
 
 class ProductPartnerViewSet(viewsets.ModelViewSet):
     """
