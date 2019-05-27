@@ -3,7 +3,8 @@ from django.db import transaction
 from django.db import IntegrityError
 from catalog.utils import group_vals
 from catalog.serializers import CategorySerializer, ProductSerializer, YMLHandlerSerializer, \
-    ProductUploadHistorySerializer, ProductListIdSerializer, CategoryListSerializer, ProductCategoryObjectSerializer
+    ProductUploadHistorySerializer, ProductListIdSerializer, CategoryListSerializer, ProductCategoryObjectSerializer, \
+    ProductChangeBrandSerializer
 from catalog.models import Category, Product, YMLTemplate, ProductUploadHistory
 from users.permissions import IsPartner, IsContractor
 from rest_framework.decorators import action
@@ -163,6 +164,8 @@ class ProductPartnerViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve', 'products_by_contractors'):
             return ProductCategoryObjectSerializer
+        elif self.action in ('set_brand_to_products'):
+            return ProductChangeBrandSerializer
         return ProductSerializer
 
     @action(detail=False, methods=['get'], serializer_class=CategoryListSerializer)
@@ -228,9 +231,13 @@ class ProductPartnerViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
-    @action(detail=False, methods=['post'], serializer_class=None)
+    @action(detail=False, methods=['post'])
     def set_brand_to_products(self, request, *args, **kwargs):
-        pass
+        Product.objects.filter(
+            user=request.user,
+            id__in=request.data.get('product_ids', None)
+        ).update(brand=request.data.get('brand', None))
+        return Response(status=200)
 
 
 class YMLHandlerViewSet(viewsets.ModelViewSet):
