@@ -36,7 +36,6 @@ class TokenObtainPairCustomSerializer(TokenObtainPairSerializer):
             self.username_field: attrs[self.username_field],
             'password': attrs['password'],
         })
-        print(self.user)
         is_not_activated = User.objects.filter(
             email=attrs[self.username_field],
             is_active=False
@@ -74,7 +73,8 @@ class UserSerializer(UserSerializerMixin, serializers.ModelSerializer):
         email = validated_data['email']
         user = User.objects.create(
             email=email,
-            role=validated_data['role']
+            role=validated_data['role'],
+            phone=validated_data['phone'],
         )
         user.set_password(validated_data['password'])
         user.save()
@@ -509,7 +509,6 @@ class DocumentSerializer(serializers.ModelSerializer):
         )
 
     def update(self, instance, validated_data):
-        print(validated_data)
         passports_data = validated_data.pop('passports', None)
         uks_data = validated_data.pop('ukraine_statistics', None)
         certificates_data = validated_data.pop('certificates', None)
