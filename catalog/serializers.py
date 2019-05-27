@@ -194,7 +194,7 @@ class ProductSerializer(serializers.ModelSerializer):
             if cover_images_data:
                 for cover_data in cover_images_data:
                     cover_id = cover_data.get('id', None)
-                    image_data = cover_data.get('')
+                    image_data = cover_data.get('image', None)
                     if cover_id:
                         is_url_field = valid_url_extension(image_data)
                         if is_url_field is not True:
