@@ -14,6 +14,7 @@ from users.models import CustomUser
 
 User = get_user_model()
 
+
 @shared_task
 def send_email_task(*args, **kwargs):
     from_email = settings.DEFAULT_FROM_EMAIL
@@ -21,6 +22,8 @@ def send_email_task(*args, **kwargs):
         from_email=from_email,
         **kwargs
     )
+    message.add_header({'Reply-To': 'uchetsmartlead@gmail.com'})
+
     try:
         sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
         sg.send(message)
