@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models import CustomUser, Company, MyStore, CompanyPitch, Passport, ActivityAreas, ServiceIndustry, CompanyType, \
-    HeaderPhoneNumber, FooterPhoneNumber, Navigation, StoreSliderImage
+    HeaderPhoneNumber, FooterPhoneNumber, Navigation, StoreSliderImage, UkraineStatistic, Certificate, TaxPayer, \
+    PayerRegister, PayerCertificate
 
 admin.site.register(ServiceIndustry)
 admin.site.register(ActivityAreas)
@@ -204,11 +205,56 @@ class PassportTabular(admin.TabularInline):
     extra = 0
 
 
+class UkraineStatisticTabular(admin.TabularInline):
+    model = UkraineStatistic
+    fields = (
+        'uk_doc',
+    )
+    extra = 0
+
+
+class CertificateTabular(admin.TabularInline):
+    model = Certificate
+    fields = (
+        'cert_doc',
+    )
+    extra = 0
+
+
+class TaxPayerTabular(admin.TabularInline):
+    model = TaxPayer
+    fields = (
+        'tax_doc',
+    )
+    extra = 0
+
+
+class PayerRegisterTabular(admin.TabularInline):
+    model = PayerRegister
+    fields = (
+        'payer_reg_doc',
+    )
+    extra = 0
+
+
+class PayerCertificateTabular(admin.TabularInline):
+    model = PayerCertificate
+    fields = (
+        'payer_cert_doc',
+    )
+    extra = 0
+
+
 @admin.register(Company)
 class CustomUserAdmin(admin.ModelAdmin):
     inlines = (
         CompanyPitchTabular,
         PassportTabular,
+        UkraineStatisticTabular,
+        CertificateTabular,
+        TaxPayerTabular,
+        PayerRegisterTabular,
+        PayerCertificateTabular,
     )
 
 

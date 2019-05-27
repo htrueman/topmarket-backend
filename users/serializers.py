@@ -13,6 +13,7 @@ from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.core.files.base import ContentFile
 from django.utils.translation import ugettext as _
+from rest_framework.exceptions import ValidationError
 
 from .mixins import UserSerializerMixin, RequireTogetherFields
 from .tokens import account_activation_token, password_reset_token
@@ -276,7 +277,7 @@ class UserProfileSerializer(RequireTogetherFields, UserSerializerMixin, serializ
             'email_notifications',
             'phone_notifications',
             'role',
-            #'user_pocket',
+            # 'user_pocket',
             'date_joined',
             'rozetka_username',
             'rozetka_password',
@@ -293,10 +294,18 @@ class UserProfileSerializer(RequireTogetherFields, UserSerializerMixin, serializ
         )
         read_only_fields = (
             'role',
-            #'user_pocket',
+            # 'user_pocket',
             'date_joined',
         )
         extra_kwargs = {'phone': {'required': True}}
+
+    def validate(self, data):
+        attrs = super().validate(data)
+        if User.objects\
+                .filter(edpnou=attrs.get('edpnou'), vat_payer_certificate=attrs.get('vat_payer_certificate'))\
+                .exists():
+            raise ValidationError([_('Указанные данные ФОП используются для другого аккаунта.')])
+        return attrs
 
     def update(self, instance, validated_data):
         email_notifications = validated_data.pop('email_notifications', None)
