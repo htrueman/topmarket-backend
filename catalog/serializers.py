@@ -1,4 +1,5 @@
 import datetime
+from decimal import Decimal
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.base import ContentFile
@@ -117,6 +118,12 @@ class ProductCategoryObjectSerializer(serializers.ModelSerializer):
     cover_images = ProductImageSerializer(many=True, source='product_images', required=False)
     image_urls = ProductImageURLSerializer(many=True, source='product_image_urls', required=False)
     category = CategorySmallSerializer(many=False)
+
+    def get_price(self, obj):
+        if self.context['request'].user.role == 'PARTNER':
+            return obj.price * Decimal('1.05')
+        else:
+            return obj.price
 
     class Meta:
         model = Product
