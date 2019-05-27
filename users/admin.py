@@ -29,7 +29,6 @@ class UserAdmin(admin.ModelAdmin):
         'last_name',
         'phone',
         'verified',
-        'products_count',
     ]
     fields = (
         'manager',
@@ -59,7 +58,6 @@ class UserAdmin(admin.ModelAdmin):
         'mfi',
         'checking_account',
         'available_products_count',
-        'products_count',
     )
 
     list_editable = [

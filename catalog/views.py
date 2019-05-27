@@ -228,6 +228,10 @@ class ProductPartnerViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
+    @action(detail=False, methods=['post'], serializer_class=None)
+    def set_brand_to_products(self, request, *args, **kwargs):
+        pass
+
 
 class YMLHandlerViewSet(viewsets.ModelViewSet):
     serializer_class = YMLHandlerSerializer
