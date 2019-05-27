@@ -68,6 +68,7 @@ class UserSerializer(UserSerializerMixin, serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'email', 'password', 'confirm_password', 'role', 'phone',)
+        extra_kwargs = {'phone': {'required': True}}
 
     def create(self, validated_data):
         email = validated_data['email']
@@ -295,6 +296,7 @@ class UserProfileSerializer(RequireTogetherFields, UserSerializerMixin, serializ
             #'user_pocket',
             'date_joined',
         )
+        extra_kwargs = {'phone': {'required': True}}
 
     def update(self, instance, validated_data):
         email_notifications = validated_data.pop('email_notifications', None)
@@ -379,7 +381,7 @@ class TaxPayerSerializer(serializers.ModelSerializer):
 
 
 class PayerRegisterSerializer(serializers.ModelSerializer):
-    payer_reg_doc_decoded = CustomBase64Field(source='tax_doc')
+    payer_reg_doc_decoded = CustomBase64Field(source='payer_reg_doc')
 
     class Meta:
         model = PayerRegister
@@ -507,6 +509,7 @@ class DocumentSerializer(serializers.ModelSerializer):
         )
 
     def update(self, instance, validated_data):
+        print(validated_data)
         passports_data = validated_data.pop('passports', None)
         uks_data = validated_data.pop('ukraine_statistics', None)
         certificates_data = validated_data.pop('certificates', None)
