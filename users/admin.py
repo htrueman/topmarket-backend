@@ -23,6 +23,14 @@ class ContractorProxy(CustomUser):
 
 @admin.register(PartnerUserProxy)
 class UserAdmin(admin.ModelAdmin):
+    list_display = [
+        'email',
+        'first_name',
+        'last_name',
+        'phone',
+        'verified',
+        'products_count',
+    ]
     fields = (
         'manager',
         'role',
@@ -54,6 +62,10 @@ class UserAdmin(admin.ModelAdmin):
         'products_count',
     )
 
+    list_editable = [
+        'verified',
+    ]
+
     readonly_fields = (
         'date_joined',
     )
@@ -64,6 +76,14 @@ class UserAdmin(admin.ModelAdmin):
 
 @admin.register(ContractorProxy)
 class UserAdmin(admin.ModelAdmin):
+    list_display = [
+        'email',
+        'first_name',
+        'last_name',
+        'phone',
+        'verified',
+        'products_count',
+    ]
     fields = (
         'manager',
         'role',

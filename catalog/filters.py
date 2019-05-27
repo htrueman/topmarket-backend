@@ -1,6 +1,9 @@
+from django.contrib.auth import get_user_model
 from django_filters import rest_framework as filters
 from .models import Product, Category
 
+
+User = get_user_model()
 
 class ProductFilter(filters.FilterSet):
     min_price = filters.NumberFilter(field_name="price", lookup_expr='gte')
@@ -15,6 +18,10 @@ class ProductFilter(filters.FilterSet):
     brand = filters.CharFilter(field_name='brand', lookup_expr='icontains')
     name = filters.CharFilter(field_name='name', lookup_expr='icontains')
     vendor_code = filters.CharFilter(field_name='vendor_code', lookup_expr='icontains')
+    user_id = filters.ModelChoiceFilter(
+        field_name='user',
+        queryset=User.objects.filter(role='CONTRACTOR')
+    )
 
     class Meta:
         model = Product
@@ -24,7 +31,8 @@ class ProductFilter(filters.FilterSet):
             'vendor_code',
             'min_price',
             'max_price',
-            'in_stock'
+            'in_stock',
+            'user_id'
         ]
 
     def filter_in_stock(self, queryset, name, value):
