@@ -188,6 +188,7 @@ class ProductPartnerViewSet(viewsets.ModelViewSet):
                 new_partner_product = get_object_or_404(Product, pk=prod_id)
                 new_partner_product.id = None
                 new_partner_product.user = self.request.user
+                new_partner_product.price = new_partner_product.price * 1.05
                 new_partner_product.contractor_product_id = prod_id
                 try:
                     new_partner_product.save()

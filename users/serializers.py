@@ -393,7 +393,7 @@ class PayerCertificateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PayerCertificate
-        fields = ('id', 'payer_cert_doc_decoded',)
+        fields = ('id', 'payer_cert_doc_decoded', )
 
 
 class CompanyPitchSerializer(serializers.ModelSerializer):
