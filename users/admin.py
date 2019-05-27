@@ -7,6 +7,13 @@ admin.site.register(ActivityAreas)
 admin.site.register(CompanyType)
 
 
+class AdminProxy(CustomUser):
+    class Meta:
+        proxy = True
+        verbose_name_plural = 'Администраторы'
+        verbose_name = 'Администратор'
+
+
 class PartnerUserProxy(CustomUser):
     class Meta:
         proxy = True
@@ -23,6 +30,13 @@ class ContractorProxy(CustomUser):
 
 @admin.register(PartnerUserProxy)
 class UserAdmin(admin.ModelAdmin):
+    list_display = [
+        'email',
+        'first_name',
+        'last_name',
+        'phone',
+        'verified',
+    ]
     fields = (
         'manager',
         'role',
@@ -51,8 +65,11 @@ class UserAdmin(admin.ModelAdmin):
         'mfi',
         'checking_account',
         'available_products_count',
-        'products_count',
     )
+
+    list_editable = [
+        'verified',
+    ]
 
     readonly_fields = (
         'date_joined',
@@ -64,6 +81,68 @@ class UserAdmin(admin.ModelAdmin):
 
 @admin.register(ContractorProxy)
 class UserAdmin(admin.ModelAdmin):
+    list_display = [
+        'email',
+        'first_name',
+        'last_name',
+        'phone',
+        'verified',
+        'products_count',
+    ]
+    fields = (
+        'manager',
+        'role',
+        'user_pocket',
+        'first_name',
+        'last_name',
+        'patronymic',
+        'email',
+        'phone',
+        'web_site',
+        'date_joined',
+        'is_staff',
+        'is_active',
+        'username',
+        'avatar',
+        'verified',
+        'rozetka_username',
+        'rozetka_password',
+        'rozetka_old_orders_imported',
+        'nova_poshta_api_key',
+        'organizational_legal_form_of_the_company',
+        'organization',
+        'edpnou',
+        'vat_payer_certificate',
+        'bank_name',
+        'mfi',
+        'checking_account',
+        'available_products_count',
+        'products_count',
+    )
+
+    readonly_fields = (
+        'products_count',
+        'date_joined',
+    )
+
+    list_editable = [
+        'verified',
+    ]
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).filter(role='CONTRACTOR')
+
+
+@admin.register(AdminProxy)
+class UserAdmin(admin.ModelAdmin):
+    list_display = [
+        'email',
+        'first_name',
+        'last_name',
+        'phone',
+        'verified',
+        'products_count',
+    ]
     fields = (
         'manager',
         'role',
@@ -101,7 +180,7 @@ class UserAdmin(admin.ModelAdmin):
     )
 
     def get_queryset(self, request):
-        return super().get_queryset(request).filter(role='CONTRACTOR')
+        return super().get_queryset(request).filter(is_staff=True)
 
 
 class CompanyPitchTabular(admin.TabularInline):
