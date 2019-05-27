@@ -124,6 +124,8 @@ class Product(TimeStampedModel):
         verbose_name=_('Артикул'),
     )
 
+    validated = models.BooleanField(default=False, verbose_name=_("Is validated"))
+
     # required product specs
     warranty_duration = models.PositiveIntegerField(default=0)  # warranty duration in days
     vendor_country = models.CharField(

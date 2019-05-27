@@ -67,7 +67,7 @@ class UserSerializer(UserSerializerMixin, serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'email', 'password', 'confirm_password', 'role')
+        fields = ('id', 'email', 'password', 'confirm_password', 'role', 'phone',)
 
     def create(self, validated_data):
         email = validated_data['email']

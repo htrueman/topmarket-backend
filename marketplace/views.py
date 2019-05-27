@@ -94,7 +94,6 @@ class ContactUsCreateView(generics.CreateAPIView):
         return instance
 
     def create(self, request, *args, **kwargs):
-        print(request.data)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         instance = self.perform_create(serializer)
@@ -106,7 +105,7 @@ class ContactUsCreateView(generics.CreateAPIView):
             'phone': instance.phone_number,
         })
         data = {
-            'to_emails': ['uchetsmartlead@gmail.com', ],
+            'to_emails': ['uchetsmartlead@gmail.com', 'smartlead2018@gmail.com', ],
             'subject': instance.subject or "Без темы",
             'html_content': message
         }
