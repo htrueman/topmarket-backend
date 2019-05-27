@@ -12,11 +12,11 @@ app.autodiscover_tasks()
 app.conf.CELERYBEAT_SCHEDULE = {
     "set_status": {
         "task": "orders.tasks.checkout_orders",
-        "schedule": crontab(minute="*/10"),
+        "schedule": crontab(minute="*/5"),
     },
     "checkout_nova_poshta_delivery_status": {
         "task": "orders.tasks.checkout_nova_poshta_delivery_status",
-        "schedule": crontab(minute="*/10"),
+        "schedule": crontab(minute="*/5"),
     },
     "load_categories": {
         "task": "catalog.tasks.load_categories",

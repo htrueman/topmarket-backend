@@ -14,16 +14,17 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         ('FULL', 'Full'),
         ('NO', 'No')
     )
+
     manager = models.ForeignKey(
         'Company',
         on_delete=models.SET_NULL,
         verbose_name=_('Менеджер'),
         null=True, blank=True,
     )
+
     role = models.CharField(
         max_length=10,
         choices=USER_ROLE,
-
     )
     user_pocket = models.CharField(
         max_length=10,
