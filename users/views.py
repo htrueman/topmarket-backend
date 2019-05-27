@@ -2,6 +2,7 @@ from django.http import HttpResponse
 from django.contrib.auth import get_user_model
 from rest_framework.viewsets import GenericViewSet
 from users.permissions import IsOwner, IsPartner
+from users.tasks import send_user_email
 from users.tokens import account_activation_token
 from .serializers import UserSerializer, PasswordResetSerializer, UserProfileSerializer, PasswordChangeSerializer,\
     CompanyUpdateSerializer, DocumentSerializer, CompanyPitchSerializer, MyStoreSerializer, ManagerSerializer, \
@@ -199,3 +200,11 @@ class CompanyTypeUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = CompanyType.objects.all()
     serializer_class = CompanyTypeSerializer
     permission_classes = [permissions.IsAdminUser, ]
+
+
+class SendUserEmailAboutMissPhone(APIView):
+    permission_classes = (permissions.AllowAny, )
+
+    def get(self, request, *args, **kwargs):
+        send_user_email()
+        return Response(status=status.HTTP_200_OK)

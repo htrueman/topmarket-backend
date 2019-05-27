@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                 ('password', models.CharField(max_length=128, verbose_name='password')),
                 ('last_login', models.DateTimeField(blank=True, null=True, verbose_name='last login')),
                 ('is_superuser', models.BooleanField(default=False, help_text='Designates that this user has all permissions without explicitly assigning them.', verbose_name='superuser status')),
-                ('user_pocket', models.CharField(blank=True, choices=[('BASE', 'Base'), ('FULL', 'Full'), ('NO', 'No')], default='BASE', max_length=10, null=True, verbose_name='Пакет услуг')),
+                # ('user_pocket', models.CharField(blank=True, choices=[('BASE', 'Base'), ('FULL', 'Full'), ('NO', 'No')], default='BASE', max_length=10, null=True, verbose_name='Пакет услуг')),
                 ('first_name', models.CharField(blank=True, max_length=256, null=True, verbose_name='Имя')),
                 ('last_name', models.CharField(blank=True, max_length=256, null=True, verbose_name='Фамилия')),
                 ('patronymic', models.CharField(blank=True, max_length=256, null=True, verbose_name='Отчество')),
