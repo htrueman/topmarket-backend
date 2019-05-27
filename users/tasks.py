@@ -1,7 +1,7 @@
 from celery import shared_task
 from django.contrib.auth import get_user_model
 from django.template.loader import render_to_string
-from sendgrid import SendGridAPIClient
+from sendgrid import SendGridAPIClient, Header
 from sendgrid.helpers.mail import Mail
 from django.conf import settings
 from consul_kv import Connection
@@ -22,7 +22,7 @@ def send_email_task(*args, **kwargs):
         from_email=from_email,
         **kwargs
     )
-    message.add_header({'Reply-To': 'uchetsmartlead@gmail.com'})
+    message.add_header(Header('Reply-To', 'uchetsmartlead@gmail.com'))
 
     try:
         sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
