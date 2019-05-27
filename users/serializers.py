@@ -68,6 +68,7 @@ class UserSerializer(UserSerializerMixin, serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'email', 'password', 'confirm_password', 'role', 'phone',)
+        extra_kwargs = {'phone': {'required': True}}
 
     def create(self, validated_data):
         email = validated_data['email']
@@ -295,6 +296,7 @@ class UserProfileSerializer(RequireTogetherFields, UserSerializerMixin, serializ
             'user_pocket',
             'date_joined',
         )
+        extra_kwargs = {'phone': {'required': True}}
 
     def update(self, instance, validated_data):
         email_notifications = validated_data.pop('email_notifications', None)

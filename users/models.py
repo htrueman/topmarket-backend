@@ -169,6 +169,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
             Company.objects.get_or_create(user_id=self.pk)
             MyStore.objects.get_or_create(user_id=self.pk)
 
+    @property
+    def products_count(self):
+        return self.products.count()
+
     class Meta:
         verbose_name = _('Пользователь')
         verbose_name_plural = _('Пользователи')
