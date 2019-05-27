@@ -119,11 +119,16 @@ class ProductCategoryObjectSerializer(serializers.ModelSerializer):
     image_urls = ProductImageURLSerializer(many=True, source='product_image_urls', required=False)
     category = CategorySmallSerializer(many=False)
 
-    def get_price(self, obj):
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
         if self.context['request'].user.role == 'PARTNER':
-            return obj.price * Decimal('1.05')
+            ret['price'] = instance.price * Decimal('1.05') if instance.price else None
+            ret['recommended_price'] = instance.recommended_price * Decimal('1.05') \
+                if instance.recommended_price else None
         else:
-            return obj.price
+            ret['price'] = instance.price
+            ret['recommended_price'] = instance.recommended_price
+        return ret
 
     class Meta:
         model = Product
