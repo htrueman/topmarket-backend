@@ -381,7 +381,7 @@ class TaxPayerSerializer(serializers.ModelSerializer):
 
 
 class PayerRegisterSerializer(serializers.ModelSerializer):
-    payer_reg_doc_decoded = CustomBase64Field(source='tax_doc')
+    payer_reg_doc_decoded = CustomBase64Field(source='payer_reg_doc')
 
     class Meta:
         model = PayerRegister
@@ -509,6 +509,7 @@ class DocumentSerializer(serializers.ModelSerializer):
         )
 
     def update(self, instance, validated_data):
+        print(validated_data)
         passports_data = validated_data.pop('passports', None)
         uks_data = validated_data.pop('ukraine_statistics', None)
         certificates_data = validated_data.pop('certificates', None)
