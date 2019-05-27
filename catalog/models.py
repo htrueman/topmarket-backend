@@ -217,6 +217,7 @@ class ProductImageURL(models.Model):
     )
     url = models.URLField(
         verbose_name=_('Ссылка на изображение товара'),
+        max_length=1000,
     )
 
 
