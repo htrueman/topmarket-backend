@@ -23,7 +23,7 @@ def send_email_task(*args, **kwargs):
         from_email=from_email,
         **kwargs
     )
-    message.add_header(Header('Reply-To', 'uchetsmartlead@gmail.com'))
+    message.add_header(Header('reply_to', 'uchetsmartlead@gmail.com'))
 
     try:
         sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
