@@ -22,6 +22,7 @@ class ContractorOrderAdmin(admin.ModelAdmin):
     inlines = (
         NovaPoshtaDeliveryHistoryItemTabular,
     )
+    ordering = ('-order__created',)
 
 
 class OrderUserTabular(admin.TabularInline):
@@ -95,3 +96,4 @@ class OrderAdmin(admin.ModelAdmin):
         OrderSellerCommentTabular,
         OrderStatusHistoryItemTabular,
     )
+    ordering = ('-created',)
