@@ -292,3 +292,14 @@ class ProductUploadHistorySerializer(serializers.ModelSerializer):
         ):
             raise ValidationError(_('Unsupported Media Type'))
         return val
+
+
+class ProductChangeBrandSerializer(serializers.Serializer):
+    product_ids = serializers.ListField(required=True)
+    brand = serializers.CharField(required=True)
+
+    class Meta:
+        fields = (
+            'product_ids',
+            'brand',
+        )
