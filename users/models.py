@@ -175,7 +175,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
         if not self.__verified and self.verified:
             from_email = settings.DEFAULT_FROM_EMAIL
-            message = render_to_string('account_activation_email.html', {
+            message = render_to_string('account_verification_email.html', {
                 'domain': settings.HOST_NAME,
             })
             data = {
