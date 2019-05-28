@@ -2,8 +2,7 @@ from celery import shared_task
 from django.contrib.auth import get_user_model
 from django.template.loader import render_to_string
 from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail.header import Header
-from sendgrid.helpers.mail import Mail
+from sendgrid.helpers.mail import Mail, Header
 from django.conf import settings
 from consul_kv import Connection
 import logging

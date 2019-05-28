@@ -1,8 +1,11 @@
 from django.conf import settings
+from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
 from django.db import models
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 
 from users.constants import DOMEN, CALL_BACK, USER_ROLE
 from .managers import CustomUserManager
@@ -162,12 +165,35 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.__pk = self.pk
+        self.__verified = self.verified
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         if not self.__pk and self.role == 'PARTNER':
             Company.objects.get_or_create(user_id=self.pk)
             MyStore.objects.get_or_create(user_id=self.pk)
+
+        if not self.__verified and self.verified:
+            from_email = settings.DEFAULT_FROM_EMAIL
+            message = render_to_string('account_activation_email.html', {
+                'domain': settings.HOST_NAME,
+            })
+            data = {
+                'to_emails': [self.email, ],
+                'subject': "Ваш аккаунт верифицирован",
+                'html_content': message,
+            }
+
+            message = Mail(
+                from_email=from_email,
+                **data
+            )
+
+            try:
+                sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
+                sg.send(message)
+            except Exception as e:
+                print(e.args)
 
     @property
     def products_count(self):
