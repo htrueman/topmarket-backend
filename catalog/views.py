@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from rest_framework import viewsets, permissions, status
 from django.db import transaction
 from django.db import IntegrityError
@@ -193,7 +195,10 @@ class ProductPartnerViewSet(viewsets.ModelViewSet):
                 new_partner_product = get_object_or_404(Product, pk=prod_id)
                 new_partner_product.id = None
                 new_partner_product.user = self.request.user
-                new_partner_product.price = new_partner_product.price * 1.05
+                new_partner_product.price = new_partner_product.price * Decimal(1.05) \
+                    if new_partner_product.price else new_partner_product.price
+                new_partner_product.recommended_price = new_partner_product.recommended_price * Decimal(1.05) \
+                    if new_partner_product.recommended_price else new_partner_product.recommended_price
                 new_partner_product.contractor_product_id = prod_id
                 try:
                     new_partner_product.save()
