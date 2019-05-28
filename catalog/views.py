@@ -133,6 +133,8 @@ class ProductContractorViewSet(viewsets.ModelViewSet):
     def delete_list_of_products(self, request, *args, **kwargs):
         product_list_id = request.data.get('product_list_ids', None)
         self.get_queryset().filter(id__in=product_list_id).delete()
+        self.request.user.available_products_count += len(product_list_id)
+        self.request.user.save()
         return Response(
             status=status.HTTP_200_OK,
         )
