@@ -303,6 +303,7 @@ class UserProfileSerializer(RequireTogetherFields, UserSerializerMixin, serializ
         attrs = super().validate(data)
         if (attrs.get('edpnou') or attrs.get('vat_payer_certificate')) and User.objects\
                 .filter(edpnou=attrs.get('edpnou'), vat_payer_certificate=attrs.get('vat_payer_certificate'))\
+                .exclude(id=self.context['request'].user.id)\
                 .exists():
             raise ValidationError([_('Указанные данные ФОП используются для другого аккаунта.')])
         return attrs
