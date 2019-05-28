@@ -37,6 +37,7 @@ class UserAdmin(admin.ModelAdmin):
         'last_name',
         'phone',
         'verified',
+        'date_joined',
     ]
     fields = (
         'manager',
@@ -89,6 +90,7 @@ class UserAdmin(admin.ModelAdmin):
         'phone',
         'verified',
         'products_count',
+        'date_joined',
     ]
     fields = (
         'manager',
@@ -143,6 +145,7 @@ class UserAdmin(admin.ModelAdmin):
         'phone',
         'verified',
         'products_count',
+        'date_joined',
     ]
     fields = (
         'manager',
