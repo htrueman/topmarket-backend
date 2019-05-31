@@ -173,9 +173,6 @@ class ProductSerializer(serializers.ModelSerializer):
         if self.context['request'].user.role == 'CONTRACTOR' \
                 and self.context['request'].user.available_products_count == 0:
             raise ValidationError([_('У вас закончились свободные места для товаров.')])
-        else:
-            self.context['request'].user.available_products_count -= 1
-            self.context['request'].user.save()
         return super().validate(attrs)
 
     def create(self, validated_data):
@@ -193,6 +190,10 @@ class ProductSerializer(serializers.ModelSerializer):
                     ProductImageURL(product=product, **url_data)
                     for url_data in image_urls
                 ])
+
+            self.context['request'].user.available_products_count -= 1
+            self.context['request'].user.save()
+
             return product
 
     def update(self, instance, validated_data):
