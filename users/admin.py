@@ -36,6 +36,7 @@ class UserAdmin(admin.ModelAdmin):
         'first_name',
         'last_name',
         'phone',
+        'date_joined',
         'verified',
         'date_joined',
     ]
@@ -89,6 +90,7 @@ class UserAdmin(admin.ModelAdmin):
         'last_name',
         'phone',
         'verified',
+        'date_joined',
         'products_count',
         'date_joined',
     ]
@@ -143,6 +145,7 @@ class UserAdmin(admin.ModelAdmin):
         'first_name',
         'last_name',
         'phone',
+        'date_joined',
         'verified',
         'products_count',
         'date_joined',

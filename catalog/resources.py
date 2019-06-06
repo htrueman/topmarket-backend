@@ -9,12 +9,6 @@ class ProductResource(resources.ModelResource):
         widget=widgets.ForeignKeyWidget(Category, )
     )
 
-    vendor_code = fields.Field(
-        column_name='vendor_code',
-        attribute='vendor_code',
-        widget=widgets.IntegerWidget()
-    )
-
     class Meta:
         model = Product
         fields = (
