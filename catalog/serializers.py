@@ -214,7 +214,7 @@ class ProductSerializer(serializers.ModelSerializer):
                             ProductImage.objects.filter(id=cover_id).delete()
                     else:
                         if type(image_data) == ContentFile:
-                            ProductImage.objects.create(company=instance, image=image_data)
+                            ProductImage.objects.create(product=instance, image=image_data)
             if image_urls:
                 instance.product_image_urls.all().delete()
                 ProductImageURL.objects.bulk_create([
