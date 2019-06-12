@@ -38,7 +38,6 @@ class UserAdmin(admin.ModelAdmin):
         'phone',
         'date_joined',
         'verified',
-        'date_joined',
     ]
     fields = (
         'manager',
