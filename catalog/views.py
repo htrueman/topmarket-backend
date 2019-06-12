@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+from django.db.models import Prefetch
 from rest_framework import viewsets, permissions, status
 from django.db import transaction
 from django.db import IntegrityError
@@ -7,7 +8,7 @@ from catalog.utils import group_vals
 from catalog.serializers import CategorySerializer, ProductSerializer, YMLHandlerSerializer, \
     ProductUploadHistorySerializer, ProductListIdSerializer, CategoryListSerializer, ProductCategoryObjectSerializer, \
     ProductChangeBrandSerializer
-from catalog.models import Category, Product, YMLTemplate, ProductUploadHistory
+from catalog.models import Category, Product, YMLTemplate, ProductUploadHistory, ProductImageURL, ProductImage
 from users.permissions import IsPartner, IsContractor
 from rest_framework.decorators import action
 from django_filters import rest_framework as filters
@@ -98,6 +99,10 @@ class ProductContractorViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return Product.products_by_contractors.filter(
             user=self.request.user
+        ).prefetch_related(
+            Prefetch('product_image_urls', queryset=ProductImageURL.objects.order_by('-id')),
+            Prefetch('product_images', queryset=ProductImage.objects.order_by('-id'))
+
         )
 
     def get_serializer_class(self):
