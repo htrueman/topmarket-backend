@@ -36,6 +36,7 @@ def load_products_from_xls(**kwargs):
                 dry_run=True,
                 user_id=prod_hist.user.id,
             )
+            print(result.invalid_rows)
             if len(dataset) > prod_hist.user.available_products_count:
                 prod_hist.errors = _('У вас доступно {} свободных мест для товаров, но файл содержит {} товаров.'
                                      .format(prod_hist.user.available_products_count, len(dataset)))

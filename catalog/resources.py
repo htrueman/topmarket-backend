@@ -31,10 +31,15 @@ class ProductResource(resources.ModelResource):
             'material',
         )
 
+    def after_save_instance(self, instance, using_transactions, dry_run):
+        vendor_code = str(instance.vendor_code)
+        Product.objects.filter(id=instance.id).update(vendor_code=vendor_code.split('.0', 1)[0])
+        super().after_save_instance(instance, using_transactions, dry_run)
+
     def after_import_instance(self, instance, new, **kwargs):
         instance.user_id = kwargs.get('user_id')
-        # instance.vendor_code = str(instance.vendor_code)
         super().after_import_instance(instance, new, **kwargs)
+
 
 
 class RozetkaProductResource(resources.Resource):
