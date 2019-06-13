@@ -91,7 +91,6 @@ class UserAdmin(admin.ModelAdmin):
         'verified',
         'date_joined',
         'products_count',
-        'date_joined',
     ]
     fields = (
         'manager',
