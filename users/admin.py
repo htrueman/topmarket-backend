@@ -35,8 +35,8 @@ class ContractorProxy(CustomUser):
 class UserAdmin(admin.ModelAdmin):
     list_display = [
         'email',
-        'first_name',
         'last_name',
+        'first_name',
         'user_pocket',
         'phone',
         'date_joined',
@@ -46,8 +46,8 @@ class UserAdmin(admin.ModelAdmin):
         'manager',
         'role',
         'user_pocket',
-        'first_name',
         'last_name',
+        'first_name',
         'patronymic',
         'email',
         'phone',
@@ -114,8 +114,8 @@ class ContractorProductTabularInline(admin.TabularInline):
 class UserAdmin(admin.ModelAdmin):
     list_display = [
         'email',
-        'first_name',
         'last_name',
+        'first_name',
         'phone',
         'verified',
         'date_joined',
@@ -125,8 +125,8 @@ class UserAdmin(admin.ModelAdmin):
         'manager',
         'role',
         'user_pocket',
-        'first_name',
         'last_name',
+        'first_name',
         'patronymic',
         'email',
         'phone',
@@ -173,8 +173,8 @@ class UserAdmin(admin.ModelAdmin):
 class UserAdmin(admin.ModelAdmin):
     list_display = [
         'email',
-        'first_name',
         'last_name',
+        'first_name',
         'phone',
         'date_joined',
         'verified',
@@ -184,8 +184,8 @@ class UserAdmin(admin.ModelAdmin):
         'manager',
         'role',
         'user_pocket',
-        'first_name',
         'last_name',
+        'first_name',
         'patronymic',
         'email',
         'phone',
