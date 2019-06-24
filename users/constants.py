@@ -12,5 +12,5 @@ CALL_BACK = (
 
 USER_ROLE = (
     ('CONTRACTOR', _('Поставщик')),
-    ('PARTNER', _('Партнер')),
+    ('PARTNER', _('Продавец')),
 )

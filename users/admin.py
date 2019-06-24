@@ -37,6 +37,7 @@ class UserAdmin(admin.ModelAdmin):
         'email',
         'first_name',
         'last_name',
+        'user_pocket',
         'phone',
         'date_joined',
         'verified',

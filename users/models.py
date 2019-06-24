@@ -13,9 +13,10 @@ from .managers import CustomUserManager
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     USER_POCKET = (
-        ('BASE', 'Base'),
-        ('FULL', 'Full'),
-        ('NO', 'No')
+        ('NO', 'No'),
+        ('SILVER', 'Silver'),
+        ('GOLD', 'Gold'),
+        ('PLATINUM', 'Platinum')
     )
 
     manager = models.ForeignKey(
@@ -32,8 +33,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     user_pocket = models.CharField(
         max_length=10,
         choices=USER_POCKET,
-        null=True, blank=True,
-        default='BASE',
+        default='NO',
         verbose_name=_('Пакет услуг')
     )
 
