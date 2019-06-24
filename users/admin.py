@@ -1,4 +1,6 @@
 from django.contrib import admin
+
+from catalog.models import Product
 from .models import CustomUser, Company, MyStore, CompanyPitch, Passport, ActivityAreas, ServiceIndustry, CompanyType, \
     HeaderPhoneNumber, FooterPhoneNumber, Navigation, StoreSliderImage, UkraineStatistic, Certificate, TaxPayer, \
     PayerRegister, PayerCertificate
@@ -81,6 +83,32 @@ class UserAdmin(admin.ModelAdmin):
         return super().get_queryset(request).filter(role='PARTNER')
 
 
+class ContractorProductTabularInline(admin.TabularInline):
+    model = Product
+
+    fields = (
+        'name',
+        'brand',
+        'category',
+        'product_type',
+        'variety_type',
+        'vendor_code',
+        'warranty_duration',
+        'vendor_country',
+        'box_size',
+        'count',
+        'price',
+        'recommended_price',
+        'description',
+        'contractor_product',
+        'rozetka_id',
+    )
+
+    show_full_result_count = True
+
+    extra = 0
+
+
 @admin.register(ContractorProxy)
 class UserAdmin(admin.ModelAdmin):
     list_display = [
@@ -130,6 +158,10 @@ class UserAdmin(admin.ModelAdmin):
 
     list_editable = [
         'verified',
+    ]
+
+    inlines = [
+        ContractorProductTabularInline,
     ]
 
     def get_queryset(self, request):

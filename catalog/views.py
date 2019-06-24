@@ -152,7 +152,7 @@ class ProductContractorViewSet(viewsets.ModelViewSet):
 
 class ProductPartnerViewSet(viewsets.ModelViewSet):
     """
-    Продукты партнера
+    Продукты продавца
     """
     parser_classes = (MultiPartParser, CamelCaseJSONParser, )
     permission_classes = (IsPartner, )

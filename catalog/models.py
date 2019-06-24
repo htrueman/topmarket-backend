@@ -82,7 +82,7 @@ class Category(MPTTModel):
 class Product(TimeStampedModel):
     """
     Если поле contractor=NULL - товар добавлен поставщиком.
-    В противном случае это товар, добавленный партнером от поставщика
+    В противном случае это товар, добавленный продавцом от поставщика
     """
 
     category = TreeForeignKey(

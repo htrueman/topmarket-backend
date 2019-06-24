@@ -381,8 +381,8 @@ class Company(models.Model):
     )
 
     class Meta:
-        verbose_name = _('Компания партнера')
-        verbose_name_plural = _('Компании партнеров')
+        verbose_name = _('Компания продавца')
+        verbose_name_plural = _('Компании продавцов')
 
     def __str__(self):
         return '{} {}'.format(self.id, self.name)
@@ -582,7 +582,7 @@ class CompanyPitch(models.Model):
     good_partner = models.TextField(
         max_length=100,
         null=True, blank=True,
-        verbose_name=_('Мы классные партнеры, потому что:')
+        verbose_name=_('Мы классные продавцы, потому что:')
     )
 
     future = models.TextField(
@@ -618,8 +618,8 @@ class MyStore(models.Model):
             return 'https://{}/'.format(self.domain_name)
 
     class Meta:
-        verbose_name = _('Магазин партнера')
-        verbose_name_plural = _('Магазины партнеров')
+        verbose_name = _('Магазин продавца')
+        verbose_name_plural = _('Магазины продавцов')
 
     def __str__(self):
         return '{} {}'.format(self.id, self.user)

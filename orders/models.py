@@ -72,8 +72,8 @@ class Order(models.Model):
             send_email_task.delay(**data)
 
     class Meta:
-        verbose_name = _('Заказ партнера')
-        verbose_name_plural = _('Заказы партнеров')
+        verbose_name = _('Заказ продавца')
+        verbose_name_plural = _('Заказы продавцов')
 
 
 class ContractorOrder(models.Model):
