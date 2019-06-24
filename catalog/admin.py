@@ -4,7 +4,7 @@ from import_export.admin import ImportExportActionModelAdmin
 from catalog.resources import ProductResource
 
 admin.site.register(Category)
-admin.site.register(YMLTemplate)
+# admin.site.register(YMLTemplate)
 admin.site.register(ProductUploadHistory)
 
 

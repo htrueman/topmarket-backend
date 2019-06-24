@@ -41,7 +41,6 @@ class ProductResource(resources.ModelResource):
         super().after_import_instance(instance, new, **kwargs)
 
 
-
 class RozetkaProductResource(resources.Resource):
     rozetka_product_id = fields.Field(
         column_name='ID товара в розетке',
