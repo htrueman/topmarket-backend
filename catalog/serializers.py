@@ -119,16 +119,16 @@ class ProductCategoryObjectSerializer(serializers.ModelSerializer):
     image_urls = ProductImageURLSerializer(many=True, source='product_image_urls', required=False)
     category = CategorySmallSerializer(many=False)
 
-    # def to_representation(self, instance):
-    #     ret = super().to_representation(instance)
-    #     if self.context['request'].user.role == 'PARTNER':
-    #         ret['price'] = instance.price * Decimal('1.05') if instance.price else None
-    #         ret['recommended_price'] = instance.recommended_price * Decimal('1.05') \
-    #             if instance.recommended_price else None
-    #     else:
-    #         ret['price'] = instance.price
-    #         ret['recommended_price'] = instance.recommended_price
-    #     return ret
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        if self.context['request'].user.role == 'PARTNER':
+            ret['price'] = instance.price * Decimal(self.context['request'].user.product_percent * 0.01 + 1) if instance.price else None
+            ret['recommended_price'] = instance.recommended_price * Decimal('1.05') \
+                if instance.recommended_price else None
+        else:
+            ret['price'] = instance.price
+            ret['recommended_price'] = instance.recommended_price
+        return ret
 
     class Meta:
         model = Product
@@ -145,6 +145,30 @@ class ProductCategoryObjectSerializer(serializers.ModelSerializer):
             'recommended_price',
             'cover_images',
             'image_urls',
+        )
+
+
+class ProductContractorPercentSerializer(serializers.ModelSerializer):
+    cover_images = ProductImageSerializer(many=True, source='product_images', required=False)
+    image_urls = ProductImageURLSerializer(many=True, source='product_image_urls', required=False)
+    product_percent = serializers.Field(source='user.product_percent')
+
+    class Meta:
+        model = Product
+        fields = (
+            'id',
+            'category',
+            'name',
+            'vendor_code',
+            'contractor_product',
+            'brand',
+            'count',
+            'description',
+            'price',
+            'recommended_price',
+            'cover_images',
+            'image_urls',
+            'product_percent',
         )
 
 

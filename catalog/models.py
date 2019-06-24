@@ -149,7 +149,7 @@ class Product(TimeStampedModel):
         verbose_name=_('Рекомендованная цена товара'),
     )
     description = models.TextField(
-        max_length=4095,
+        max_length=5000,
         verbose_name=_('Описание'),
         null=True
     )  # html tags allowed

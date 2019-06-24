@@ -12,8 +12,8 @@ def upload_product_from_xls(sender, instance, created, **kwargs):
         data = {
             'instance_id': instance.id,
         }
-        # load_products_from_xls.delay(**data)
-        load_products_from_xls(**data)
+        load_products_from_xls.delay(**data)
+        # load_products_from_xls(**data)
         # if instance.file_type == ProductUploadFileTypes.INNER:
         #     # load_products_from_xls.delay(**data)
         #     load_products_from_xls(**data)

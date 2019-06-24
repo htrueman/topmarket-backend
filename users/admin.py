@@ -43,7 +43,7 @@ class UserAdmin(admin.ModelAdmin):
         'verified',
     ]
     fields = (
-        'manager',
+        # 'manager',
         'role',
         'user_pocket',
         'last_name',
@@ -128,9 +128,11 @@ class UserAdmin(admin.ModelAdmin):
         'verified',
         'date_joined',
         'products_count',
+        'product_percent',
     ]
+
     fields = (
-        'manager',
+        # 'manager',
         'role',
         'user_pocket',
         'last_name',
@@ -158,6 +160,7 @@ class UserAdmin(admin.ModelAdmin):
         'checking_account',
         'available_products_count',
         'products_count',
+        'product_percent',
     )
 
     readonly_fields = (
@@ -167,6 +170,7 @@ class UserAdmin(admin.ModelAdmin):
 
     list_editable = [
         'verified',
+        'product_percent',
     ]
 
     inlines = [
@@ -196,7 +200,7 @@ class UserAdmin(admin.ModelAdmin):
         'products_count',
     ]
     fields = (
-        'manager',
+        # 'manager',
         'role',
         'user_pocket',
         'last_name',
