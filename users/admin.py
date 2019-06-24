@@ -5,8 +5,8 @@ from .models import CustomUser, Company, MyStore, CompanyPitch, Passport, Activi
     HeaderPhoneNumber, FooterPhoneNumber, Navigation, StoreSliderImage, UkraineStatistic, Certificate, TaxPayer, \
     PayerRegister, PayerCertificate
 
-admin.site.register(ServiceIndustry)
-admin.site.register(ActivityAreas)
+# admin.site.register(ServiceIndustry)
+# admin.site.register(ActivityAreas)
 admin.site.register(CompanyType)
 
 
@@ -80,6 +80,13 @@ class UserAdmin(admin.ModelAdmin):
         'date_joined',
     )
 
+    search_fields = (
+        'last_name',
+        'first_name',
+        'email',
+        'phone',
+    )
+
     def get_queryset(self, request):
         return super().get_queryset(request).filter(role='PARTNER')
 
@@ -88,6 +95,7 @@ class ContractorProductTabularInline(admin.TabularInline):
     model = Product
 
     fields = (
+        'id',
         'name',
         'brand',
         'category',
@@ -164,6 +172,13 @@ class UserAdmin(admin.ModelAdmin):
     inlines = [
         ContractorProductTabularInline,
     ]
+
+    search_fields = (
+        'last_name',
+        'first_name',
+        'email',
+        'phone',
+    )
 
     def get_queryset(self, request):
         return super().get_queryset(request).filter(role='CONTRACTOR')
