@@ -4,10 +4,13 @@ from catalog.models import Product
 from .models import CustomUser, Company, MyStore, CompanyPitch, Passport, ActivityAreas, ServiceIndustry, CompanyType, \
     HeaderPhoneNumber, FooterPhoneNumber, Navigation, StoreSliderImage, UkraineStatistic, Certificate, TaxPayer, \
     PayerRegister, PayerCertificate
+from django.contrib.auth.models import Group
 
 # admin.site.register(ServiceIndustry)
 # admin.site.register(ActivityAreas)
-admin.site.register(CompanyType)
+# admin.site.register(CompanyType)
+
+admin.site.unregister(Group)
 
 
 class AdminProxy(CustomUser):
@@ -87,6 +90,7 @@ class UserAdmin(admin.ModelAdmin):
         'phone',
     )
 
+
     def get_queryset(self, request):
         return super().get_queryset(request).filter(role='PARTNER')
 
@@ -113,9 +117,16 @@ class ContractorProductTabularInline(admin.TabularInline):
         'rozetka_id',
     )
 
+    readonly_fields = fields
+
+    can_delete = False
+
     show_full_result_count = True
 
     extra = 0
+
+    def has_add_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(ContractorProxy)

@@ -209,6 +209,36 @@ class Product(TimeStampedModel):
         )
 
 
+class CategoryOptionGroup(models.Model):
+    id = models.IntegerField(primary_key=True)
+    name = models.CharField(max_length=100, verbose_name=_('Название параметра'))
+    category = models.ForeignKey(Category, related_name='optiongroups', on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = _('Category Option Group')
+        verbose_name_plural = _('Category Option Groups')
+
+
+class CategoryOptionGroupValue(models.Model):
+    id = models.IntegerField(primary_key=True)
+    name = models.CharField(max_length=100, verbose_name=_('Значение параметра'))
+    group = models.ForeignKey(Category, related_name='optiongroupvalues', on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = _('Category Option Group value')
+        verbose_name_plural = _('Category Option Groups values')
+        unique_together = (('group', 'name'), )
+
+
+class ProductOption(models.Model):
+    product = models.ForeignKey(Product, related_name='product_options', on_delete=models.CASCADE)
+    option = models.ForeignKey(CategoryOptionGroupValue, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = _('Category option')
+        verbose_name_plural = _('Category options')
+
+
 class ProductImageURL(models.Model):
     product = models.ForeignKey(
         Product,
@@ -287,3 +317,5 @@ class YMLTemplate(models.Model):
         verbose_name = _('YML шаблон')
         verbose_name_plural = _('YML шаблоны')
         unique_together = ('user', 'yml_type',)
+
+
