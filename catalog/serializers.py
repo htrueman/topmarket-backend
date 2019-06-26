@@ -122,8 +122,8 @@ class ProductCategoryObjectSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         if self.context['request'].user.role == 'PARTNER':
-            # ret['price'] = instance.price * Decimal(self.context['request'].user.percent_for_partner * 0.01 + 1) if instance.price else None
-            ret['price'] = instance.price * Decimal(5 * 0.01 + 1) if instance.price else None
+            ret['price'] = instance.price * Decimal(self.context['request'].user.percent_for_partner * 0.01 + 1) if instance.price else None
+            # ret['price'] = instance.price * Decimal(5 * 0.01 + 1) if instance.price else None
 
             ret['recommended_price'] = instance.recommended_price * Decimal('1.05') \
                 if instance.recommended_price else None
@@ -153,7 +153,7 @@ class ProductCategoryObjectSerializer(serializers.ModelSerializer):
 class ProductContractorPercentSerializer(serializers.ModelSerializer):
     cover_images = ProductImageSerializer(many=True, source='product_images', required=False)
     image_urls = ProductImageURLSerializer(many=True, source='product_image_urls', required=False)
-    # product_percent = serializers.Field(source='user.percent_for_partner')
+    product_percent = serializers.Field(source='user.percent_for_partners')
 
     class Meta:
         model = Product
@@ -170,7 +170,7 @@ class ProductContractorPercentSerializer(serializers.ModelSerializer):
             'recommended_price',
             'cover_images',
             'image_urls',
-            # 'percent_for_partner',
+            'product_percent',
         )
 
 

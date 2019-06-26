@@ -31,3 +31,7 @@ class ProductAdmin(ImportExportActionModelAdmin):
         ProductImageTabular,
         ProductImageURLTabular
     )
+
+    exclude = (
+        'contractor_product',
+    )

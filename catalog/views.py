@@ -201,14 +201,12 @@ class ProductPartnerViewSet(viewsets.ModelViewSet):
             for prod_id in prod_list_id:
                 new_partner_product = get_object_or_404(Product, pk=prod_id)
                 new_partner_product.id = None
-                contractor_percent_for_partners = 5 # new_partner_product.user.percent_for_partner
-                print(contractor_percent_for_partners)
+                contractor_percent_for_partners = new_partner_product.user.percent_for_partner
                 new_partner_product.user = self.request.user
-                new_partner_product.price = new_partner_product.price * 1.05 \
+                new_partner_product.price = new_partner_product.price * Decimal(contractor_percent_for_partners) \
                     if new_partner_product.price else new_partner_product.price
-                # new_partner_product.price = new_partner_product.price * Decimal(contractor_percent_for_partners) \
 
-                new_partner_product.recommended_price = new_partner_product.recommended_price * Decimal(1.05) \
+                new_partner_product.recommended_price = new_partner_product.recommended_price * Decimal(contractor_percent_for_partners) \
                     if new_partner_product.recommended_price else new_partner_product.recommended_price
                 new_partner_product.contractor_product_id = prod_id
                 try:
