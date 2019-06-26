@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import ugettext as _
 from mptt.models import MPTTModel, TreeForeignKey
+
 from news.models import TimeStampedModel
 from django.contrib.auth import get_user_model
 import catalog.constants as constants
