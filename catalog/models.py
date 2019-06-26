@@ -88,7 +88,6 @@ class Product(TimeStampedModel):
     category = TreeForeignKey(
         Category,
         null=True,
-        blank=True,
         verbose_name=_('Категория товара'),
         on_delete=models.SET_NULL,
     )
