@@ -1,3 +1,4 @@
+import json
 import time
 from pprint import pprint
 
@@ -14,7 +15,8 @@ from tablib import Dataset
 
 from catalog.serializers import CategorySerializer
 from top_market_platform.celery import app
-from .models import ProductUploadHistory, Product, ProductImageURL, Category
+from .models import ProductUploadHistory, Product, ProductImageURL, Category, CategoryOptionGroup, ProductOption, \
+    CategoryOptionGroupValue
 from django.utils.translation import ugettext as _
 from rest_framework.exceptions import ValidationError
 from catalog.utils import get_rozetka_auth_token
@@ -190,4 +192,24 @@ def upload_category_options():
     import json
     with open('result.json', 'w') as fp:
         json.dump(category_options_data, fp)
+
+
+def save_options_to_db():
+    with open('result.json', 'rb') as fp:
+        data = json.load(fp)
+        for category_id in Category.objects.all().values_list('id', flat=True):
+            try:
+                for option_dict in data[category_id]:
+                    group, _ = CategoryOptionGroup.objects.get_or_create(
+                        id=option_dict.get('id', None),
+                        name=option_dict.get('name', None),
+                        category_id=category_id
+                    )
+                    if option_dict.get('value_id', None):
+                        option_value, _ = CategoryOptionGroupValue.objects.get_or_create(
+                            id=option_dict.get('value_id', None),
+                            name=option_dict.get('value_name', None)
+                        )
+            except:
+                pass
 

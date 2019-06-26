@@ -15,6 +15,7 @@ from django.core.files.base import ContentFile
 from django.utils.translation import ugettext as _
 from rest_framework.exceptions import ValidationError
 
+from catalog.models import CategoryOptionGroupValue
 from .mixins import UserSerializerMixin, RequireTogetherFields
 from .tokens import account_activation_token, password_reset_token
 from .models import UserNotificationEmail, UserNotificationPhone, Company, ActivityAreas, ServiceIndustry, CompanyType, \
@@ -698,3 +699,12 @@ class MyStoreSerializer(serializers.ModelSerializer):
                 ) for navigation_data in navigations_data
             ])
         return my_store
+
+
+class CategoryOptionGroupValueSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CategoryOptionGroupValue
+        fields = (
+            'name'
+        )
