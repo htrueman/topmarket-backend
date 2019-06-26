@@ -174,9 +174,14 @@ def upload_category_options():
         s = requests.Session()
         resp = s.send(prep)
         r.encoding = 'utf-8'
+
         data = resp.json()
         category_options_data[category_id] = data
         print(data)
-        time.sleep(1)
+        time.sleep(0.1)
     pprint(category_options_data)
+
+    import json
+    with open('result.json', 'w') as fp:
+        json.dump(category_options_data, fp)
 

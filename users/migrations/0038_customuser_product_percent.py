@@ -10,9 +10,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='customuser',
-            name='product_percent',
-            field=models.SmallIntegerField(blank=True, default=5, null=True, verbose_name='Процент для продавца'),
-        ),
+        # migrations.AddField(
+        #     model_name='customuser',
+        #     name='product_percent',
+        #     field=models.SmallIntegerField(blank=True, default=5, null=True, verbose_name='Процент для продавца'),
+        # ),
     ]
