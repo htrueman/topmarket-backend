@@ -96,6 +96,12 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     verified = models.BooleanField(default=False)
 
+    percent_for_partners = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        verbose_name=_("Процент для продавцов")
+    )
+
     rozetka_username = models.CharField(max_length=128, null=True, blank=True)
     rozetka_password = models.CharField(max_length=512, null=True, blank=True)
 
@@ -149,7 +155,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     available_products_count = models.PositiveIntegerField(
         default=200
     )
-
 
     USERNAME_FIELD = 'email'
     objects = CustomUserManager()

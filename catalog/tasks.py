@@ -163,20 +163,23 @@ def upload_category_options():
     # category_id = 4626923
     category_options_data = {}
     for category_id in categry_ids:
-        url = 'https://api.seller.rozetka.com.ua/market-categories/category-options?category_id={}'.format(category_id)
-        headers = {
-            'Authorization': "Bearer {}".format(token),
-            'cache-control': "no-cache",
-        }
+        try:
+            url = 'https://api.seller.rozetka.com.ua/market-categories/category-options?category_id={}'.format(category_id)
+            headers = {
+                'Authorization': "Bearer {}".format(token),
+                'cache-control': "no-cache",
+            }
 
-        r = requests.Request("GET", url, headers=headers)
-        prep = r.prepare()
-        s = requests.Session()
-        resp = s.send(prep)
-        r.encoding = 'utf-8'
+            r = requests.Request("GET", url, headers=headers)
+            prep = r.prepare()
+            s = requests.Session()
+            resp = s.send(prep)
+            r.encoding = 'utf-8'
 
-        data = resp.json()
-        category_options_data[category_id] = data
+            data = resp.json()
+            category_options_data[category_id] = data
+        except:
+            pass
         print(data)
         time.sleep(0.1)
     pprint(category_options_data)
