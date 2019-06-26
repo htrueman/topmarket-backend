@@ -138,7 +138,7 @@ class UserAdmin(admin.ModelAdmin):
         'verified',
         'date_joined',
         'products_count',
-        # 'product_percent',
+        'percent_for_partners',
     ]
 
     fields = (

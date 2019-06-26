@@ -203,11 +203,13 @@ class ProductPartnerViewSet(viewsets.ModelViewSet):
                 new_partner_product.id = None
                 contractor_percent_for_partners = new_partner_product.user.percent_for_partners
                 new_partner_product.user = self.request.user
-                new_partner_product.price = new_partner_product.price * Decimal(contractor_percent_for_partners) \
-                    if new_partner_product.price else new_partner_product.price
+                new_partner_product.price = new_partner_product.price * Decimal(
+                    contractor_percent_for_partners * 0.01 + 1 if contractor_percent_for_partners else 1
+                ) if new_partner_product.price else new_partner_product.price
 
-                new_partner_product.recommended_price = new_partner_product.recommended_price * Decimal(contractor_percent_for_partners) \
-                    if new_partner_product.recommended_price else new_partner_product.recommended_price
+                new_partner_product.recommended_price = new_partner_product.recommended_price * Decimal(
+                    contractor_percent_for_partners * 0.01 + 1 if contractor_percent_for_partners else 1
+                ) if new_partner_product.recommended_price else new_partner_product.recommended_price
                 new_partner_product.contractor_product_id = prod_id
                 try:
                     new_partner_product.save()

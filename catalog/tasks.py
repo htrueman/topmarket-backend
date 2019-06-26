@@ -163,6 +163,7 @@ def upload_category_options():
 
     # category_id = 4626923
     category_options_data = {}
+    i = 1
     for category_id in categry_ids:
         try:
             url = 'https://api.seller.rozetka.com.ua/market-categories/category-options?category_id={}'.format(category_id)
@@ -179,12 +180,12 @@ def upload_category_options():
 
             data = resp.json()
             category_options_data[category_id] = data
-            print(data)
+            i += 1
+            print(i)
         except:
             pass
 
-        time.sleep(0.1)
-    pprint(category_options_data)
+        time.sleep(0.05)
 
     import json
     with open('result.json', 'w') as fp:
