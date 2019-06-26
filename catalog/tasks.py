@@ -178,9 +178,10 @@ def upload_category_options():
 
             data = resp.json()
             category_options_data[category_id] = data
+            print(data)
         except:
             pass
-        print(data)
+
         time.sleep(0.1)
     pprint(category_options_data)
 
