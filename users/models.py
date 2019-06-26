@@ -148,9 +148,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     )
     available_products_count = models.PositiveIntegerField(
         default=200
-    )  # available products for contractor
+    )
 
-    percent_for_partner = models.SmallIntegerField(verbose_name=_('Процент для продавца'), default=5)
 
     USERNAME_FIELD = 'email'
     objects = CustomUserManager()
