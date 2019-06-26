@@ -10,9 +10,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='customuser',
-            name='user_pocket',
-            field=models.CharField(choices=[('NO', 'No'), ('SILVER', 'Silver'), ('GOLD', 'Gold'), ('PLATINUM', 'Platinum')], default='NO', max_length=10, verbose_name='Пакет услуг'),
-        ),
+        # migrations.AlterField(
+        #     model_name='customuser',
+        #     name='user_pocket',
+        #     field=models.CharField(choices=[('NO', 'No'), ('SILVER', 'Silver'), ('GOLD', 'Gold'), ('PLATINUM', 'Platinum')], default='NO', max_length=10, verbose_name='Пакет услуг'),
+        # ),
     ]

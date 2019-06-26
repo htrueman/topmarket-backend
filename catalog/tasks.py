@@ -156,6 +156,7 @@ def load_categories():
         cache.set('categories_data', serializer.data)
 
 
+@app.task
 def upload_category_options():
     token = 'bnPmfhpe_nTEjUEHAbjgHh93JChyyBqQ'
     categry_ids = Category.objects.all().values_list('id', flat=True)

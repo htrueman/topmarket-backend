@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils.translation import ugettext as _
 from mptt.models import MPTTModel, TreeForeignKey
+
+from catalog.tasks import upload_category_options
 from news.models import TimeStampedModel
 from django.contrib.auth import get_user_model
 import catalog.constants as constants
@@ -199,6 +201,10 @@ class Product(TimeStampedModel):
         if self.count == 0:
             return False
         return True
+
+    @staticmethod
+    def upload_options():
+        upload_category_options.apply()
 
     class Meta:
         verbose_name = _('Товар')

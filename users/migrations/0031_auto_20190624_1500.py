@@ -14,9 +14,9 @@ class Migration(migrations.Migration):
             name='mystore',
             options={'verbose_name': 'Магазин продавца', 'verbose_name_plural': 'Магазины продавцов'},
         ),
-        migrations.AlterField(
-            model_name='customuser',
-            name='user_pocket',
-            field=models.CharField(blank=True, choices=[('SILVER', 'Silver'), ('GOLD', 'Gold'), ('PLATINUM', 'Platinum'), ('NO', 'No')], default='NO', max_length=10, null=True, verbose_name='Пакет услуг'),
-        ),
+        # migrations.AlterField(
+        #     model_name='customuser',
+        #     name='user_pocket',
+        #     field=models.CharField(blank=True, choices=[('SILVER', 'Silver'), ('GOLD', 'Gold'), ('PLATINUM', 'Platinum'), ('NO', 'No')], default='NO', max_length=10, null=True, verbose_name='Пакет услуг'),
+        # ),
     ]
