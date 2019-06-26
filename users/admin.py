@@ -139,7 +139,7 @@ class UserAdmin(admin.ModelAdmin):
         'verified',
         'date_joined',
         'products_count',
-        'product_percent',
+        # 'product_percent',
     ]
 
     fields = (
@@ -171,7 +171,7 @@ class UserAdmin(admin.ModelAdmin):
         'checking_account',
         'available_products_count',
         'products_count',
-        'product_percent',
+        # 'product_percent',
     )
 
     readonly_fields = (
@@ -181,7 +181,7 @@ class UserAdmin(admin.ModelAdmin):
 
     list_editable = [
         'verified',
-        'product_percent',
+        # 'product_percent',
     ]
 
     inlines = [
