@@ -201,7 +201,7 @@ class ProductPartnerViewSet(viewsets.ModelViewSet):
             for prod_id in prod_list_id:
                 new_partner_product = get_object_or_404(Product, pk=prod_id)
                 new_partner_product.id = None
-                contractor_percent_for_partners = new_partner_product.user.product_percent
+                contractor_percent_for_partners = new_partner_product.user.percent_for_partner
                 print(contractor_percent_for_partners)
                 new_partner_product.user = self.request.user
                 new_partner_product.price = new_partner_product.price * Decimal(contractor_percent_for_partners) \
