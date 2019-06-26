@@ -120,14 +120,14 @@ class ProductCategoryObjectSerializer(serializers.ModelSerializer):
     category = CategorySmallSerializer(many=False)
 
     def to_representation(self, instance):
+        print(instance.user.percent_for_partners)
         ret = super().to_representation(instance)
         if self.context['request'].user.role == 'PARTNER':
             ret['price'] = instance.price * Decimal(
-                self.context['request'].user.percent_for_partners * 0.01 + 1 if self.context['request'].user.percent_for_partners else 1
+                instance.user.percent_for_partners * 0.01 + 1 if instance.user.percent_for_partners else 1
             ) if instance.price else None
-            # ret['price'] = instance.price * Decimal(5 * 0.01 + 1) if instance.price else None
             ret['recommended_price'] = instance.price * Decimal(
-                self.context['request'].user.percent_for_partners * 0.01 + 1 if self.context['request'].user.percent_for_partners else 1
+                instance.user.percent_for_partners * 0.01 + 1 if instance.user.percent_for_partners else 1
             ) if instance.price else None
         else:
             ret['price'] = instance.price
