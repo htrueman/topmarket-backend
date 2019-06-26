@@ -13,10 +13,13 @@ from .managers import CustomUserManager
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     USER_POCKET = (
+        # ('NO', 'No'),
+        # ('SILVER', 'Silver'),
+        # ('GOLD', 'Gold'),
+        # ('PLATINUM', 'Platinum')
+        ('BASE', 'Base'),
+        ('FULL', 'Full'),
         ('NO', 'No'),
-        ('SILVER', 'Silver'),
-        ('GOLD', 'Gold'),
-        ('PLATINUM', 'Platinum')
     )
 
     manager = models.ForeignKey(
