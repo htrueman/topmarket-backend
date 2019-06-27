@@ -181,7 +181,7 @@ def upload_category_options():
             r.encoding = 'utf-8'
 
             data = resp.json()
-            category_options_data[category_id] = data
+            category_options_data[category_id] = [dict(item) for item in list(data)]
             i += 1
             print(i)
         except:
@@ -190,26 +190,31 @@ def upload_category_options():
         time.sleep(0.05)
 
     import json
-    with open('result.json', 'w') as fp:
+    with open('result_new.json', 'w') as fp:
         json.dump(category_options_data, fp)
 
 
+@app.task
 def save_options_to_db():
     with open('result.json', 'rb') as fp:
-        data = json.load(fp)
+        data = json.load(fp, encoding='utf-8')
+        counter = 1
+        print(data[str(4626923)])
         for category_id in Category.objects.all().values_list('id', flat=True):
             try:
-                for option_dict in data[category_id]:
-                    group, _ = CategoryOptionGroup.objects.get_or_create(
-                        id=option_dict.get('id', None),
-                        name=option_dict.get('name', None),
-                        category_id=category_id
-                    )
-                    if option_dict.get('value_id', None):
-                        option_value, _ = CategoryOptionGroupValue.objects.get_or_create(
-                            id=option_dict.get('value_id', None),
-                            name=option_dict.get('value_name', None)
-                        )
-            except:
-                pass
-
+                for option_dict in list(data[str(category_id)]):
+                    print(type(dict(option_dict)))
+                    # option_dict = dict(option_dict)
+                    # counter += 1
+                    # group, _ = CategoryOptionGroup.objects.get_or_create(
+                    #     id=option_dict.get('id', None),
+                    #     name=option_dict.get('name', None),
+                    #     category_id=category_id
+                    # )
+                    # if option_dict.get('value_id', None):
+                    #     option_value, _ = CategoryOptionGroupValue.objects.get_or_create(
+                    #         id=option_dict.get('value_id', None),
+                    #         name=option_dict.get('value_name', None)
+                    #     )
+            except Exception as e:
+                print(e.args[0])

@@ -106,3 +106,5 @@ ENV/
 env.json
 media/
 static/
+result.json
+result_new.json

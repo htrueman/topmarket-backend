@@ -1,6 +1,7 @@
 import datetime
 from decimal import Decimal
 
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.base import ContentFile
 from django.shortcuts import render_to_response
@@ -10,6 +11,7 @@ from rest_framework.exceptions import ValidationError
 from django.utils.translation import gettext as _
 
 from catalog.models import Category, Product, ProductImage, ProductImageURL, YMLTemplate, ProductUploadHistory
+from catalog.utils import remove_prefix
 from users.models import Company, MyStore
 from users.utils import CustomBase64Field, valid_url_extension
 
@@ -98,6 +100,7 @@ class ProductImageURLSerializer(serializers.ModelSerializer):
         fields = (
             'url',
         )
+
 
 
 class ProductListIdSerializer(serializers.ModelSerializer):
@@ -231,18 +234,29 @@ class ProductSerializer(serializers.ModelSerializer):
         with transaction.atomic():
             for attr, value in validated_data.items():
                 setattr(instance, attr, value)
-
             if cover_images_data:
+                image_valid_url = []
+                image_valid_instance = []
                 for cover_data in cover_images_data:
-                    cover_id = cover_data.get('id', None)
                     image_data = cover_data.get('image', None)
-                    if cover_id:
-                        is_url_field = valid_url_extension(image_data)
-                        if is_url_field is not True:
-                            ProductImage.objects.filter(id=cover_id).delete()
-                    else:
-                        if type(image_data) == ContentFile:
-                            ProductImage.objects.create(product=instance, image=image_data)
+                    if type(image_data) == ContentFile:
+                        new_image = ProductImage.objects.create(product=instance, image=image_data)
+                        image_valid_instance.append(new_image.id)
+                    elif valid_url_extension(image_data):
+                        image_valid_url.append(image_data)
+                image_valid_url = [
+                    remove_prefix(image_data, settings.HOST_NAME + '/media/')
+                    for image_data in image_valid_url
+                ]
+                ProductImage.objects.filter(
+                    product=instance
+                ).exclude(
+                    id__in=image_valid_instance
+                ).exclude(
+                    image__in=image_valid_url
+                ).delete()
+            else:
+                ProductImage.objects.filter(product=instance).delete()
             if image_urls:
                 instance.product_image_urls.all().delete()
                 ProductImageURL.objects.bulk_create([

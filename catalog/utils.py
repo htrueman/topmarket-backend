@@ -37,40 +37,6 @@ def get_rozetka_auth_token(user):
     return token_rozetka
 
 
-data = [
-    {
-        'id': 1,
-        'parent': None,
-        'name': 'qwerty1'
-    },
-    {
-        'id': 2,
-        'parent': 1,
-        'name': 'qwerty2'
-    },
-    {
-        'id': 3,
-        'parent': 1,
-        'name': 'qwerty3'
-    },
-    {
-        'id': 4,
-        'parent': 3,
-        'name': 'qwerty4'
-    },
-    {
-        'id': 5,
-        'parent': None,
-        'name': 'qwerty5'
-    },
-    {
-        'id': 6,
-        'parent': 5,
-        'name': 'qwerty6'
-    }
-]
-
-
 def _filter(_d):
   return {a:b for a, b in _d.items() if a != 'parent'}
 
@@ -80,3 +46,9 @@ def group_vals(_d, _start=None):
       _filter({**i, 'subcategories': group_vals(_d, i['id'])})
       for i in _d if i['parent'] == _start
   )
+
+
+def remove_prefix(text, prefix):
+    if text.startswith(prefix):
+        return text[len(prefix):]
+    return text
