@@ -257,6 +257,8 @@ class ProductSerializer(serializers.ModelSerializer):
                 ).delete()
             else:
                 ProductImage.objects.filter(product=instance).delete()
+
+            instance.product_image_urls.all().delete()
             if image_urls:
                 instance.product_image_urls.all().delete()
                 ProductImageURL.objects.bulk_create([

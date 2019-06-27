@@ -181,11 +181,13 @@ def upload_category_options():
             r.encoding = 'utf-8'
 
             data = resp.json()
-            category_options_data[category_id] = [dict(item) for item in list(data)]
+            print(type(data))
+            # category_options_data[category_id] = [dict(item) for item in list(data)]
             i += 1
             print(i)
-        except:
-            pass
+            # print(category_options_data)
+        except Exception as e:
+            print(e.args[0])
 
         time.sleep(0.05)
 
